@@ -11,19 +11,17 @@ import (
 
 func Init() {
 	r := chi.NewRouter()
+	setupMiddleware(r)
+	setupRoutes(r)
+	http.ListenAndServe(":8080", r)
+}
 
-	// Initialize middleware
+func setupMiddleware(r *chi.Mux) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(60 * time.Second))
-
-	// Setup routes
-	setupRoutes(r)
-
-	// Start server
-	http.ListenAndServe(":8080", r)
+	r.Use(middleware.Timeout(3 * time.Second))
 }
 
 func setupRoutes(r *chi.Mux) {
