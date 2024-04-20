@@ -4,9 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment (dev, staging, prod)'
+        description: 'Deployment Environment'
         required: true
         default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
 
 jobs:
   deploy:
@@ -24,9 +29,9 @@ jobs:
     - name: Load AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ secrets['AWS_ACCESS_KEY_ID_' + inputs.environment] }}
+        aws-secret-access-key: ${{ secrets['AWS_SECRET_ACCESS_KEY_' + inputs.environment] }}
+        aws-region: 'us-east-1'  # Example region, customize as necessary
 
     - name: Install dependencies
       run: go mod tidy
@@ -34,6 +39,4 @@ jobs:
     - name: Deploy to AWS
       run: cdk deploy --all --require-approval never
       env:
-        CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
-        CDK_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
         ENV_NAME: ${{ github.event.inputs.environment }}
