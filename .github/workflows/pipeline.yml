@@ -8,8 +8,25 @@ on:
     - cron: '0 1 * * 1-4'  # At 01:00 on Monday to Thursday
 
 jobs:
-  build-and-test:
-    # Existing build and test steps go here
+  build-test-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.18'
+
+      - name: Build packages and run unit tests
+        run: |
+          go build ./...
+          go test ./...
+
+      - name: Check for vulnerabilities
+        run: echo "Run security scanning tools here"
+  
 
   deploy-to-dev:
     needs: build-and-test
