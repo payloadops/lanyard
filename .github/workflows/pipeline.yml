@@ -1,0 +1,40 @@
+name: Full CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 1 * * 1-4'  # At 01:00 on Monday to Thursday
+
+jobs:
+  build-and-test:
+    # Existing build and test steps go here
+
+  deploy-to-dev:
+    needs: build-and-test
+    uses: ./.github/workflows/deploy-cdk.yml
+    with:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+      aws_region: ${{ secrets.AWS_REGION_DEV }}
+      environment: dev
+
+  deploy-to-staging:
+    needs: deploy-to-dev
+    uses: ./.github/workflows/deploy-cdk.yml
+    with:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+      aws_region: ${{ secrets.AWS_REGION_STAGING }}
+      environment: staging
+
+  delayed-production-deploy:
+    needs: deploy-to-staging
+    if: github.event_name == 'schedule' && fromJSON('["Mon","Tue","Wed","Thu"]').contains(format('{0:ddd}', github.event.schedule.*))
+    uses: ./.github/workflows/deploy-cdk.yml
+    with:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+      aws_region: ${{ secrets.AWS_REGION_PROD }}
+      environment: production

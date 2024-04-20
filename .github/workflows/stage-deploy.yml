@@ -1,0 +1,52 @@
+name: Deploy CDK Stack
+
+on:
+  workflow_call:
+    inputs:
+      aws_access_key_id:
+        required: true
+        type: string
+      aws_secret_access_key:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Load AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ inputs.aws_access_key_id }}
+          aws-secret-access-key: ${{ inputs.aws_secret_access_key }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Deploy with CDK
+        run: |
+          go mod tidy
+          cdk deploy --all --require-approval never --profile ${{ inputs.environment }}
+      
+      - name: Deploy container
+        needs: Deploy with CDK
+        uses: ./.github/workflows/app-deploy.yml
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          environment: ${{ inputs.environment }}
+          aws-access-key-id: ${{ inputs.aws_access_key_id }}
+          aws-secret-access-key: ${{ inputs.aws_secret_access_key }}
+          ecr_repository: app
+          image_tag: latest
