@@ -13,7 +13,7 @@ jobs:
 
   deploy-to-dev:
     needs: build-and-test
-    uses: ./.github/workflows/deploy-cdk.yml
+    uses: ./.github/workflows/stage-deploy.yml
     with:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
@@ -22,7 +22,7 @@ jobs:
 
   deploy-to-staging:
     needs: deploy-to-dev
-    uses: ./.github/workflows/deploy-cdk.yml
+    uses: ./.github/workflows/stage-deploy.yml
     with:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
@@ -32,7 +32,7 @@ jobs:
   delayed-production-deploy:
     needs: deploy-to-staging
     if: github.event_name == 'schedule' && fromJSON('["Mon","Tue","Wed","Thu"]').contains(format('{0:ddd}', github.event.schedule.*))
-    uses: ./.github/workflows/deploy-cdk.yml
+    uses: ./.github/workflows/stage-deploy.yml
     with:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
