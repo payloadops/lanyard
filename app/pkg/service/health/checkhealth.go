@@ -3,6 +3,6 @@ package healthcheckservice
 type CheckHealthResponse struct {
 }
 
-func CheckHealth() {
-
+func CheckHealth() CheckHealthResponse {
+	return CheckHealthResponse{}
 }

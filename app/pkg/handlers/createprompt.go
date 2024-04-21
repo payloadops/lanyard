@@ -26,8 +26,7 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	promptservice.CreatePrompt()
-
+	response := promptservice.CreatePrompt()
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(createPromptRequest)
+	json.NewEncoder(w).Encode(response)
 }
