@@ -87,6 +87,10 @@ func CreateEcsFargateAPI(scope constructs.Construct, vpc awsec2.IVpc, stage stri
 		ApiId:      api.AttrApiId(),
 		StageName:  jsii.String(stage),
 		AutoDeploy: jsii.Bool(true),
+		DefaultRouteSettings: &awsapigatewayv2.CfnStage_RouteSettingsProperty{
+			ThrottlingRateLimit:  jsii.Number(10), // max requests per second
+			ThrottlingBurstLimit: jsii.Number(20), // max concurrent requests
+		},
 	})
 
 	return service

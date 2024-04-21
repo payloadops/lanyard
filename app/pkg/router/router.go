@@ -24,6 +24,9 @@ func setupMiddleware(r *chi.Mux) {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(3 * time.Second))
+	r.Use(middleware.AllowContentType("application/json", "charset=utf-8"))
+
+	r.Use(AuthMiddleware)
 }
 
 func setupRoutes(r *chi.Mux) {
