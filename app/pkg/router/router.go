@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+const API_V1_PREFIX = "/api/v1"
+
 func Init() {
 	r := chi.NewRouter()
 	setupMiddleware(r)
@@ -25,18 +27,18 @@ func setupMiddleware(r *chi.Mux) {
 }
 
 func setupRoutes(r *chi.Mux) {
-	r.Get("/health", handlers.HealthCheckHandler)
+	r.Get(API_V1_PREFIX+"/health", handlers.HealthCheckHandler)
 
-	r.Post("/prompts", handlers.CreatePromptHandler)
-	r.Get("/prompts", handlers.ListPromptsHandler)
+	r.Post(API_V1_PREFIX+"/prompts", handlers.CreatePromptHandler)
+	r.Get(API_V1_PREFIX+"/prompts", handlers.ListPromptsHandler)
 
-	r.Get("/prompts/{promptId}", handlers.GetPromptHandler)
-	r.Patch("/prompts/{promptId}", handlers.UpdatePromptHandler)
-	r.Delete("/prompts/{promptId}", handlers.DeletePromptHandler)
+	r.Get(API_V1_PREFIX+"/prompts/{promptId}", handlers.GetPromptHandler)
+	r.Patch(API_V1_PREFIX+"/prompts/{promptId}", handlers.UpdatePromptHandler)
+	r.Delete(API_V1_PREFIX+"/prompts/{promptId}", handlers.DeletePromptHandler)
 
-	r.Get("/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
-	r.Put("/prompts/{promptId}/versions/{versionId}", handlers.UpdatePromptVersionHandler)
+	r.Get(API_V1_PREFIX+"/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
+	r.Put(API_V1_PREFIX+"/prompts/{promptId}/versions/{versionId}", handlers.UpdatePromptVersionHandler)
 
-	r.Post("/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
-	r.Delete("/prompts/{promptId}/branches/{branchId}", handlers.DeletePromptBranchHandler)
+	r.Post(API_V1_PREFIX+"/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
+	r.Delete(API_V1_PREFIX+"/prompts/{promptId}/branches/{branchId}", handlers.DeletePromptBranchHandler)
 }
