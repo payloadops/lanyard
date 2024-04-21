@@ -19,7 +19,8 @@ func main() {
 
 	vpc := stacks.CreateVPCStack(app, stage, *env().Region)
 	stacks.CreateEcsFargateAPI(app, vpc, stage, *env().Region)
-	stacks.CreateDynamoDBStack(app, vpc, stage, *env().Region)
+	stacks.CreateDynamoOrganizationsTeamsUsersTableStack(app, vpc, stage, *env().Region)
+	stacks.CreateDynamoAPIKeysTableStack(app, vpc, stage, *env().Region)
 
 	app.Synth(nil)
 }
