@@ -6,12 +6,8 @@ import (
 	promptservice "plato/app/pkg/service/prompt"
 )
 
-type DeletePromptRequest struct {
-	Name string `json:"name"`
-}
-
-func (p *DeletePromptRequest) ValidateDeletePromptRequest() error {
-	if p.Name == "" {
+func validateDeletePromptRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil

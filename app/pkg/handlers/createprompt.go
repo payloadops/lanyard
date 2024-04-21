@@ -7,27 +7,21 @@ import (
 	promptservice "plato/app/pkg/service/prompt"
 )
 
-type CreatePromptRequest struct {
-	Name string `json:"name"`
-}
-
-// Validate checks the fields of UserData.
-func (p *CreatePromptRequest) ValidateCreatePromptRequest() error {
-	if p.Name == "" {
+func validateCreatePromptRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil
 }
 
-// CreateUserHandler handles the user creation requests.
 func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
-	var promptData CreatePromptRequest
-	if err := json.NewDecoder(r.Body).Decode(&promptData); err != nil {
+	var createPromptRequest promptservice.CreatePromptRequest
+	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := promptData.ValidateCreatePromptRequest(); err != nil {
+	if err := validateCreatePromptRequest(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -35,5 +29,5 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 	promptservice.CreatePrompt()
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(promptData)
+	json.NewEncoder(w).Encode(createPromptRequest)
 }

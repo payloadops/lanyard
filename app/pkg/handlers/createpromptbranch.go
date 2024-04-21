@@ -6,13 +6,8 @@ import (
 	"plato/app/pkg/service/promptbranchservice"
 )
 
-type CreatePromptBranchRequest struct {
-	Name string `json:"name"`
-}
-
-// Validate checks the fields of UserData.
-func (p *CreatePromptBranchRequest) ValidateCreatePromptBranchRequest() error {
-	if p.Name == "" {
+func validateCreatePromptBranchRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil

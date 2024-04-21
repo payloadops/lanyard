@@ -6,13 +6,8 @@ import (
 	"plato/app/pkg/service/promptbranchservice"
 )
 
-type DeletePromptBranchRequest struct {
-	Name string `json:"name"`
-}
-
-// Validate checks the fields of UserData.
-func (p *CreatePromptRequest) ValidateDeletePromptBranchRequest() error {
-	if p.Name == "" {
+func validateDeletePromptBranchRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil

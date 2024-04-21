@@ -6,8 +6,7 @@ import (
 	"plato/app/pkg/service/promptbranchservice"
 )
 
-// Validate checks the fields of UserData.
-func ValidateListPromptBranchesRequest() error {
+func validateListPromptBranchesRequest() error {
 	if false {
 		return errors.New("name is required")
 	}

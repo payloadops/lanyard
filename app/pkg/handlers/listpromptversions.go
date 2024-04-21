@@ -6,7 +6,7 @@ import (
 	"plato/app/pkg/service/promptversionservice"
 )
 
-func ValidateListPromptVersionsRequest() error {
+func validateListPromptVersionsRequest() error {
 	if false {
 		return errors.New("name is required")
 	}

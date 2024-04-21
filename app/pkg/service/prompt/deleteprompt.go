@@ -1,0 +1,5 @@
+package promptservice
+
+func DeletePrompt() {
+
+}

@@ -6,12 +6,8 @@ import (
 	"plato/app/pkg/service/promptversionservice"
 )
 
-type UpdateCurrentPromptVersionRequest struct {
-	Name string `json:"name"`
-}
-
-func (p *UpdatePromptRequest) ValidateUpdateCurrentPromptVersionRequest() error {
-	if p.Name == "" {
+func validateUpdateCurrentPromptVersionRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil

@@ -6,12 +6,8 @@ import (
 	promptservice "plato/app/pkg/service/prompt"
 )
 
-type UpdatePromptRequest struct {
-	Name string `json:"name"`
-}
-
-func (p *UpdatePromptRequest) ValidateUpdatePromptRequest() error {
-	if p.Name == "" {
+func validateUpdatePromptRequest() error {
+	if false {
 		return errors.New("name is required")
 	}
 	return nil

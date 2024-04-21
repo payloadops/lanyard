@@ -6,7 +6,7 @@ import (
 	promptservice "plato/app/pkg/service/prompt"
 )
 
-func ValidateGetPromptRequest() error {
+func validateGetPromptRequest() error {
 	if false {
 		return errors.New("name is required")
 	}
