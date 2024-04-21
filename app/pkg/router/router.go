@@ -37,8 +37,9 @@ func setupRoutes(r *chi.Mux) {
 	r.Delete(API_V1_PREFIX+"/prompts/{promptId}", handlers.DeletePromptHandler)
 
 	r.Get(API_V1_PREFIX+"/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
-	r.Put(API_V1_PREFIX+"/prompts/{promptId}/versions/{versionId}", handlers.UpdatePromptVersionHandler)
+	r.Put(API_V1_PREFIX+"/prompts/{promptId}/versions", handlers.UpdateCurrentPromptVersionHandler)
 
 	r.Post(API_V1_PREFIX+"/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
+	r.Get(API_V1_PREFIX+"/prompts/{promptId}/branches", handlers.ListPromptBranchesHandler)
 	r.Delete(API_V1_PREFIX+"/prompts/{promptId}/branches/{branchId}", handlers.DeletePromptBranchHandler)
 }
