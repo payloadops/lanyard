@@ -55,16 +55,16 @@ func CreateDynamoAPIKeysTableStack(scope constructs.Construct, vpc awsec2.IVpc, 
 			Type: awsdynamodb.AttributeType_STRING,
 		},
 		SortKey: &awsdynamodb.Attribute{
-			Name: jsii.String("UserId"),
+			Name: jsii.String("ProjectId"),
 			Type: awsdynamodb.AttributeType_STRING,
 		},
 		RemovalPolicy: awscdk.RemovalPolicy_DESTROY, // Automatically delete table when the stack is deleted
 	})
 
 	table.AddGlobalSecondaryIndex(&awsdynamodb.GlobalSecondaryIndexProps{
-		IndexName: jsii.String("UserIdIndex"),
+		IndexName: jsii.String("ProjectIdIndex"),
 		PartitionKey: &awsdynamodb.Attribute{
-			Name: jsii.String("UserId"),
+			Name: jsii.String("ProjectId"),
 			Type: awsdynamodb.AttributeType_STRING,
 		},
 		ProjectionType: awsdynamodb.ProjectionType_ALL,
