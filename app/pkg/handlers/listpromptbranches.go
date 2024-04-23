@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"plato/app/pkg/service/promptbranchservice"
 )
 
 func validateListPromptBranchesRequest() error {
@@ -14,5 +13,5 @@ func validateListPromptBranchesRequest() error {
 }
 
 func ListPromptBranchesHandler(w http.ResponseWriter, r *http.Request) {
-	promptbranchservice.ListBranches()
+
 }

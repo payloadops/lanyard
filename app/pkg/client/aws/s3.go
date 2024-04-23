@@ -1,16 +1,32 @@
-package aws_client
+package awsclient
 
 import (
+	"context"
+	"fmt"
 	"sync"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func GetS3Client() *s3.S3 {
-	var once sync.Once
-	var s3Client *s3.S3
-	once.Do(func() {
-		s3Client = s3.New(GetAWSSession())
+var (
+	s3Once   sync.Once
+	s3Client *s3.Client
+	initErr  error
+)
+
+func InitS3Client() (*s3.Client, error) {
+	s3Once.Do(func() {
+		cfg, err := config.LoadDefaultConfig(context.TODO())
+		if err != nil {
+			initErr = fmt.Errorf("failed to load AWS config: %w", err)
+			return
+		}
+		s3Client = s3.NewFromConfig(cfg)
 	})
+	return s3Client, initErr
+}
+
+func GetS3Client() *s3.Client {
 	return s3Client
 }

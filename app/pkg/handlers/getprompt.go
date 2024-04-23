@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	promptservice "plato/app/pkg/service/prompt"
 )
 
 func validateGetPromptRequest() error {
@@ -14,5 +13,5 @@ func validateGetPromptRequest() error {
 }
 
 func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
-	promptservice.GetPrompt()
+
 }

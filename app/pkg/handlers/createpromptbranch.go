@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"plato/app/pkg/service/promptbranchservice"
 )
 
 func validateCreatePromptBranchRequest() error {
@@ -14,5 +13,5 @@ func validateCreatePromptBranchRequest() error {
 }
 
 func CreatePromptBranchHandler(w http.ResponseWriter, r *http.Request) {
-	promptbranchservice.CreateBranch()
+
 }

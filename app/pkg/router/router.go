@@ -30,6 +30,10 @@ func setupMiddleware(r *chi.Mux) {
 }
 
 func setupRoutes(r *chi.Mux) {
+	r.Post(API_V1_PREFIX+"/api-keys", handlers.CreateApiKeyHandler)
+	// r.Patch(API_V1_PREFIX+"api-keys/", handlers.UpdateApiKeyHandler)
+	// r.Delete(API_V1_PREFIX+"api-keys/", handlers.DeleteApiKeyHandler)
+
 	r.Get(API_V1_PREFIX+"/health", handlers.HealthCheckHandler)
 
 	r.Post(API_V1_PREFIX+"/prompts", handlers.CreatePromptHandler)

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	promptservice "plato/app/pkg/service/prompt"
 )
 
 func validateCreatePromptRequest() error {
@@ -15,8 +14,8 @@ func validateCreatePromptRequest() error {
 }
 
 func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
-	var createPromptRequest promptservice.CreatePromptRequest
-	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {
+	// promptService, err := promptservice.NewService()
+	if err := json.NewDecoder(r.Body).Decode(""); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -26,7 +25,7 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := promptservice.CreatePrompt()
+	// response := promptService.CreatePrompt()
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode("response")
 }

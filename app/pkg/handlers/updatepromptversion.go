@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"plato/app/pkg/service/promptversionservice"
 )
 
 func validateUpdateCurrentPromptVersionRequest() error {
@@ -14,5 +13,5 @@ func validateUpdateCurrentPromptVersionRequest() error {
 }
 
 func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
-	promptversionservice.UpdateCurrentVersion()
+
 }
