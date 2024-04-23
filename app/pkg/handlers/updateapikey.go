@@ -8,31 +8,33 @@ import (
 	"plato/app/pkg/service/apikey"
 )
 
-func validateCreateApiKeyRequest() error {
+func validateUpdateApiKeyRequest() error {
 	if false {
 		return errors.New("name is required")
 	}
 	return nil
 }
 
-func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
-	var createApiKeyRequest model.CreateApiKeyRequest
-	if err := json.NewDecoder(r.Body).Decode(&createApiKeyRequest); err != nil {
+
+	apikey := r.URL.Path
+	var updateApiKeyRequest model.CreateApiKeyRequest
+	if err := json.NewDecoder(r.Body).Decode(&updateApiKeyRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validateCreateApiKeyRequest(); err != nil {
+	if err := validateUpdateApiKeyRequest(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	response, err := apiKeyService.Mint(
+	err := apiKeyService.UpdateAPIKey(
 		r.Context(),
-		createApiKeyRequest.ProjectId,
-		createApiKeyRequest.Description,
-		createApiKeyRequest.Scopes,
+		apikey,
+		updateApiKeyRequest.Description,
+		updateApiKeyRequest.Scopes,
 	)
 
 	if err != nil {
@@ -41,5 +43,5 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	// json.NewEncoder(w).Encode(response)
 }
