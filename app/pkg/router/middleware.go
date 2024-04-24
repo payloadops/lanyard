@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// AuthMiddleware checks for the presence of an API key in the request header
+// Authenticate and authorizes request based on API key or auth token
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apikeyService := apikey.NewService()
@@ -20,7 +20,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				return
 			}
 			if err == nil && apikeyRecord != nil && apikeyRecord.Active && validateScopes(apikeyRecord.Scopes, r.Method, r.URL.Path) {
-				ctx := context.WithValue(r.Context(), "projectId", apikeyRecord.ApiKey)
+				ctx := context.WithValue(r.Context(), "project_id", apikeyRecord.ProjectId)
+				ctx = context.WithValue(ctx, "org_id", apikeyRecord.OrgId)
+				ctx = context.WithValue(ctx, "team_id", apikeyRecord.TeamId)
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}

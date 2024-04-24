@@ -1,94 +1,97 @@
-// Define your datasource for PostgreSQL
+generator client {
+  provider = "go run github.com/steebchen/prisma-client-go"
+  output   = "./pkg/generated/client"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DATABASE_DIRECT_URL")
 }
 
-// Define your generator
-generator client {
-  provider = "go run github.com/steebchen/prisma-client-go"
-  output   = "./pkg/generated/client"
-}
-
-// Define the Organizations table with string IDs
 model Organization {
-  id               String @id @default(uuid()) @map("org_id")
-  organizationName String @map("organization_name")
+  id               String    @id @default(uuid()) @map("org_id")
+  organizationName String    @map("organization_name")
   teams            Team[]
   users            User[]
+  ApiKey           ApiKey[]
+  Project          Project[]
 
   @@map("organizations")
 }
 
-// Define the Teams table with string IDs
 model Team {
   id             String       @id @default(uuid()) @map("team_id")
   teamName       String       @map("team_name")
   organizationId String       @map("org_id")
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  users          User[]       @relation("UserTeams")
   projects       Project[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
   UserTeam       UserTeam[]
+  users          User[]       @relation("UserTeams")
+  ApiKey         ApiKey[]
 
   @@map("teams")
 }
 
-// Define the Users table with string IDs
 model User {
   id             String        @id @default(uuid()) @map("user_id")
   userName       String        @map("user_name")
   email          String        @unique @map("email")
-  teams          Team[]        @relation("UserTeams")
+  organizationId String?
   UserTeam       UserTeam[]
   Organization   Organization? @relation(fields: [organizationId], references: [id])
-  organizationId String?
+  teams          Team[]        @relation("UserTeams")
 
   @@map("users")
 }
 
-// Define the UserTeams join table for many-to-many relationship with string IDs
 model UserTeam {
   userId String
-  user   User   @relation(fields: [userId], references: [id])
   teamId String
   team   Team   @relation(fields: [teamId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   @@id([userId, teamId])
   @@map("user_teams")
 }
 
-// Define the Projects table with string IDs
 model Project {
-  id          String   @id @default(uuid()) @map("project_id")
-  projectName String   @map("project_name")
-  teamId      String   @map("team_id")
-  team        Team     @relation(fields: [teamId], references: [id])
-  prompts     Prompt[]
-  apiKeys     ApiKey[]
+  id           String       @id @default(uuid()) @map("project_id")
+  projectName  String       @map("project_name")
+  teamId       String       @map("team_id")
+  orgId        String       @map("org_id")
+  organization Organization @relation(fields: [orgId], references: [id])
+  apiKeys      ApiKey[]
+  team         Team         @relation(fields: [teamId], references: [id])
+  prompts      Prompt[]
 
   @@map("projects")
 }
 
-// Define the Prompts table with string IDs
 model Prompt {
   id           String  @id @default(uuid()) @map("prompt_id")
   projectId    String  @map("project_id")
-  project      Project @relation(fields: [projectId], references: [id])
   promptS3Path String  @map("prompt_s3_path")
+  deleted      Boolean @map("deleted")
+  version      String
+  project      Project @relation(fields: [projectId], references: [id])
 
   @@map("prompts")
 }
 
 // Define the ApiKeys table with string IDs
 model ApiKey {
-  apiKey         String   @id @map("api_key")
-  projectId      String   @map("project_id")
-  project        Project  @relation(fields: [projectId], references: [id])
-  keyDescription String   @map("key_description")
-  rateLimit      Int      @map("rate_limit")
-  active         Boolean  @map("active")
-  scopes         String[] @default([]) @map("scopes")
+  apiKey         String       @id @map("api_key")
+  projectId      String       @map("project_id")
+  project        Project      @relation(fields: [projectId], references: [id])
+  teamId         String       @map("team_id") // Added teamId
+  team           Team         @relation(fields: [teamId], references: [id])
+  orgId          String       @map("org_id") // Added orgId
+  organization   Organization @relation(fields: [orgId], references: [id])
+  keyDescription String       @map("key_description")
+  rateLimit      Int          @map("rate_limit")
+  active         Boolean      @map("active")
+  scopes         String[]     @default([]) @map("scopes")
 
   @@map("api_keys")
 }

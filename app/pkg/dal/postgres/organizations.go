@@ -3,38 +3,36 @@ package dbdal
 import (
 	"context"
 	"fmt"
-
 	dbClient "plato/app/pkg/client/db"
+
+	"github.com/uptrace/bun"
 )
 
 // Organization represents the structure of an organization record in the database.
 type Organization struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	bun.BaseModel `bun:"table:organizations,alias:o"`
+	ID            string `bun:"id,pk" json:"id"`
+	Name          string `bun:"name" json:"name"`
 }
 
-const organizationsTable = "organizations"
-
-// GetOrganizationById retrieves an organization by its ID using direct SQL queries.
+// GetOrganizationById retrieves an organization by its ID using Bun.
 func GetOrganizationById(ctx context.Context, id string) (*Organization, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s WHERE id = $1", organizationsTable)
-	row := dbClient.GetPGClient().QueryRow(ctx, query, id)
-
-	var organization Organization
-	if err := row.Scan(&organization.ID, &organization.Name); err != nil {
+	organization := &Organization{}
+	err := dbClient.GetClient().NewSelect().Model(organization).Where("id = ?", id).Scan(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("error getting organization: %w", err)
 	}
-	return &organization, nil
+	return organization, nil
 }
 
 // AddOrganization adds a new organization to the database with the provided name.
 func AddOrganization(ctx context.Context, name string) (*Organization, error) {
-	query := fmt.Sprintf("INSERT INTO %s (name) VALUES ($1) RETURNING id, name", organizationsTable)
-	row := dbClient.GetPGClient().QueryRow(ctx, query, name)
-
-	var organization Organization
-	if err := row.Scan(&organization.ID, &organization.Name); err != nil {
+	organization := &Organization{
+		Name: name,
+	}
+	_, err := dbClient.GetClient().NewInsert().Model(organization).Returning("*").Exec(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("error adding organization: %w", err)
 	}
-	return &organization, nil
+	return organization, nil
 }

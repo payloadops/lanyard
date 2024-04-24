@@ -1,44 +1,42 @@
 package dbClient
 
 import (
-	"context"
-	"fmt"
+	"os"
 	"sync"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/stdlib"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
 var (
-	pool    *pgxpool.Pool
+	client  *bun.DB
 	initErr error
 	once    sync.Once
 )
 
-func Init() (*pgxpool.Pool, error) {
+func Init() (*bun.DB, error) {
 	once.Do(func() {
-		var err error
-		config, err := pgxpool.ParseConfig("")
+		config, err := pgx.ParseConfig(os.Getenv("DATABASE_URL"))
 		if err != nil {
-			initErr = fmt.Errorf("error parsing DATABASE_URL: %v", err)
-			return
+			panic(err)
 		}
+		config.PreferSimpleProtocol = true
 
-		pool, err = pgxpool.NewWithConfig(context.Background(), config)
-		if err != nil {
-			initErr = fmt.Errorf("unable to connect to database: %v", err)
-			return
-		}
+		sqldb := stdlib.OpenDB(*config)
+		client = bun.NewDB(sqldb, pgdialect.New())
 	})
 
-	return pool, initErr
+	return client, initErr
 }
 
-func GetPGClient() *pgxpool.Pool {
-	return pool
+func GetClient() *bun.DB {
+	return client
 }
 
 func CleanUp() {
-	if pool != nil {
-		pool.Close()
+	if client != nil {
+		client.Close()
 	}
 }
