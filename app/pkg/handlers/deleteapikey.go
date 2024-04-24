@@ -22,7 +22,7 @@ func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := apiKeyService.DeleteAPIKey(
+	err := apiKeyService.DeleteApiKey(
 		r.Context(),
 		apikey,
 	)

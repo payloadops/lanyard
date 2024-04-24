@@ -31,27 +31,27 @@ func setupMiddleware(r *chi.Mux) {
 
 func setupRoutes(r *chi.Mux) {
 	// API key management routes
-	r.Post(API_V1_PREFIX+"/api-keys", handlers.CreateApiKeyHandler)
-	r.Get(API_V1_PREFIX+"/api-keys", handlers.ListApiKeysHandler)
-	r.Get(API_V1_PREFIX+"/api-keys/{apiKey}", handlers.GetApiKeyHandler)
-	r.Patch(API_V1_PREFIX+"/api-keys/{apiKey}", handlers.UpdateApiKeyHandler)
-	r.Delete(API_V1_PREFIX+"/api-keys/{apiKey}", handlers.DeleteApiKeyHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/api-keys", handlers.CreateApiKeyHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/api-keys", handlers.ListApiKeysHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.GetApiKeyHandler)
+	r.Patch(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.UpdateApiKeyHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.DeleteApiKeyHandler)
 
 	// Health check routes
 	r.Get(API_V1_PREFIX+"/health", handlers.HealthCheckHandler)
 
 	// Prompt management routes
-	r.Post(API_V1_PREFIX+"/prompts", handlers.CreatePromptHandler)
-	r.Get(API_V1_PREFIX+"/prompts", handlers.ListPromptsHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/prompts", handlers.CreatePromptHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts", handlers.ListPromptsHandler)
 
-	r.Get(API_V1_PREFIX+"/prompts/{promptId}", handlers.GetPromptHandler)
-	r.Patch(API_V1_PREFIX+"/prompts/{promptId}", handlers.UpdatePromptHandler)
-	r.Delete(API_V1_PREFIX+"/prompts/{promptId}", handlers.DeletePromptHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.GetPromptHandler)
+	r.Patch(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.UpdatePromptHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.DeletePromptHandler)
 
-	r.Get(API_V1_PREFIX+"/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
-	r.Put(API_V1_PREFIX+"/prompts/{promptId}/versions", handlers.UpdateCurrentPromptVersionHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
+	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.UpdateCurrentPromptVersionHandler)
 
-	r.Post(API_V1_PREFIX+"/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
-	r.Get(API_V1_PREFIX+"/prompts/{promptId}/branches", handlers.ListPromptBranchesHandler)
-	r.Delete(API_V1_PREFIX+"/prompts/{promptId}/branches/{branchId}", handlers.DeletePromptBranchHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.ListPromptBranchesHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", handlers.DeletePromptBranchHandler)
 }

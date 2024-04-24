@@ -19,6 +19,15 @@ type Prompt struct {
 	Stub          string `bun:"stub" json:"stub"`
 }
 
+func ListPromptsByProjectId(ctx context.Context, projectId string) (*[]Prompt, error) {
+	prompts := &[]Prompt{}
+	err := dbClient.GetClient().NewSelect().Model(prompts).Where("project_id = ?", projectId).Scan(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("error getting prompt: %w", err)
+	}
+	return prompts, nil
+}
+
 func GetPromptById(ctx context.Context, id string) (*Prompt, error) {
 	prompt := &Prompt{}
 	err := dbClient.GetClient().NewSelect().Model(prompt).Where("prompt_id = ?", id).Scan(ctx)
@@ -42,6 +51,14 @@ func AddPrompt(ctx context.Context, stub string, projectID string, promptId stri
 		return nil, fmt.Errorf("error adding prompt: %w", err)
 	}
 	return prompt, nil
+}
+
+func UpdatePrompt(ctx context.Context, id string, stub string, version string) error {
+	_, err := dbClient.GetClient().NewUpdate().Model(&Prompt{}).Set("stub = ? AND version = ?", stub, version).Where("prompt_id = ?", id).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("error updating prompt deleted status: %w", err)
+	}
+	return nil
 }
 
 func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) error {

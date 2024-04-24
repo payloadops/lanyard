@@ -32,15 +32,15 @@ func NewService() (*Service, error) {
 // GetPrompt retrieves a prompt from S3 based on the provided identifiers.
 func (s *Service) GetPrompt(
 	ctx context.Context,
+	projectId string,
 	promptId string,
 	branch string,
 ) (*model.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value("org_id").(string)
 	teamId, teamIdOk := ctx.Value("team_id").(string)
-	projectId, projectIdOk := ctx.Value("project_id").(string)
 
 	// Check if all required context values are successfully retrieved
-	if !orgIdOk || !teamIdOk || !projectIdOk {
+	if !orgIdOk || !teamIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
@@ -75,26 +75,25 @@ func (s *Service) GetPrompt(
 // CreatePrompt creates a new prompt in S3.
 func (s *Service) CreatePrompt(
 	ctx context.Context,
-	prompt string,
-	branch string,
+	projectId string,
+	createPromptRequest model.CreatePromptRequest,
 ) (*model.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value("org_id").(string)
 	teamId, teamIdOk := ctx.Value("team_id").(string)
-	projectId, projectIdOk := ctx.Value("project_id").(string)
 	promptId := util.GenUUIDString()
 
 	// Check if all required context values are successfully retrieved
-	if !orgIdOk || !teamIdOk || !projectIdOk {
+	if !orgIdOk || !teamIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
-	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, branch)
+	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, createPromptRequest.Branch)
 
 	// Attempt to put the prompt into an S3 bucket
 	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
 		Key:         aws.String(key),
-		Body:        bytes.NewReader([]byte(prompt)),
+		Body:        bytes.NewReader([]byte(createPromptRequest.Prompt)),
 		ContentType: aws.String("text/plain"),
 	})
 
@@ -103,17 +102,17 @@ func (s *Service) CreatePrompt(
 	}
 
 	// Attempt to add the prompt to the database
-	stub := buildPromptStub(prompt)
-	_, dbErr := dbdal.AddPrompt(ctx, stub, projectId, promptId, key, *obj.VersionId)
+	stub := buildPromptStub(createPromptRequest.Prompt)
+	_, dbErr := dbdal.AddPrompt(ctx, stub, projectId, promptId, fmt.Sprintf("%s/%s", projectId, promptId), *obj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
 	response := &model.GetPromptResponse{
-		Prompt:    prompt,
+		Prompt:    createPromptRequest.Prompt,
 		PromptId:  promptId,
 		ProjectId: projectId,
-		Branch:    branch,
+		Branch:    createPromptRequest.Branch,
 		Version:   *obj.VersionId,
 		Stub:      stub,
 	}
@@ -121,19 +120,59 @@ func (s *Service) CreatePrompt(
 	return response, nil
 }
 
-// DeletePrompt deletes a prompt from S3.
-func (s *Service) DeletePrompt(
+func (s *Service) UpdatePrompt(
 	ctx context.Context,
+	projectId string,
 	promptId string,
-	branch string,
-) (*model.DeletePromptResponse, error) {
-	projectId, projectIdOk := ctx.Value("project_id").(string)
+	updatePromptRequest model.UpdatePromptRequest,
+) (*model.GetPromptResponse, error) {
+	orgId, orgIdOk := ctx.Value("org_id").(string)
+	teamId, teamIdOk := ctx.Value("team_id").(string)
 
 	// Check if all required context values are successfully retrieved
-	if !projectIdOk {
-		return nil, fmt.Errorf("failed to parse project id from context")
+	if !orgIdOk || !teamIdOk {
+		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
+	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, updatePromptRequest.Branch)
+
+	// Attempt to put the prompt into an S3 bucket
+	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Key:         aws.String(key),
+		Body:        bytes.NewReader([]byte(updatePromptRequest.Prompt)),
+		ContentType: aws.String("text/plain"),
+	})
+
+	if s3Err != nil {
+		return nil, fmt.Errorf("error uploading prompt to S3: %w", s3Err)
+	}
+
+	// Attempt to add the prompt to the database
+	stub := buildPromptStub(updatePromptRequest.Prompt)
+	dbErr := dbdal.UpdatePrompt(ctx, promptId, stub, *obj.VersionId)
+	if dbErr != nil {
+		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
+	}
+
+	response := &model.GetPromptResponse{
+		Prompt:    updatePromptRequest.Prompt,
+		PromptId:  promptId,
+		ProjectId: projectId,
+		Branch:    updatePromptRequest.Branch,
+		Version:   *obj.VersionId,
+		Stub:      stub,
+	}
+
+	return response, nil
+}
+
+// Soft deletes prompt record in DB only.
+func (s *Service) DeletePrompt(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+) (*model.DeletePromptResponse, error) {
 	err := dbdal.UpdatePromptDeletedStatus(ctx, promptId, true)
 	if err != nil {
 		return nil, err
@@ -149,15 +188,20 @@ func (s *Service) DeletePrompt(
 // ListPrompts lists all prompts for a given project.
 func (s *Service) ListPrompts(
 	ctx context.Context,
-	orgId string,
-	teamId string,
 	projectId string,
-) error {
+) (*model.ListPromptsResponse, error) {
 	var err error
+	prompts, err := dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
-		return fmt.Errorf("failed to list prompts: %w", err)
+		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
-	return nil
+
+	response := &model.ListPromptsResponse{
+		Prompts:   prompts,
+		ProjectId: projectId,
+	}
+
+	return response, nil
 }
 
 func buildPromptStub(prompt string) string {

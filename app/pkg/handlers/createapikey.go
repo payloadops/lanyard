@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"plato/app/pkg/model"
 	"plato/app/pkg/service/apikey"
+	"strings"
 )
 
 func validateCreateApiKeyRequest() error {
@@ -28,9 +29,12 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	urlSlices := strings.Split(r.URL.Path, "/")
+	projectId := urlSlices[4]
+
 	response, err := apiKeyService.Mint(
 		r.Context(),
-		createApiKeyRequest.ProjectId,
+		projectId,
 		createApiKeyRequest.Description,
 		createApiKeyRequest.Scopes,
 	)

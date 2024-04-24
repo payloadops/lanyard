@@ -30,7 +30,7 @@ func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := apiKeyService.UpdateAPIKey(
+	err := apiKeyService.UpdateApiKey(
 		r.Context(),
 		apikey,
 		updateApiKeyRequest.Description,

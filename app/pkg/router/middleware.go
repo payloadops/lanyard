@@ -14,7 +14,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		apikeyService := apikey.NewService()
 		apiKey := r.Header.Get("x-api-key")
 		if apiKey != "" {
-			apikeyRecord, err := apikeyService.GetAPIKey(r.Context(), apiKey)
+			apikeyRecord, err := apikeyService.GetApiKey(r.Context(), apiKey)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

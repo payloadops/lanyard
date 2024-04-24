@@ -5,10 +5,11 @@ import (
 	dbdal "plato/app/pkg/dal/postgres"
 )
 
-// APIKeyService defines the operations available for managing API keys.
-type APIKeyService interface {
-	Mint(ctx context.Context, projectId, desc string, scopes []string) (*dbdal.APIKeyItem, error)
-	GetAPIKey(ctx context.Context, keyId string) (*dbdal.APIKeyItem, error)
-	UpdateAPIKey(ctx context.Context, keyId, newDesc string, newScopes []string) error
-	DeleteAPIKey(ctx context.Context, keyId string) error
+// ApiKeyService defines the operations available for managing Api keys.
+type ApiKeyService interface {
+	ListApiKeys(ctx context.Context, projectId string) (*[]dbdal.ApiKeyItem, error)
+	Mint(ctx context.Context, projectId string, desc string, scopes []string) (*dbdal.ApiKeyItem, error)
+	GetApiKey(ctx context.Context, keyId string) (*dbdal.ApiKeyItem, error)
+	UpdateApiKey(ctx context.Context, keyId, newDesc string, newScopes []string) error
+	DeleteApiKey(ctx context.Context, keyId string) error
 }

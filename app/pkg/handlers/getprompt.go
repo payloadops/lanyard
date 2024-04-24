@@ -22,9 +22,15 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	urlSlices := strings.Split(r.URL.Path, "/")
+	projectId := urlSlices[4]
+	promptId := urlSlices[6]
+
 	response, err := promptService.GetPrompt(
 		r.Context(),
-		strings.Split(r.URL.Path, "/")[4],
+		projectId,
+		promptId,
 		"main",
 	)
 	if err != nil {

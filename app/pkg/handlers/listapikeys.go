@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"plato/app/pkg/service/apikey"
+	"strings"
 )
 
 func validateListApiKeysRequest() error {
@@ -17,16 +18,17 @@ func validateListApiKeysRequest() error {
 func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
-	apikey := r.URL.Path
-
 	if err := validateListApiKeysRequest(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	response, err := apiKeyService.GetAPIKey(
+	urlSlices := strings.Split(r.URL.Path, "/")
+	projectId := urlSlices[4]
+
+	response, err := apiKeyService.ListApiKeys(
 		r.Context(),
-		apikey,
+		projectId,
 	)
 
 	if err != nil {

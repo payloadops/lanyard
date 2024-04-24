@@ -24,7 +24,7 @@ func GetApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := apiKeyService.GetAPIKey(
+	response, err := apiKeyService.GetApiKey(
 		r.Context(),
 		apikey,
 	)

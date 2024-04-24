@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"plato/app/pkg/model"
 	promptservice "plato/app/pkg/service/prompt"
+	"strings"
 )
 
 func validateCreatePromptRequest() error {
@@ -28,10 +29,13 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	urlSlices := strings.Split(r.URL.Path, "/")
+	projectId := urlSlices[4]
+
 	response, err := promptService.CreatePrompt(
 		r.Context(),
-		createPromptRequest.Prompt,
-		createPromptRequest.Branch,
+		projectId,
+		createPromptRequest,
 	)
 
 	if err != nil {
