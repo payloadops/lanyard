@@ -24,8 +24,8 @@ func DeletePromptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[4]
-	promptId := urlSlices[6]
+	projectId := urlSlices[3]
+	promptId := urlSlices[5]
 
 	response, err := promptService.DeletePrompt(
 		r.Context(),

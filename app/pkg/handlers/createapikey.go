@@ -30,7 +30,7 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[4]
+	projectId := urlSlices[3]
 
 	response, err := apiKeyService.Mint(
 		r.Context(),

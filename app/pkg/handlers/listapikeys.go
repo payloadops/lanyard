@@ -24,7 +24,7 @@ func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[4]
+	projectId := urlSlices[3]
 
 	response, err := apiKeyService.ListApiKeys(
 		r.Context(),

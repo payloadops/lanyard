@@ -24,7 +24,7 @@ type ApiKeyItem struct {
 // Lists active Api keys by project id
 func ListApiKeysByProjectId(ctx context.Context, projectId string) (*[]ApiKeyItem, error) {
 	apiKeys := &[]ApiKeyItem{}
-	err := dbClient.GetClient().NewSelect().Model(apiKeys).Where("project_id = ? AND active = true", projectId).Scan(ctx)
+	err := dbClient.GetClient().NewSelect().Model(apiKeys).Where("project_id = ?", projectId).Where("active = TRUE").Scan(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error querying Api keys: %w", err)
 	}
