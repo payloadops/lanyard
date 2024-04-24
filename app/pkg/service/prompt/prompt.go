@@ -25,7 +25,7 @@ var PROMPT_KEY = "%s/%s/%s/prompt.txt"
 var PROMPT_STUB_SIZE = 100
 
 // NewService initializes a new prompt service using AWS S3 client.
-func NewService() (*Service, error) {
+func NewService() (PromptService, error) {
 	return &Service{s3Client: awsclient.GetS3Client()}, nil
 }
 

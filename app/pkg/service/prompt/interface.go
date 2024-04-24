@@ -16,13 +16,12 @@ type PromptService interface {
 		ctx context.Context,
 		projectId string,
 		promptId string,
-		branch string,
+		updatePromptRequest model.UpdatePromptRequest,
 	) (*model.GetPromptResponse, error)
 	CreatePrompt(
 		ctx context.Context,
 		projectId string,
-		prompt string,
-		branch string,
+		createPromptRequest model.CreatePromptRequest,
 	) (*model.GetPromptResponse, error)
 	DeletePrompt(
 		ctx context.Context,
