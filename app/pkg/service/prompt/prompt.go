@@ -204,6 +204,67 @@ func (s *Service) ListPrompts(
 	return response, nil
 }
 
+func (s *Service) UpdateActiveVersion(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+	updateActiveVersionRequest model.UpdateActiveVersionRequest,
+) (*model.GetPromptResponse, error) {
+	orgId, orgIdOk := ctx.Value("org_id").(string)
+	teamId, teamIdOk := ctx.Value("team_id").(string)
+
+	if !orgIdOk || !teamIdOk {
+		return nil, fmt.Errorf("failed to parse ids from context")
+	}
+
+	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, updateActiveVersionRequest.Branch)
+	getObj, s3GetErr := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket:    aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Key:       aws.String(key),
+		VersionId: &updateActiveVersionRequest.Version,
+	})
+
+	if s3GetErr != nil {
+		return nil, fmt.Errorf("failed to get object: %w", s3GetErr)
+	}
+	defer getObj.Body.Close()
+
+	promptBytes, err := io.ReadAll(getObj.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read object data: %w", err)
+	}
+
+	putObj, s3PutErr := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Key:         aws.String(key),
+		Body:        bytes.NewReader(promptBytes),
+		ContentType: aws.String("text/plain"),
+	})
+
+	if s3PutErr != nil {
+		return nil, fmt.Errorf("error uploading prompt to S3: %w", s3PutErr)
+	}
+
+	prompt := string(promptBytes)
+
+	stub := buildPromptStub(prompt)
+	dbErr := dbdal.UpdatePrompt(ctx, promptId, stub, *putObj.VersionId)
+	if dbErr != nil {
+		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
+	}
+
+	response := &model.GetPromptResponse{
+		Prompt:    prompt,
+		PromptId:  promptId,
+		ProjectId: projectId,
+		Branch:    updateActiveVersionRequest.Branch,
+		Version:   *putObj.VersionId,
+		Stub:      stub,
+	}
+
+	return response, nil
+}
+
 func buildPromptStub(prompt string) string {
 	if len(prompt) > PROMPT_STUB_SIZE {
 		return prompt[:PROMPT_STUB_SIZE] + "..."

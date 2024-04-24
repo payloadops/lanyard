@@ -32,4 +32,21 @@ type PromptService interface {
 		ctx context.Context,
 		projectId string,
 	) (*model.ListPromptsResponse, error)
+	// CreateBranch(
+	// 	ctx context.Context,
+	// 	projectId string,
+	// 	promptId string,
+	// 	createBranchRequest model.CreateBranchRequest,
+	// ) (*model.CreateBranchResponse, error)
+	// ListBranches(
+	// 	ctx context.Context,
+	// 	projectId string,
+	// 	promptId string,
+	// ) (*model.ListBranchesResponse, error)
+	UpdateActiveVersion(
+		ctx context.Context,
+		projectId string,
+		promptId string,
+		updateActiveVersionRequest model.UpdateActiveVersionRequest,
+	) (*model.GetPromptResponse, error)
 }
