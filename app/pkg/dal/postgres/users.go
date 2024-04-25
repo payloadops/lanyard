@@ -50,7 +50,7 @@ func AddUser(
 	email string,
 ) (*User, error) {
 	user := &User{
-		Id:        util.GenUUIDString(),
+		Id:        util.GenIDString(),
 		FirstName: firstName,
 		LastName:  lastName,
 		Email:     email,

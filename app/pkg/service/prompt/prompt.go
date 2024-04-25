@@ -41,12 +41,12 @@ func (s *Service) GetPrompt(
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
-	promptDetails, dbErr := dbdal.GetPromptById(ctx, projectId, promptId)
+	promptRecord, dbErr := dbdal.GetPromptById(ctx, projectId, promptId)
 
 	if dbErr != nil {
 		return nil, fmt.Errorf("failed to read object metadata: %w", dbErr)
 	}
-	if promptDetails.Deleted {
+	if promptRecord.Deleted {
 		return nil, fmt.Errorf("prompt cannot be retrieved as its marked as deleted")
 	}
 
@@ -67,12 +67,14 @@ func (s *Service) GetPrompt(
 
 	prompt := string(promptBytes)
 	response := &model.GetPromptResponse{
-		Prompt:    prompt,
-		PromptId:  promptId,
-		ProjectId: projectId,
-		Branch:    branch,
-		Version:   *obj.VersionId,
-		Stub:      buildPromptStub(prompt),
+		Prompt:     prompt,
+		Name:       promptRecord.Name,
+		PromptId:   promptId,
+		ProjectId:  projectId,
+		Branch:     branch,
+		Version:    *obj.VersionId,
+		ModifiedAt: promptRecord.ModifiedAt,
+		Stub:       buildPromptStub(prompt),
 	}
 
 	return response, nil
@@ -85,7 +87,7 @@ func (s *Service) CreatePrompt(
 	createPromptRequest model.CreatePromptRequest,
 ) (*model.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value("orgId").(string)
-	promptId := util.GenUUIDString()
+	promptId := util.GenIDString()
 
 	// Check if all required context values are successfully retrieved
 	if !orgIdOk {
@@ -108,18 +110,20 @@ func (s *Service) CreatePrompt(
 
 	// Attempt to add the prompt to the database
 	stub := buildPromptStub(createPromptRequest.Prompt)
-	_, dbErr := dbdal.AddPrompt(ctx, stub, projectId, promptId, fmt.Sprintf("%s/%s", projectId, promptId), *obj.VersionId)
+	promptRecord, dbErr := dbdal.AddPrompt(ctx, createPromptRequest.Name, stub, projectId, promptId, fmt.Sprintf("%s/%s", projectId, promptId), *obj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
 	response := &model.GetPromptResponse{
-		Prompt:    createPromptRequest.Prompt,
-		PromptId:  promptId,
-		ProjectId: projectId,
-		Branch:    createPromptRequest.Branch,
-		Version:   *obj.VersionId,
-		Stub:      stub,
+		Prompt:     createPromptRequest.Prompt,
+		Name:       promptRecord.Name,
+		PromptId:   promptId,
+		ProjectId:  projectId,
+		Branch:     createPromptRequest.Branch,
+		Version:    *obj.VersionId,
+		ModifiedAt: promptRecord.ModifiedAt,
+		Stub:       stub,
 	}
 
 	return response, nil
@@ -154,18 +158,20 @@ func (s *Service) UpdatePrompt(
 
 	// Attempt to add the prompt to the database
 	stub := buildPromptStub(updatePromptRequest.Prompt)
-	dbErr := dbdal.UpdatePrompt(ctx, promptId, stub, *obj.VersionId)
+	modifiedAt, dbErr := dbdal.UpdatePrompt(ctx, updatePromptRequest.Name, promptId, stub, *obj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
 	response := &model.GetPromptResponse{
-		Prompt:    updatePromptRequest.Prompt,
-		PromptId:  promptId,
-		ProjectId: projectId,
-		Branch:    updatePromptRequest.Branch,
-		Version:   *obj.VersionId,
-		Stub:      stub,
+		Prompt:     updatePromptRequest.Prompt,
+		Name:       updatePromptRequest.Name,
+		PromptId:   promptId,
+		ProjectId:  projectId,
+		Branch:     updatePromptRequest.Branch,
+		Version:    *obj.VersionId,
+		Stub:       stub,
+		ModifiedAt: modifiedAt,
 	}
 
 	return response, nil
@@ -177,7 +183,7 @@ func (s *Service) DeletePrompt(
 	projectId string,
 	promptId string,
 ) (*model.DeletePromptResponse, error) {
-	err := dbdal.UpdatePromptDeletedStatus(ctx, promptId, true)
+	deletedAt, err := dbdal.UpdatePromptDeletedStatus(ctx, promptId, true)
 	if err != nil {
 		return nil, err
 	}
@@ -185,6 +191,7 @@ func (s *Service) DeletePrompt(
 	response := &model.DeletePromptResponse{
 		PromptId:  promptId,
 		ProjectId: projectId,
+		DeletedAt: deletedAt,
 	}
 	return response, err
 }
@@ -251,18 +258,19 @@ func (s *Service) UpdateActiveVersion(
 	prompt := string(promptBytes)
 
 	stub := buildPromptStub(prompt)
-	dbErr := dbdal.UpdatePrompt(ctx, promptId, stub, *putObj.VersionId)
+	modifiedAt, dbErr := dbdal.UpdatePromptActiveVersion(ctx, promptId, stub, *putObj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
 	response := &model.GetPromptResponse{
-		Prompt:    prompt,
-		PromptId:  promptId,
-		ProjectId: projectId,
-		Branch:    updateActiveVersionRequest.Branch,
-		Version:   *putObj.VersionId,
-		Stub:      stub,
+		Prompt:     prompt,
+		PromptId:   promptId,
+		ProjectId:  projectId,
+		Branch:     updateActiveVersionRequest.Branch,
+		Version:    *putObj.VersionId,
+		Stub:       stub,
+		ModifiedAt: modifiedAt,
 	}
 
 	return response, nil

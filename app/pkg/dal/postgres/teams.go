@@ -53,7 +53,7 @@ func AddTeam(
 	orgId string,
 ) (*Team, error) {
 	team := &Team{
-		Id:    util.GenUUIDString(),
+		Id:    util.GenIDString(),
 		OrgId: orgId,
 		Name:  name,
 	}

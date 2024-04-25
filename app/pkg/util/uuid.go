@@ -1,8 +1,8 @@
 package util
 
-import "github.com/google/uuid"
+import "github.com/rs/xid"
 
-func GenUUIDString() string {
-	uuid, _ := uuid.NewRandom()
-	return uuid.String()
+func GenIDString() string {
+	id := xid.New()
+	return id.String()
 }

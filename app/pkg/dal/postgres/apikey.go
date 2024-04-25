@@ -68,7 +68,7 @@ func CreateApiKey(
 	scopes []string,
 ) (*ApiKeyItem, error) {
 	apiKey := &ApiKeyItem{
-		ApiKey:    util.GenUUIDString(),
+		ApiKey:    util.GenIDString(),
 		ProjectId: projectId,
 		OrgId:     orgId,
 		RateLimit: 1000,

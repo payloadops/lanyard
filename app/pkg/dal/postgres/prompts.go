@@ -3,6 +3,7 @@ package dbdal
 import (
 	"context"
 	"fmt"
+	"time"
 
 	awsclient "plato/app/pkg/client/aws"
 
@@ -17,11 +18,13 @@ var PROMPT_TABLE_NAME = aws.String("ProjectsPrompts") // Updated to the correct 
 // Prompt represents the structure of a prompt record in the database.
 type Prompt struct {
 	Id           string `dynamodbav:"promptId" json:"prompt_id"`
+	Name         string `dynamodbav:"name" json:"name"`
 	ProjectId    string `dynamodbav:"projectId" json:"project_id"`
 	PromptS3Path string `dynamodbav:"promptS3Path" json:"prompt_s3_path"`
 	Deleted      bool   `dynamodbav:"deleted" json:"deleted"`
 	Version      string `dynamodbav:"version" json:"version"`
 	Stub         string `dynamodbav:"stub" json:"stub"`
+	ModifiedAt   string `dynamodbav:"modifiedAt" json:"modified_at"`
 }
 
 // ListPromptsByProjectId fetches prompts for a given project Id
@@ -80,14 +83,16 @@ func GetPromptById(ctx context.Context, projectId string, promptId string) (*Pro
 }
 
 // AddPrompt adds a new prompt to the database
-func AddPrompt(ctx context.Context, stub string, projectId string, promptId string, promptS3Path string, version string) (*Prompt, error) {
+func AddPrompt(ctx context.Context, name string, stub string, projectId string, promptId string, promptS3Path string, version string) (*Prompt, error) {
 	prompt := &Prompt{
 		ProjectId:    projectId,
+		Name:         name,
 		Id:           promptId,
 		PromptS3Path: promptS3Path,
 		Version:      version,
 		Deleted:      false,
 		Stub:         stub,
+		ModifiedAt:   time.Now().UTC().Format(time.RFC3339),
 	}
 	pk := fmt.Sprintf("PROJECT#%s", projectId)
 	sk := fmt.Sprintf("PROMPT#%s", promptId)
@@ -112,9 +117,11 @@ func AddPrompt(ctx context.Context, stub string, projectId string, promptId stri
 }
 
 // UpdatePromptDeletedStatus updates the 'deleted' status of a prompt
-func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) error {
+func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) (string, error) {
 	pk := fmt.Sprintf("PROMPT#%s", id)
 	sk := pk // Assuming SK is the same as PK
+
+	modifiedAt := time.Now().UTC().Format(time.RFC3339)
 
 	_, err := awsclient.GetDynamoClient().UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: PROMPT_TABLE_NAME,
@@ -122,21 +129,24 @@ func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) err
 			"PK": &types.AttributeValueMemberS{Value: pk},
 			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
-		UpdateExpression: aws.String("set deleted = :deleted"),
+		UpdateExpression: aws.String("set deleted = :deleted, modifiedAt = :modifiedAt"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":deleted": &types.AttributeValueMemberBOOL{Value: deleted},
+			":deleted":    &types.AttributeValueMemberBOOL{Value: deleted},
+			":modifiedAt": &types.AttributeValueMemberS{Value: modifiedAt},
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("error updating prompt deleted status: %w", err)
+		return "", fmt.Errorf("error updating prompt deleted status: %w", err)
 	}
 
-	return nil
+	return modifiedAt, nil
 }
 
-func UpdatePrompt(ctx context.Context, id string, stub string, version string) error {
+func UpdatePromptActiveVersion(ctx context.Context, id string, stub string, version string) (string, error) {
 	pk := fmt.Sprintf("PROMPT#%s", id)
 	sk := pk // Assuming SK is the same as PK
+
+	modifiedAt := time.Now().UTC().Format(time.RFC3339)
 
 	_, err := awsclient.GetDynamoClient().UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		TableName: PROMPT_TABLE_NAME,
@@ -144,15 +154,43 @@ func UpdatePrompt(ctx context.Context, id string, stub string, version string) e
 			"PK": &types.AttributeValueMemberS{Value: pk},
 			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
-		UpdateExpression: aws.String("SET stub = :stub, version = :version"),
+		UpdateExpression: aws.String("SET stub = :stub, version = :version, modifiedAt = :modifiedAt"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":stub":    &types.AttributeValueMemberS{Value: stub},
-			":version": &types.AttributeValueMemberS{Value: version},
+			":stub":       &types.AttributeValueMemberS{Value: stub},
+			":version":    &types.AttributeValueMemberS{Value: version},
+			":modifiedAt": &types.AttributeValueMemberS{Value: modifiedAt},
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("error updating prompt deleted status: %w", err)
+		return "", fmt.Errorf("error updating prompt deleted status: %w", err)
 	}
 
-	return nil
+	return modifiedAt, nil
+}
+
+func UpdatePrompt(ctx context.Context, name string, id string, stub string, version string) (string, error) {
+	pk := fmt.Sprintf("PROMPT#%s", id)
+	sk := pk // Assuming SK is the same as PK
+
+	modifiedAt := time.Now().UTC().Format(time.RFC3339)
+
+	_, err := awsclient.GetDynamoClient().UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName: PROMPT_TABLE_NAME,
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		UpdateExpression: aws.String("SET stub = :stub, version = :version, modifiedAt = :modifiedAt, name = :name"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":name":       &types.AttributeValueMemberS{Value: name},
+			":stub":       &types.AttributeValueMemberS{Value: stub},
+			":version":    &types.AttributeValueMemberS{Value: version},
+			":modifiedAt": &types.AttributeValueMemberS{Value: modifiedAt},
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("error updating prompt deleted status: %w", err)
+	}
+
+	return modifiedAt, nil
 }
