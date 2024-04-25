@@ -17,10 +17,8 @@ func main() {
 	stage := os.Getenv("STAGE")
 	app := awscdk.NewApp(nil)
 
-	vpc := stacks.CreateVPCStack(app, stage, *env().Region)
-	stacks.CreateEcsFargateAPI(app, vpc, stage, *env().Region)
-	stacks.CreateDynamoOrganizationsTeamsUsersTableStack(app, vpc, stage, *env().Region)
-	stacks.CreateDynamoAPIKeysTableStack(app, vpc, stage, *env().Region)
+	// vpc := stacks.CreateVPCStack(app, stage, *env().Region)
+	stacks.CreateEcsFargateAPI(app, nil, stage, "us-east-1")
 
 	app.Synth(nil)
 }
