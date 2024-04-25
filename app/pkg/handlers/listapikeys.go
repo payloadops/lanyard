@@ -1,28 +1,15 @@
 package handlers
 
 import (
-	"encoding/json"
-	"errors"
 	"net/http"
 	"plato/app/pkg/service/apikey"
 	"strings"
+
+	"github.com/go-chi/render"
 )
 
-func validateListApiKeysRequest() error {
-	if false {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
 func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
 	apiKeyService := apikey.NewService()
-
-	if err := validateListApiKeysRequest(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
@@ -37,6 +24,6 @@ func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, response)
 }

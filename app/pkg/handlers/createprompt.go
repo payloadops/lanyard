@@ -2,30 +2,26 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"plato/app/pkg/model"
 	promptservice "plato/app/pkg/service/prompt"
+	"plato/app/pkg/util"
 	"strings"
+
+	"github.com/go-chi/render"
 )
 
-func validateCreatePromptRequest() error {
-	if false {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
 func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-	var createPromptRequest model.CreatePromptRequest
 	promptService, _ := promptservice.NewService()
+	validator := util.GetValidator()
+
+	var createPromptRequest model.CreatePromptRequest
 	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validateCreatePromptRequest(); err != nil {
+	if err := validator.Struct(createPromptRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -44,7 +40,6 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, response)
 }

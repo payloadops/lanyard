@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	healthcheckservice "plato/app/pkg/service/health"
+
+	"github.com/go-chi/render"
 )
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
 	response := healthcheckservice.CheckHealth()
-	json.NewEncoder(w).Encode(response)
-	w.WriteHeader(http.StatusOK)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, response)
 }

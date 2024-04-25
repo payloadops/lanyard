@@ -1,6 +1,6 @@
 package model
 
 type UpdateActiveVersionResponse struct {
-	Version string `json:"version"`
-	Branch  string `json:"branch"`
+	Version string `validate:"required" json:"version"`
+	Branch  string `validate:"required" json:"branch"`
 }

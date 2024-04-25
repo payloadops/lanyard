@@ -1,28 +1,16 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"plato/app/pkg/service/apikey"
+
+	"github.com/go-chi/render"
 )
 
-func validateDeleteApiKeyRequest() error {
-	if false {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
 func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-
 	apiKeyService := apikey.NewService()
 
 	apikey := r.URL.Path
-	if err := validateUpdateApiKeyRequest(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	err := apiKeyService.DeleteApiKey(
 		r.Context(),
@@ -34,5 +22,6 @@ func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	render.Status(r, http.StatusOK)
+	// render.JSON(w, r, response)
 }

@@ -1,6 +1,6 @@
 package model
 
 type CreateApiKeyRequest struct {
-	Description string   `json:"description"`
-	Scopes      []string `json:"scopes"`
+	Description string   `validate:"required" json:"description"`
+	Scopes      []string `validate:"required" json:"scopes"`
 }

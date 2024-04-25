@@ -1,18 +1,12 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
+
+	"github.com/go-chi/render"
 )
 
-func validateListPromptBranchesRequest() error {
-	if false {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
 func ListPromptBranchesHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-
+	render.Status(r, http.StatusOK)
+	// render.JSON(w, r, response)
 }

@@ -1,29 +1,15 @@
 package handlers
 
 import (
-	"encoding/json"
-	"errors"
 	"net/http"
 	promptservice "plato/app/pkg/service/prompt"
 	"strings"
+
+	"github.com/go-chi/render"
 )
 
-func validateListPromptsRequest() error {
-	if false {
-		return errors.New("name is required")
-	}
-	return nil
-}
-
 func ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-
 	promptService, _ := promptservice.NewService()
-
-	if err := validateCreatePromptRequest(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
@@ -38,6 +24,6 @@ func ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, response)
 }

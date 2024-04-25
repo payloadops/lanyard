@@ -1,7 +1,7 @@
 package model
 
 type CreatePromptRequest struct {
-	Name   string `json:"name"`
-	Prompt string `json:"prompt"`
+	Name   string `validate:"required" json:"name"`
+	Prompt string `validate:"required" json:"prompt"`
 	Branch string `json:"branch"`
 }

@@ -25,6 +25,7 @@ func setupMiddleware(r *chi.Mux) {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(3 * time.Second))
 	r.Use(middleware.AllowContentType("application/json", "charset=utf-8"))
+	r.Use(middleware.Compress(5))
 
 	r.Use(AuthMiddleware)
 }

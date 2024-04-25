@@ -2,36 +2,29 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"plato/app/pkg/model"
 	promptservice "plato/app/pkg/service/prompt"
+	"plato/app/pkg/util"
 	"strings"
+
+	"github.com/go-chi/render"
 )
 
-func validatedUpdateCurrentPromptVersionRequest(w http.ResponseWriter, r *http.Request) (*model.UpdateActiveVersionRequest, error) {
+func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
+	promptService, _ := promptservice.NewService()
+	validator := util.GetValidator()
+
 	var updateActiveVersionRequest model.UpdateActiveVersionRequest
 	if err := json.NewDecoder(r.Body).Decode(&updateActiveVersionRequest); err != nil {
-		return nil, err
-	}
-	if len(updateActiveVersionRequest.Branch) == 0 {
-		return nil, fmt.Errorf("branch is in incorrect format")
-	}
-	if len(updateActiveVersionRequest.Version) == 0 {
-		return nil, fmt.Errorf("version is in incorrect format")
-	}
-	return &updateActiveVersionRequest, nil
-}
-
-func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
-	setHeaders(w)
-	updateActiveVersionRequest, err := validatedUpdateCurrentPromptVersionRequest(w, r)
-	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	promptService, _ := promptservice.NewService()
+	if err := validator.Struct(updateActiveVersionRequest); err != nil {
+		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
+		return
+	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
@@ -41,7 +34,7 @@ func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
 		r.Context(),
 		projectId,
 		promptId,
-		updateActiveVersionRequest,
+		&updateActiveVersionRequest,
 	)
 
 	if err != nil {
@@ -49,6 +42,6 @@ func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, response)
 }
