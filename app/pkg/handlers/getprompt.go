@@ -16,6 +16,7 @@ func validateGetPromptRequest() error {
 }
 
 func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	promptService, _ := promptservice.NewService()
 
 	if err := validateGetPromptRequest(); err != nil {
@@ -39,7 +40,6 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

@@ -17,7 +17,11 @@ func validateCreateApiKeyRequest() error {
 }
 
 func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
+	err := validateCreateApiKeyRequest()
+
 	apiKeyService := apikey.NewService()
+
 	var createApiKeyRequest model.CreateApiKeyRequest
 	if err := json.NewDecoder(r.Body).Decode(&createApiKeyRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

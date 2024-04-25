@@ -17,6 +17,7 @@ func validateCreatePromptRequest() error {
 }
 
 func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	var createPromptRequest model.CreatePromptRequest
 	promptService, _ := promptservice.NewService()
 	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {

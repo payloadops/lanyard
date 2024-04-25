@@ -16,6 +16,8 @@ func validateListPromptsRequest() error {
 }
 
 func ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
+
 	promptService, _ := promptservice.NewService()
 
 	if err := validateCreatePromptRequest(); err != nil {
@@ -38,5 +40,4 @@ func ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
-	w.Header().Set("Content-Type", "application/json")
 }

@@ -16,6 +16,7 @@ func validateDeletePromptRequest() error {
 }
 
 func DeletePromptHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	promptService, _ := promptservice.NewService()
 
 	if err := validateDeletePromptRequest(); err != nil {
@@ -38,7 +39,6 @@ func DeletePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

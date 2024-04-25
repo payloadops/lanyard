@@ -13,5 +13,6 @@ func validateListPromptBranchesRequest() error {
 }
 
 func ListPromptBranchesHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 
 }

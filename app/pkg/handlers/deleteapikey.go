@@ -14,6 +14,8 @@ func validateDeleteApiKeyRequest() error {
 }
 
 func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
+
 	apiKeyService := apikey.NewService()
 
 	apikey := r.URL.Path
@@ -32,6 +34,5 @@ func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }

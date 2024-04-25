@@ -13,5 +13,5 @@ func validateCreatePromptBranchRequest() error {
 }
 
 func CreatePromptBranchHandler(w http.ResponseWriter, r *http.Request) {
-
+	setHeaders(w)
 }

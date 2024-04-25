@@ -7,7 +7,7 @@ import (
 )
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	setHeaders(w)
 	response := healthcheckservice.CheckHealth()
 	json.NewEncoder(w).Encode(response)
 	w.WriteHeader(http.StatusOK)

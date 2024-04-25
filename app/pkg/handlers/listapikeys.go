@@ -16,6 +16,7 @@ func validateListApiKeysRequest() error {
 }
 
 func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
+	setHeaders(w)
 	apiKeyService := apikey.NewService()
 
 	if err := validateListApiKeysRequest(); err != nil {
@@ -38,5 +39,4 @@ func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
-	w.Header().Set("Content-Type", "application/json")
 }

@@ -13,5 +13,5 @@ func validateListPromptVersionsRequest() error {
 }
 
 func ListPromptVersionsHandler(w http.ResponseWriter, r *http.Request) {
-
+	setHeaders(w)
 }

@@ -13,5 +13,5 @@ func validateDeletePromptBranchRequest() error {
 }
 
 func DeletePromptBranchHandler(w http.ResponseWriter, r *http.Request) {
-
+	setHeaders(w)
 }
