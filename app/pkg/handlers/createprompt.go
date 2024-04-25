@@ -22,7 +22,7 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validator.Struct(createPromptRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
 		return
 	}
 

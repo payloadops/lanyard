@@ -22,7 +22,7 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validator.Struct(createApiKeyRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
 		return
 	}
 
