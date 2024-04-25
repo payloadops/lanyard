@@ -4,21 +4,24 @@ import (
 	"context"
 	"fmt"
 
+	awsclient "plato/app/pkg/client/aws"
 	dbClient "plato/app/pkg/client/db"
 	"plato/app/pkg/util"
 
-	"github.com/uptrace/bun"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+var PROJECT_KEYS_TABLE = "ProjectKeys"
+
 type ApiKeyItem struct {
-	bun.BaseModel `bun:"table:api_keys,alias:ak"`
-	ApiKey        string   `bun:"api_key,pk" json:"api_key"`
-	ProjectId     string   `bun:"project_id" json:"project_id"`
-	OrgId         string   `bun:"org_id" json:"org_id"`
-	TeamId        string   `bun:"team_id" json:"team_id"`
-	RateLimit     int      `bun:"rate_limit" json:"rate_limit"`
-	Active        bool     `bun:"active" json:"active"`
-	Scopes        []string `bun:"scopes,array" json:"scopes"`
+	ApiKey    string   `dynamodbav:"apiKey,pk" json:"api_key"`
+	ProjectId string   `dynamodbav:"projectId" json:"project_id"`
+	OrgId     string   `dynamodbav:"orgId" json:"org_id"`
+	RateLimit int      `dynamodbav:"rateLimit" json:"rate_limit"`
+	Active    bool     `dynamodbav:"active" json:"active"`
+	Scopes    []string `dynamodbav:"scopes" json:"scopes"`
 }
 
 // Lists active Api keys by project id
@@ -34,26 +37,64 @@ func ListApiKeysByProjectId(ctx context.Context, projectId string) (*[]ApiKeyIte
 // GetApiKey retrieves an Api key by its string value from the database.
 func GetApiKey(ctx context.Context, apiKeyString string) (*ApiKeyItem, error) {
 	apiKey := &ApiKeyItem{}
-	err := dbClient.GetClient().NewSelect().Model(apiKey).Where("api_key = ?", apiKeyString).Scan(ctx)
+	pk := fmt.Sprintf("KEY#%s", apiKeyString)
+	sk := pk
+
+	resp, err := awsclient.GetDynamoClient().GetItem(ctx, &dynamodb.GetItemInput{
+		TableName: &PROJECT_KEYS_TABLE,
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+	})
 	if err != nil {
-		return nil, fmt.Errorf("error querying Api key: %w", err)
+		return nil, fmt.Errorf("error getting user: %w", err)
 	}
+
+	err = attributevalue.UnmarshalMap(resp.Item, &apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling user: %w", err)
+	}
+
 	return apiKey, nil
 }
 
 // CreateApiKey creates a new Api key in the database.
-func CreateApiKey(ctx context.Context, projectId string, desc string, scopes []string) (*ApiKeyItem, error) {
+func CreateApiKey(
+	ctx context.Context,
+	orgId string,
+	projectId string,
+	desc string,
+	scopes []string,
+) (*ApiKeyItem, error) {
 	apiKey := &ApiKeyItem{
 		ApiKey:    util.GenUUIDString(),
 		ProjectId: projectId,
+		OrgId:     orgId,
 		RateLimit: 1000,
 		Active:    true,
 		Scopes:    scopes,
 	}
-	_, err := dbClient.GetClient().NewInsert().Model(apiKey).Exec(ctx)
+	pk := fmt.Sprintf("KEY#%s", apiKey.ApiKey)
+	sk := pk
+
+	item, err := attributevalue.MarshalMap(apiKey)
 	if err != nil {
-		return nil, fmt.Errorf("error creating Api key: %w", err)
+		return nil, fmt.Errorf("error marshaling prompt: %w", err)
 	}
+
+	item["PK"] = &types.AttributeValueMemberS{Value: pk}
+	item["SK"] = &types.AttributeValueMemberS{Value: sk}
+
+	_, err = awsclient.GetDynamoClient().PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: &PROJECT_KEYS_TABLE,
+		Item:      item,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling user: %w", err)
+	}
+
 	return apiKey, nil
 }
 

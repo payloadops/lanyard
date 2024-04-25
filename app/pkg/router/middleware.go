@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Authenticate and authorizes request based on API key or auth token
+// Authorizes request based on API key or auth token
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apikeyService := apikey.NewService()
@@ -19,10 +19,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			if err == nil && apikeyRecord != nil && apikeyRecord.Active && validateScopes(apikeyRecord.Scopes, r.Method, r.URL.Path) {
-				ctx := context.WithValue(r.Context(), "project_id", apikeyRecord.ProjectId)
-				ctx = context.WithValue(ctx, "org_id", apikeyRecord.OrgId)
-				ctx = context.WithValue(ctx, "team_id", apikeyRecord.TeamId)
+			if apikeyRecord != nil && apikeyRecord.Active && validateScopes(apikeyRecord.Scopes, r.Method, r.URL.Path) {
+				ctx := context.WithValue(r.Context(), "projectId", apikeyRecord.ProjectId)
+				ctx = context.WithValue(ctx, "orgId", apikeyRecord.OrgId)
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
@@ -36,8 +35,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			// Validate OAuth token and extract user info
 			claims, err := auth.ValidateOAuthToken(token)
 			if err == nil && claims != nil {
-				// Add user ID to the context
-				ctx := context.WithValue(r.Context(), "userID", claims.UserID)
+				ctx := context.WithValue(r.Context(), "userId", claims.UserId)
+				ctx = context.WithValue(ctx, "orgId", claims.OrgId)
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}

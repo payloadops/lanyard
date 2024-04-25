@@ -3,6 +3,7 @@ package apikey
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	dbdal "plato/app/pkg/dal/postgres"
 )
@@ -26,13 +27,19 @@ func (s *service) ListApiKeys(ctx context.Context, projectId string) (*[]dbdal.A
 }
 
 func (s *service) Mint(ctx context.Context, projectId, desc string, scopes []string) (*dbdal.ApiKeyItem, error) {
+	orgId, orgIdOk := ctx.Value("orgId").(string)
+
+	// Check if all required context values are successfully retrieved
+	if !orgIdOk {
+		return nil, fmt.Errorf("failed to parse ids from context")
+	}
 	if projectId == "" {
 		return nil, errors.New("project ID cannot be empty")
 	}
 	if len(scopes) == 0 {
 		return nil, errors.New("scopes cannot be empty")
 	}
-	return dbdal.CreateApiKey(ctx, projectId, desc, scopes)
+	return dbdal.CreateApiKey(ctx, orgId, projectId, desc, scopes)
 }
 
 func (s *service) GetApiKey(ctx context.Context, keyId string) (*dbdal.ApiKeyItem, error) {

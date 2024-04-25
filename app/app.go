@@ -14,6 +14,7 @@ func main() {
 
 func initializeClients() {
 	dbClient.Init()
+	awsclient.InitDynamoClient()
 	awsclient.InitS3Client()
 }
 

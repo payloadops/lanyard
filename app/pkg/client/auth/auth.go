@@ -8,7 +8,8 @@ import (
 )
 
 type Claims struct {
-	UserID string `json:"user_id"` // This could also be `sub` if the user ID is stored in the subject claim
+	UserId string `json:"user_id"`
+	OrgId  string `json:"org_id"` // This could also be `sub` if the user Id is stored in the subject claim
 	jwt.StandardClaims
 }
 

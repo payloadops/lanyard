@@ -3,38 +3,80 @@ package dbdal
 import (
 	"context"
 	"fmt"
-	dbClient "plato/app/pkg/client/db"
+	awsclient "plato/app/pkg/client/aws"
+	"plato/app/pkg/util"
 
-	"github.com/uptrace/bun"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 // Team represents the structure for a team record in the database.
 type Team struct {
-	bun.BaseModel `bun:"table:teams,alias:t"`
-	ID            string `bun:"id,pk" json:"id"`
-	Name          string `bun:"name" json:"name"`
-	OrgID         string `bun:"org_id" json:"org_id"` // Assuming there is a column for OrgID in the database schema.
+	Id       string   `dynamodbav:"teamId" json:"id"`
+	Name     string   `dynamodbav:"name" json:"name"`
+	OrgId    string   `dynamodbav:"orgId" json:"org_id"`
+	Users    []string `dynamodbav:"users" json:"users"`
+	Projects []string `dynamodbav:"projects" json:"projects"`
 }
 
-// GetTeamById retrieves a team by its ID.
+// GetTeamById retrieves a team by its Id.
 func GetTeamById(ctx context.Context, id string) (*Team, error) {
-	team := &Team{}
-	err := dbClient.GetClient().NewSelect().Model(team).Where("id = ?", id).Scan(ctx)
+	team := &Team{
+		Id: id,
+	}
+	pk := fmt.Sprintf("ORG#%s", id)
+	sk := fmt.Sprintf("TEAM#%s", team.Id)
+
+	resp, err := awsclient.GetDynamoClient().GetItem(ctx, &dynamodb.GetItemInput{
+		TableName: &ORGS_TEAMS_USERS_TABLE,
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("error getting team: %w", err)
 	}
+
+	err = attributevalue.UnmarshalMap(resp.Item, &team)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling team: %w", err)
+	}
+
 	return team, nil
 }
 
-// AddTeam adds a new team to the database with the provided name and organization ID.
-func AddTeam(ctx context.Context, name, orgId string) (*Team, error) {
+func AddTeam(
+	ctx context.Context,
+	name string,
+	orgId string,
+) (*Team, error) {
 	team := &Team{
+		Id:    util.GenUUIDString(),
+		OrgId: orgId,
 		Name:  name,
-		OrgID: orgId,
 	}
-	_, err := dbClient.GetClient().NewInsert().Model(team).Returning("*").Exec(ctx)
+
+	pk := fmt.Sprintf("ORG#%s", orgId)
+	sk := fmt.Sprintf("TEAM#%s", team.Id)
+
+	item, err := attributevalue.MarshalMap(team)
 	if err != nil {
-		return nil, fmt.Errorf("error adding team: %w", err)
+		return nil, fmt.Errorf("error marshaling prompt: %w", err)
 	}
+
+	item["PK"] = &types.AttributeValueMemberS{Value: pk}
+	item["SK"] = &types.AttributeValueMemberS{Value: sk}
+
+	_, err = awsclient.GetDynamoClient().PutItem(ctx, &dynamodb.PutItemInput{
+		TableName: &ORGS_TEAMS_USERS_TABLE,
+		Item:      item,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling team: %w", err)
+	}
+
 	return team, nil
 }

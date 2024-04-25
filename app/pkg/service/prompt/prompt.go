@@ -3,8 +3,6 @@ package promptservice
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"io"
 
@@ -36,21 +34,29 @@ func (s *Service) GetPrompt(
 	promptId string,
 	branch string,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("org_id").(string)
-	teamId, teamIdOk := ctx.Value("team_id").(string)
+	orgId, orgIdOk := ctx.Value("orgId").(string)
 
 	// Check if all required context values are successfully retrieved
-	if !orgIdOk || !teamIdOk {
+	if !orgIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
+	}
+
+	promptDetails, dbErr := dbdal.GetPromptById(ctx, projectId, promptId)
+
+	if dbErr != nil {
+		return nil, fmt.Errorf("failed to read object metadata: %w", dbErr)
+	}
+	if promptDetails.Deleted {
+		return nil, fmt.Errorf("prompt cannot be retrieved as its marked as deleted")
 	}
 
 	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, branch)
 	obj, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Bucket: aws.String(orgId),
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get object: %w.", err)
+		return nil, fmt.Errorf("failed to get object: %w", err)
 	}
 	defer obj.Body.Close()
 
@@ -78,12 +84,11 @@ func (s *Service) CreatePrompt(
 	projectId string,
 	createPromptRequest model.CreatePromptRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("org_id").(string)
-	teamId, teamIdOk := ctx.Value("team_id").(string)
+	orgId, orgIdOk := ctx.Value("orgId").(string)
 	promptId := util.GenUUIDString()
 
 	// Check if all required context values are successfully retrieved
-	if !orgIdOk || !teamIdOk {
+	if !orgIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
@@ -91,7 +96,7 @@ func (s *Service) CreatePrompt(
 
 	// Attempt to put the prompt into an S3 bucket
 	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Bucket:      aws.String(orgId),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader([]byte(createPromptRequest.Prompt)),
 		ContentType: aws.String("text/plain"),
@@ -126,11 +131,10 @@ func (s *Service) UpdatePrompt(
 	promptId string,
 	updatePromptRequest model.UpdatePromptRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("org_id").(string)
-	teamId, teamIdOk := ctx.Value("team_id").(string)
+	orgId, orgIdOk := ctx.Value("orgId").(string)
 
 	// Check if all required context values are successfully retrieved
-	if !orgIdOk || !teamIdOk {
+	if !orgIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
@@ -138,7 +142,7 @@ func (s *Service) UpdatePrompt(
 
 	// Attempt to put the prompt into an S3 bucket
 	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Bucket:      aws.String(orgId),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader([]byte(updatePromptRequest.Prompt)),
 		ContentType: aws.String("text/plain"),
@@ -197,7 +201,7 @@ func (s *Service) ListPrompts(
 	}
 
 	response := &model.ListPromptsResponse{
-		Prompts:   prompts,
+		Prompts:   &prompts,
 		ProjectId: projectId,
 	}
 
@@ -210,16 +214,15 @@ func (s *Service) UpdateActiveVersion(
 	promptId string,
 	updateActiveVersionRequest model.UpdateActiveVersionRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("org_id").(string)
-	teamId, teamIdOk := ctx.Value("team_id").(string)
+	orgId, orgIdOk := ctx.Value("orgId").(string)
 
-	if !orgIdOk || !teamIdOk {
+	if !orgIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
 	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, updateActiveVersionRequest.Branch)
 	getObj, s3GetErr := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket:    aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Bucket:    aws.String(orgId),
 		Key:       aws.String(key),
 		VersionId: &updateActiveVersionRequest.Version,
 	})
@@ -235,7 +238,7 @@ func (s *Service) UpdateActiveVersion(
 	}
 
 	putObj, s3PutErr := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(getBucketForOrgTeamIds(orgId, teamId)),
+		Bucket:      aws.String(orgId),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader(promptBytes),
 		ContentType: aws.String("text/plain"),
@@ -270,18 +273,4 @@ func buildPromptStub(prompt string) string {
 		return prompt[:PROMPT_STUB_SIZE] + "..."
 	}
 	return prompt
-}
-
-func getBucketForOrgTeamIds(orgId string, teamId string) string {
-	hasher := md5.New()
-
-	_, err := hasher.Write([]byte(fmt.Sprintf("%s/%s", orgId, teamId)))
-	if err != nil {
-		panic(err)
-	}
-
-	hashBytes := hasher.Sum(nil)
-	hashString := hex.EncodeToString(hashBytes)
-
-	return hashString
 }
