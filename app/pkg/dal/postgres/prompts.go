@@ -117,9 +117,9 @@ func AddPrompt(ctx context.Context, name string, stub string, projectId string, 
 }
 
 // UpdatePromptDeletedStatus updates the 'deleted' status of a prompt
-func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) (string, error) {
-	pk := fmt.Sprintf("PROMPT#%s", id)
-	sk := pk // Assuming SK is the same as PK
+func UpdatePromptDeletedStatus(ctx context.Context, projectId string, promptId string, deleted bool) (string, error) {
+	pk := fmt.Sprintf("PROJECT#%s", projectId) // This assumes that the PK is based on the project Id
+	sk := fmt.Sprintf("PROMPT#%s", promptId)
 
 	modifiedAt := time.Now().UTC().Format(time.RFC3339)
 
@@ -142,9 +142,9 @@ func UpdatePromptDeletedStatus(ctx context.Context, id string, deleted bool) (st
 	return modifiedAt, nil
 }
 
-func UpdatePromptActiveVersion(ctx context.Context, id string, stub string, version string) (string, error) {
-	pk := fmt.Sprintf("PROMPT#%s", id)
-	sk := pk // Assuming SK is the same as PK
+func UpdatePromptActiveVersion(ctx context.Context, projectId string, promptId string, stub string, version string) (string, error) {
+	pk := fmt.Sprintf("PROJECT#%s", projectId) // This assumes that the PK is based on the project Id
+	sk := fmt.Sprintf("PROMPT#%s", promptId)
 
 	modifiedAt := time.Now().UTC().Format(time.RFC3339)
 
@@ -168,9 +168,9 @@ func UpdatePromptActiveVersion(ctx context.Context, id string, stub string, vers
 	return modifiedAt, nil
 }
 
-func UpdatePrompt(ctx context.Context, name string, id string, stub string, version string) (string, error) {
-	pk := fmt.Sprintf("PROMPT#%s", id)
-	sk := pk // Assuming SK is the same as PK
+func UpdatePrompt(ctx context.Context, name string, projectId string, promptId string, stub string, version string) (string, error) {
+	pk := fmt.Sprintf("PROJECT#%s", projectId) // This assumes that the PK is based on the project Id
+	sk := fmt.Sprintf("PROMPT#%s", promptId)
 
 	modifiedAt := time.Now().UTC().Format(time.RFC3339)
 

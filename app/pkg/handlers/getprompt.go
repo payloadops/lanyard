@@ -26,18 +26,20 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
 	promptId := urlSlices[5]
+	branch := "main"
 
 	response, err := promptService.GetPrompt(
 		r.Context(),
 		projectId,
 		promptId,
-		"main",
+		branch,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }

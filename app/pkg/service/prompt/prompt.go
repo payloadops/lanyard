@@ -158,7 +158,7 @@ func (s *Service) UpdatePrompt(
 
 	// Attempt to add the prompt to the database
 	stub := buildPromptStub(updatePromptRequest.Prompt)
-	modifiedAt, dbErr := dbdal.UpdatePrompt(ctx, updatePromptRequest.Name, promptId, stub, *obj.VersionId)
+	modifiedAt, dbErr := dbdal.UpdatePrompt(ctx, updatePromptRequest.Name, projectId, promptId, stub, *obj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
@@ -183,7 +183,7 @@ func (s *Service) DeletePrompt(
 	projectId string,
 	promptId string,
 ) (*model.DeletePromptResponse, error) {
-	deletedAt, err := dbdal.UpdatePromptDeletedStatus(ctx, promptId, true)
+	deletedAt, err := dbdal.UpdatePromptDeletedStatus(ctx, projectId, promptId, true)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (s *Service) UpdateActiveVersion(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-	updateActiveVersionRequest model.UpdateActiveVersionRequest,
+	updateActiveVersionRequest *model.UpdateActiveVersionRequest,
 ) (*model.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value("orgId").(string)
 
@@ -258,7 +258,7 @@ func (s *Service) UpdateActiveVersion(
 	prompt := string(promptBytes)
 
 	stub := buildPromptStub(prompt)
-	modifiedAt, dbErr := dbdal.UpdatePromptActiveVersion(ctx, promptId, stub, *putObj.VersionId)
+	modifiedAt, dbErr := dbdal.UpdatePromptActiveVersion(ctx, projectId, promptId, stub, *putObj.VersionId)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}

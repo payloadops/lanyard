@@ -2,27 +2,29 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"plato/app/pkg/model"
 	promptservice "plato/app/pkg/service/prompt"
 	"strings"
 )
 
-func validateUpdateCurrentPromptVersionRequest() error {
-	if false {
-		return errors.New("name is required")
+func validatedUpdateCurrentPromptVersionRequest(w http.ResponseWriter, r *http.Request) (*model.UpdateActiveVersionRequest, error) {
+	var updateActiveVersionRequest model.UpdateActiveVersionRequest
+	if err := json.NewDecoder(r.Body).Decode(&updateActiveVersionRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil, err
 	}
-	return nil
+	return &updateActiveVersionRequest, nil
+}
+
+func setHeaders(w http.ResponseWriter) {
+
 }
 
 func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
-	var updateActiveVersionRequest model.UpdateActiveVersionRequest
+	setHeaders(w)
+	updateActiveVersionRequest, err := validatedUpdateCurrentPromptVersionRequest(w, r)
 	promptService, _ := promptservice.NewService()
-	if err := json.NewDecoder(r.Body).Decode(&updateActiveVersionRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]

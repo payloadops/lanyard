@@ -47,6 +47,6 @@ type PromptService interface {
 		ctx context.Context,
 		projectId string,
 		promptId string,
-		updateActiveVersionRequest model.UpdateActiveVersionRequest,
+		updateActiveVersionRequest *model.UpdateActiveVersionRequest,
 	) (*model.GetPromptResponse, error)
 }
