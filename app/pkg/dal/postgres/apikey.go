@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-var PROJECT_KEYS_TABLE = "ProjectKeys"
+var PROJECT_KEYS_TABLE = "Keys"
 
 type ApiKeyItem struct {
 	ApiKey    string   `dynamodbav:"apiKey,pk" json:"api_key"`
@@ -38,13 +38,11 @@ func ListApiKeysByProjectId(ctx context.Context, projectId string) (*[]ApiKeyIte
 func GetApiKey(ctx context.Context, apiKeyString string) (*ApiKeyItem, error) {
 	apiKey := &ApiKeyItem{}
 	pk := fmt.Sprintf("KEY#%s", apiKeyString)
-	sk := pk
 
 	resp, err := awsclient.GetDynamoClient().GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: &PROJECT_KEYS_TABLE,
 		Key: map[string]types.AttributeValue{
 			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	})
 	if err != nil {
@@ -76,7 +74,7 @@ func CreateApiKey(
 		Scopes:    scopes,
 	}
 	pk := fmt.Sprintf("KEY#%s", apiKey.ApiKey)
-	sk := pk
+	sk := fmt.Sprintf("PROJECT#%s", projectId)
 
 	item, err := attributevalue.MarshalMap(apiKey)
 	if err != nil {
@@ -99,7 +97,7 @@ func CreateApiKey(
 }
 
 // UpdateApiKey updates an existing Api key's description and scopes.
-func UpdateApiKey(ctx context.Context, apiKeyId, newDesc string, newScopes []string) error {
+func UpdateApiKey(ctx context.Context, projectId string, apiKeyId string, newDesc string, newScopes []string) error {
 	_, err := dbClient.GetClient().NewUpdate().Model(&ApiKeyItem{}).Set("description = ?", newDesc).Set("scopes = ?", newScopes).Where("api_key = ?", apiKeyId).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error updating Api key: %w", err)
@@ -108,7 +106,7 @@ func UpdateApiKey(ctx context.Context, apiKeyId, newDesc string, newScopes []str
 }
 
 // DeactivateApiKey deactivates a specific Api key.
-func DeactivateApiKey(ctx context.Context, apiKeyId string) error {
+func DeactivateApiKey(ctx context.Context, projectId string, apiKeyId string) error {
 	_, err := dbClient.GetClient().NewUpdate().Model(&ApiKeyItem{}).Set("active = false").Where("api_key = ?", apiKeyId).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("error deactivating Api key: %w", err)

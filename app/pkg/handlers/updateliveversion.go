@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func UpdateCurrentPromptVersionHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateLiveVersionHandler(w http.ResponseWriter, r *http.Request) {
 	promptService, _ := promptservice.NewService()
 	validator := util.GetValidator()
 

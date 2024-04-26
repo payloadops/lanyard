@@ -49,10 +49,10 @@ func setupRoutes(r *chi.Mux) {
 	r.Patch(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.UpdatePromptHandler)
 	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.DeletePromptHandler)
 
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.ListPromptVersionsHandler)
-	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.UpdateCurrentPromptVersionHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.ListVersionsHandler)
+	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.UpdateLiveVersionHandler)
 
-	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.CreatePromptBranchHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.ListPromptBranchesHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", handlers.DeletePromptBranchHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.CreateBranchHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.ListBranchesHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", handlers.DeleteBranchHandler)
 }

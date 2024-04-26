@@ -49,16 +49,16 @@ func (s *service) GetApiKey(ctx context.Context, keyId string) (*dbdal.ApiKeyIte
 	return dbdal.GetApiKey(ctx, keyId)
 }
 
-func (s *service) UpdateApiKey(ctx context.Context, keyId, newDesc string, newScopes []string) error {
+func (s *service) UpdateApiKey(ctx context.Context, projectId string, keyId string, newDesc string, newScopes []string) error {
 	if keyId == "" {
 		return errors.New("key ID cannot be empty")
 	}
-	return dbdal.UpdateApiKey(ctx, keyId, newDesc, newScopes)
+	return dbdal.UpdateApiKey(ctx, projectId, keyId, newDesc, newScopes)
 }
 
-func (s *service) DeleteApiKey(ctx context.Context, keyId string) error {
+func (s *service) DeleteApiKey(ctx context.Context, projectId string, keyId string) error {
 	if keyId == "" {
 		return errors.New("key ID cannot be empty")
 	}
-	return dbdal.DeactivateApiKey(ctx, keyId)
+	return dbdal.DeactivateApiKey(ctx, projectId, keyId)
 }

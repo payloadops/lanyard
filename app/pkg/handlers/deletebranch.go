@@ -2,23 +2,25 @@ package handlers
 
 import (
 	"net/http"
-	"plato/app/pkg/service/apikey"
+	promptservice "plato/app/pkg/service/prompt"
 	"strings"
 
 	"github.com/go-chi/render"
 )
 
-func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
-	apiKeyService := apikey.NewService()
+func DeleteBranchHandler(w http.ResponseWriter, r *http.Request) {
+	promptService, _ := promptservice.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
-	apikey := urlSlices[5]
+	promptId := urlSlices[5]
+	branch := urlSlices[7]
 
-	err := apiKeyService.DeleteApiKey(
+	response, err := promptService.DeleteBranch(
 		r.Context(),
 		projectId,
-		apikey,
+		promptId,
+		branch,
 	)
 
 	if err != nil {
@@ -27,5 +29,5 @@ func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusOK)
-	// render.JSON(w, r, response)
+	render.JSON(w, r, response)
 }

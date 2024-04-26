@@ -215,6 +215,22 @@ func (s *Service) ListPrompts(
 	return response, nil
 }
 
+func (s *Service) ListVersions(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+) (*model.ListVersionsResponse, error) {
+	var err error
+	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list prompts: %w", err)
+	}
+
+	response := &model.ListVersionsResponse{}
+
+	return response, nil
+}
+
 func (s *Service) UpdateActiveVersion(
 	ctx context.Context,
 	projectId string,
@@ -272,6 +288,56 @@ func (s *Service) UpdateActiveVersion(
 		Stub:       stub,
 		ModifiedAt: modifiedAt,
 	}
+
+	return response, nil
+}
+
+func (s *Service) CreateBranch(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+	createBranchRequest model.CreateBranchRequest,
+) (*model.CreateBranchResponse, error) {
+	var err error
+	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list prompts: %w", err)
+	}
+
+	response := &model.CreateBranchResponse{}
+
+	return response, nil
+}
+
+func (s *Service) DeleteBranch(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+	branch string,
+) (*model.DeleteBranchResponse, error) {
+	var err error
+	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list prompts: %w", err)
+	}
+
+	response := &model.DeleteBranchResponse{}
+
+	return response, nil
+}
+
+func (s *Service) ListBranches(
+	ctx context.Context,
+	projectId string,
+	promptId string,
+) (*model.ListBranchesResponse, error) {
+	var err error
+	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list prompts: %w", err)
+	}
+
+	response := &model.ListBranchesResponse{}
 
 	return response, nil
 }

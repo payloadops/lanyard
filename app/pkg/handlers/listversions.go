@@ -2,21 +2,23 @@ package handlers
 
 import (
 	"net/http"
-	"plato/app/pkg/service/apikey"
+	promptservice "plato/app/pkg/service/prompt"
 	"strings"
 
 	"github.com/go-chi/render"
 )
 
-func GetApiKeyHandler(w http.ResponseWriter, r *http.Request) {
-	apiKeyService := apikey.NewService()
+func ListVersionsHandler(w http.ResponseWriter, r *http.Request) {
+	promptService, _ := promptservice.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	apikey := urlSlices[5]
+	projectId := urlSlices[3]
+	promptId := urlSlices[5]
 
-	response, err := apiKeyService.GetApiKey(
+	response, err := promptService.ListVersions(
 		r.Context(),
-		apikey,
+		projectId,
+		promptId,
 	)
 
 	if err != nil {

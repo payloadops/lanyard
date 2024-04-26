@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"plato/app/pkg/model"
 	"plato/app/pkg/service/apikey"
+	"strings"
 
 	"github.com/go-chi/render"
 )
@@ -12,15 +13,19 @@ import (
 func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
-	apikey := r.URL.Path
 	var updateApiKeyRequest model.CreateApiKeyRequest
 	if err := json.NewDecoder(r.Body).Decode(&updateApiKeyRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	urlSlices := strings.Split(r.URL.Path, "/")
+	projectId := urlSlices[3]
+	apikey := urlSlices[5]
+
 	err := apiKeyService.UpdateApiKey(
 		r.Context(),
+		projectId,
 		apikey,
 		updateApiKeyRequest.Description,
 		updateApiKeyRequest.Scopes,
