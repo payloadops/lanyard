@@ -10,6 +10,6 @@ type ProjectService interface {
 	GetProject(ctx context.Context, projectId string) (model.GetProjectResponse, error)
 	ListProjectsByOrg(ctx context.Context) (model.ListProjectsResponse, error)
 	ListProjectsByTeam(ctx context.Context, teamId string) (model.ListProjectsResponse, error)
-	UpdateProject(ctx context.Context, projectId string) error
-	DeleteProject(ctx context.Context, projectId string) error
+	UpdateProject(ctx context.Context, projectId string) (model.UpdateProjectResponse, error)
+	DeleteProject(ctx context.Context, projectId string) (model.DeleteProjectResponse, error)
 }

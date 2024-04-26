@@ -7,6 +7,6 @@ type OrgService interface {
 	GetUser(ctx context.Context, userId string) (model.GetUserResponse, error)
 	ListUsersByOrg(ctx context.Context, orgId string) (model.ListUserResponse, error)
 	ListUsersByTeam(ctx context.Context, teamId string) (model.ListUserResponse, error)
-	UpdateUser(ctx context.Context, projectId string) error
-	DeleteUser(ctx context.Context, projectId string) error
+	UpdateUser(ctx context.Context, projectId string, updateUserRequest model.UpdateUserRequest) (model.UpdateUserResponse, error)
+	DeleteUser(ctx context.Context, projectId string) (model.DeleteUserResponse, error)
 }
