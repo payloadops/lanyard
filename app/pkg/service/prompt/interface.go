@@ -2,7 +2,7 @@ package promptservice
 
 import (
 	"context"
-	"plato/app/pkg/model"
+	promptservicemodel "plato/app/pkg/model/prompt/service"
 )
 
 type PromptService interface {
@@ -11,53 +11,53 @@ type PromptService interface {
 		projectId string,
 		promptId string,
 		branch string,
-	) (*model.GetPromptResponse, error)
+	) (*promptservicemodel.GetPromptResponse, error)
 	UpdatePrompt(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-		updatePromptRequest model.UpdatePromptRequest,
-	) (*model.GetPromptResponse, error)
+		updatePromptRequest promptservicemodel.UpdatePromptRequest,
+	) (*promptservicemodel.GetPromptResponse, error)
 	CreatePrompt(
 		ctx context.Context,
 		projectId string,
-		createPromptRequest model.CreatePromptRequest,
-	) (*model.GetPromptResponse, error)
+		createPromptRequest promptservicemodel.CreatePromptRequest,
+	) (*promptservicemodel.GetPromptResponse, error)
 	DeletePrompt(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-	) (*model.DeletePromptResponse, error)
+	) (*promptservicemodel.DeletePromptResponse, error)
 	ListPrompts(
 		ctx context.Context,
 		projectId string,
-	) (*model.ListPromptsResponse, error)
+	) (*promptservicemodel.ListPromptsResponse, error)
 	CreateBranch(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-		createBranchRequest model.CreateBranchRequest,
-	) (*model.CreateBranchResponse, error)
+		createBranchRequest promptservicemodel.CreateBranchRequest,
+	) (*promptservicemodel.CreateBranchResponse, error)
 	ListBranches(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-	) (*model.ListBranchesResponse, error)
+	) (*promptservicemodel.ListBranchesResponse, error)
 	DeleteBranch(
 		ctx context.Context,
 		projectId string,
 		promptId string,
 		branch string,
-	) (*model.DeleteBranchResponse, error)
+	) (*promptservicemodel.DeleteBranchResponse, error)
 	ListVersions(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-	) (*model.ListVersionsResponse, error)
+	) (*promptservicemodel.ListVersionsResponse, error)
 	UpdateActiveVersion(
 		ctx context.Context,
 		projectId string,
 		promptId string,
-		updateActiveVersionRequest *model.UpdateActiveVersionRequest,
-	) (*model.GetPromptResponse, error)
+		updateActiveVersionRequest *promptservicemodel.UpdateActiveVersionRequest,
+	) (*promptservicemodel.GetPromptResponse, error)
 }

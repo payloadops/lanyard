@@ -3,7 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"plato/app/pkg/model"
+
+	promptservicemodel "plato/app/pkg/model/prompt/service"
 	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
 	"strings"
@@ -15,7 +16,7 @@ func CreateBranchHandler(w http.ResponseWriter, r *http.Request) {
 	validator := util.GetValidator()
 	promptService, _ := promptservice.NewService()
 
-	var createPromptBranchRequest model.CreateBranchRequest
+	var createPromptBranchRequest promptservicemodel.CreateBranchRequest
 	if err := json.NewDecoder(r.Body).Decode(&createPromptBranchRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

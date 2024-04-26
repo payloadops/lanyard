@@ -1,4 +1,4 @@
-package model
+package promptservicemodel
 
 type UpdateActiveVersionRequest struct {
 	Version string `validate:"required" json:"version,omitempty"`

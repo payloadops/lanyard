@@ -1,4 +1,4 @@
-package model
+package promptservicemodel
 
 import dbdal "plato/app/pkg/dal/postgres"
 

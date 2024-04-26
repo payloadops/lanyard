@@ -1,4 +1,4 @@
-package model
+package promptservicemodel
 
 type UpdatePromptRequest struct {
 	Branch string `json:"branch"`

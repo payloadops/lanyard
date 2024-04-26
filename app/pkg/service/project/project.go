@@ -6,7 +6,6 @@ import (
 	"plato/app/pkg/auth"
 	awsclient "plato/app/pkg/client/aws"
 	dbdal "plato/app/pkg/dal/postgres"
-	"plato/app/pkg/model"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -22,7 +21,7 @@ func NewService() (ProjectService, error) {
 	return &Service{s3Client: awsclient.GetS3Client()}, nil
 }
 
-func (s *Service) CreateProject(ctx context.Context, createProjectRequest model.CreateProjectRequest) (model.CreateProjectResponse, error) {
+func (s *Service) CreateProject(ctx context.Context, createProjectRequest projectservicemodel.CreateProjectRequest) (projectservicemodel.CreateProjectResponse, error) {
 	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
 	if !ok {
@@ -63,7 +62,7 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest model.
 	return err
 }
 
-func (s *Service) GetProject(ctx context.Context, projectId string) (model.GetProjectResponse, error) {
+func (s *Service) GetProject(ctx context.Context, projectId string) (projectservicemodel.GetProjectResponse, error) {
 	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
 	if !ok {
@@ -82,7 +81,7 @@ func (s *Service) GetProject(ctx context.Context, projectId string) (model.GetPr
 	return err
 }
 
-func ListProjectsByOrg(ctx context.Context) (model.ListProjectsResponse, error) {
+func ListProjectsByOrg(ctx context.Context) (projectservicemodel.ListProjectsResponse, error) {
 	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
 	if !ok {
@@ -99,7 +98,7 @@ func ListProjectsByOrg(ctx context.Context) (model.ListProjectsResponse, error) 
 	return listProjectsResponse, err
 }
 
-func ListProjectsByTeam(ctx context.Context, teamId string) (model.ListProjectsResponse, error) {
+func ListProjectsByTeam(ctx context.Context, teamId string) (projectservicemodel.ListProjectsResponse, error) {
 	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
 	if !ok {
@@ -117,7 +116,7 @@ func ListProjectsByTeam(ctx context.Context, teamId string) (model.ListProjectsR
 	return listProjectsResponse, err
 }
 
-func UpdateProject(ctx context.Context, projectId string, updateProjectRequest model.UpdateProjectRequest) error {
+func UpdateProject(ctx context.Context, projectId string, updateProjectRequest projectservicemodel.UpdateProjectRequest) error {
 	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
 	if !ok {

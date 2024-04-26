@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"plato/app/pkg/model"
+	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/service/apikey"
 	"plato/app/pkg/util"
 	"strings"
@@ -15,7 +16,7 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	validator := util.GetValidator()
 	apiKeyService := apikey.NewService()
 
-	var createApiKeyRequest model.CreateApiKeyRequest
+	var createApiKeyRequest keyservicemodel.CreateApiKeyRequest
 	if err := json.NewDecoder(r.Body).Decode(&createApiKeyRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -1,4 +1,4 @@
-package model
+package keyservicemodel
 
 type CreateApiKeyRequest struct {
 	Description string   `validate:"required" json:"description"`

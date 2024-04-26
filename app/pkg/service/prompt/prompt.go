@@ -9,7 +9,7 @@ import (
 	"plato/app/pkg/auth"
 	awsclient "plato/app/pkg/client/aws"
 	dbdal "plato/app/pkg/dal/postgres"
-	"plato/app/pkg/model"
+	promptservicemodel "plato/app/pkg/model/prompt/service"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -34,7 +34,7 @@ func (s *Service) GetPrompt(
 	projectId string,
 	promptId string,
 	branch string,
-) (*model.GetPromptResponse, error) {
+) (*promptservicemodel.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	// Check if all required context values are successfully retrieved
@@ -67,7 +67,7 @@ func (s *Service) GetPrompt(
 	}
 
 	prompt := string(promptBytes)
-	response := &model.GetPromptResponse{
+	response := &promptservicemodel.GetPromptResponse{
 		Prompt:     prompt,
 		Name:       promptRecord.Name,
 		PromptId:   promptId,
@@ -85,8 +85,8 @@ func (s *Service) GetPrompt(
 func (s *Service) CreatePrompt(
 	ctx context.Context,
 	projectId string,
-	createPromptRequest model.CreatePromptRequest,
-) (*model.GetPromptResponse, error) {
+	createPromptRequest promptservicemodel.CreatePromptRequest,
+) (*promptservicemodel.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 	promptId := util.GenIDString()
 
@@ -116,7 +116,7 @@ func (s *Service) CreatePrompt(
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
-	response := &model.GetPromptResponse{
+	response := &promptservicemodel.GetPromptResponse{
 		Prompt:     createPromptRequest.Prompt,
 		Name:       promptRecord.Name,
 		PromptId:   promptId,
@@ -134,8 +134,8 @@ func (s *Service) UpdatePrompt(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-	updatePromptRequest model.UpdatePromptRequest,
-) (*model.GetPromptResponse, error) {
+	updatePromptRequest promptservicemodel.UpdatePromptRequest,
+) (*promptservicemodel.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	// Check if all required context values are successfully retrieved
@@ -164,7 +164,7 @@ func (s *Service) UpdatePrompt(
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
-	response := &model.GetPromptResponse{
+	response := &promptservicemodel.GetPromptResponse{
 		Prompt:     updatePromptRequest.Prompt,
 		Name:       updatePromptRequest.Name,
 		PromptId:   promptId,
@@ -183,13 +183,13 @@ func (s *Service) DeletePrompt(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-) (*model.DeletePromptResponse, error) {
+) (*promptservicemodel.DeletePromptResponse, error) {
 	deletedAt, err := dbdal.UpdatePromptDeletedStatus(ctx, projectId, promptId, true)
 	if err != nil {
 		return nil, err
 	}
 
-	response := &model.DeletePromptResponse{
+	response := &promptservicemodel.DeletePromptResponse{
 		PromptId:  promptId,
 		ProjectId: projectId,
 		DeletedAt: deletedAt,
@@ -201,14 +201,14 @@ func (s *Service) DeletePrompt(
 func (s *Service) ListPrompts(
 	ctx context.Context,
 	projectId string,
-) (*model.ListPromptsResponse, error) {
+) (*promptservicemodel.ListPromptsResponse, error) {
 	var err error
 	prompts, err := dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
 
-	response := &model.ListPromptsResponse{
+	response := &promptservicemodel.ListPromptsResponse{
 		Prompts:   &prompts,
 		ProjectId: projectId,
 	}
@@ -220,14 +220,14 @@ func (s *Service) ListVersions(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-) (*model.ListVersionsResponse, error) {
+) (*promptservicemodel.ListVersionsResponse, error) {
 	var err error
 	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
 
-	response := &model.ListVersionsResponse{}
+	response := &promptservicemodel.ListVersionsResponse{}
 
 	return response, nil
 }
@@ -236,8 +236,8 @@ func (s *Service) UpdateActiveVersion(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-	updateActiveVersionRequest *model.UpdateActiveVersionRequest,
-) (*model.GetPromptResponse, error) {
+	updateActiveVersionRequest *promptservicemodel.UpdateActiveVersionRequest,
+) (*promptservicemodel.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	if !orgIdOk {
@@ -280,7 +280,7 @@ func (s *Service) UpdateActiveVersion(
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
 
-	response := &model.GetPromptResponse{
+	response := &promptservicemodel.GetPromptResponse{
 		Prompt:     prompt,
 		PromptId:   promptId,
 		ProjectId:  projectId,
@@ -297,15 +297,15 @@ func (s *Service) CreateBranch(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-	createBranchRequest model.CreateBranchRequest,
-) (*model.CreateBranchResponse, error) {
+	createBranchRequest promptservicemodel.CreateBranchRequest,
+) (*promptservicemodel.CreateBranchResponse, error) {
 	var err error
 	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
 
-	response := &model.CreateBranchResponse{}
+	response := &promptservicemodel.CreateBranchResponse{}
 
 	return response, nil
 }
@@ -315,14 +315,14 @@ func (s *Service) DeleteBranch(
 	projectId string,
 	promptId string,
 	branch string,
-) (*model.DeleteBranchResponse, error) {
+) (*promptservicemodel.DeleteBranchResponse, error) {
 	var err error
 	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
 
-	response := &model.DeleteBranchResponse{}
+	response := &promptservicemodel.DeleteBranchResponse{}
 
 	return response, nil
 }
@@ -331,14 +331,14 @@ func (s *Service) ListBranches(
 	ctx context.Context,
 	projectId string,
 	promptId string,
-) (*model.ListBranchesResponse, error) {
+) (*promptservicemodel.ListBranchesResponse, error) {
 	var err error
 	_, err = dbdal.ListPromptsByProjectId(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list prompts: %w", err)
 	}
 
-	response := &model.ListBranchesResponse{}
+	response := &promptservicemodel.ListBranchesResponse{}
 
 	return response, nil
 }

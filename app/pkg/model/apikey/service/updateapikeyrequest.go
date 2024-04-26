@@ -1,4 +1,4 @@
-package model
+package keyservicemodel
 
 type UpdateApiKeyRequest struct {
 	Description string   `json:"description"`

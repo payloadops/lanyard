@@ -1,6 +1,6 @@
-package model
+package promptservicemodel
 
-type DeletePromptResponse struct {
+type CreateBranchResponse struct {
 	PromptId  string `json:"prompt_id"`
 	ProjectId string `json:"project_id"`
 	DeletedAt string `json:"deleted_at"`

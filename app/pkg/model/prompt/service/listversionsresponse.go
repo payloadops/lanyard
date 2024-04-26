@@ -1,4 +1,4 @@
-package model
+package promptservicemodel
 
 type ListVersionsResponse struct {
 }

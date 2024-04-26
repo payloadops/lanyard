@@ -3,10 +3,10 @@ package user
 import "context"
 
 type OrgService interface {
-	CreateUser(ctx context.Context, createUserRequest model.CreateUserRequest) (model.CreateUserResponse, error)
-	GetUser(ctx context.Context, userId string) (model.GetUserResponse, error)
-	ListUsersByOrg(ctx context.Context, orgId string) (model.ListUserResponse, error)
-	ListUsersByTeam(ctx context.Context, teamId string) (model.ListUserResponse, error)
-	UpdateUser(ctx context.Context, projectId string, updateUserRequest model.UpdateUserRequest) (model.UpdateUserResponse, error)
-	DeleteUser(ctx context.Context, projectId string) (model.DeleteUserResponse, error)
+	CreateUser(ctx context.Context, createUserRequest userservicemodel.CreateUserRequest) (userservicemodel.CreateUserResponse, error)
+	GetUser(ctx context.Context, userId string) (userservicemodel.GetUserResponse, error)
+	ListUsersByOrg(ctx context.Context, orgId string) (userservicemodel.ListUserResponse, error)
+	ListUsersByTeam(ctx context.Context, teamId string) (userservicemodel.ListUserResponse, error)
+	UpdateUser(ctx context.Context, projectId string, updateUserRequest userservicemodel.UpdateUserRequest) (userservicemodel.UpdateUserResponse, error)
+	DeleteUser(ctx context.Context, projectId string) (userservicemodel.DeleteUserResponse, error)
 }

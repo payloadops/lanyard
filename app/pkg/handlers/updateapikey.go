@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"plato/app/pkg/model"
+	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/service/apikey"
 	"strings"
 
@@ -13,7 +13,7 @@ import (
 func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
-	var updateApiKeyRequest model.CreateApiKeyRequest
+	var updateApiKeyRequest keyservicemodel.CreateApiKeyRequest
 	if err := json.NewDecoder(r.Body).Decode(&updateApiKeyRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

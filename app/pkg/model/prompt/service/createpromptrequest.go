@@ -1,4 +1,4 @@
-package model
+package promptservicemodel
 
 type CreatePromptRequest struct {
 	Name   string `validate:"required" json:"name"`
