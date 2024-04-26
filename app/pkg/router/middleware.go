@@ -56,8 +56,8 @@ func validateAPIKey(r *http.Request, apiKey string) (context.Context, error) {
 		return nil, fmt.Errorf("insufficient permissions for %s %s", r.Method, r.URL.Path)
 	}
 
-	userCtx := context.WithValue(r.Context(), auth.OrgId{}, apikeyRecord.OrgId)
-	return context.WithValue(userCtx, auth.ProjectId{}, apikeyRecord.ProjectId), nil
+	userCtx := context.WithValue(r.Context(), auth.OrgContext{}, apikeyRecord.OrgId)
+	return context.WithValue(userCtx, auth.ProjectContext{}, apikeyRecord.ProjectId), nil
 }
 
 // func validateOAuthToken(ctx context.Context, token string) (context.Context, error) {

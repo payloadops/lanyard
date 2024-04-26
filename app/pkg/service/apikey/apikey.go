@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"plato/app/pkg/auth"
 	dbdal "plato/app/pkg/dal/postgres"
 )
 
@@ -27,7 +28,7 @@ func (s *service) ListApiKeys(ctx context.Context, projectId string) (*[]dbdal.A
 }
 
 func (s *service) Mint(ctx context.Context, projectId, desc string, scopes []string) (*dbdal.ApiKeyItem, error) {
-	orgId, orgIdOk := ctx.Value("orgId").(string)
+	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	// Check if all required context values are successfully retrieved
 	if !orgIdOk {

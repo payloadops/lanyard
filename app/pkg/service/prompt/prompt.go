@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 
+	"plato/app/pkg/auth"
 	awsclient "plato/app/pkg/client/aws"
 	dbdal "plato/app/pkg/dal/postgres"
 	"plato/app/pkg/model"
@@ -34,7 +35,7 @@ func (s *Service) GetPrompt(
 	promptId string,
 	branch string,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("orgId").(string)
+	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	// Check if all required context values are successfully retrieved
 	if !orgIdOk {
@@ -86,7 +87,7 @@ func (s *Service) CreatePrompt(
 	projectId string,
 	createPromptRequest model.CreatePromptRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("orgId").(string)
+	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 	promptId := util.GenIDString()
 
 	// Check if all required context values are successfully retrieved
@@ -135,7 +136,7 @@ func (s *Service) UpdatePrompt(
 	promptId string,
 	updatePromptRequest model.UpdatePromptRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("orgId").(string)
+	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	// Check if all required context values are successfully retrieved
 	if !orgIdOk {
@@ -237,7 +238,7 @@ func (s *Service) UpdateActiveVersion(
 	promptId string,
 	updateActiveVersionRequest *model.UpdateActiveVersionRequest,
 ) (*model.GetPromptResponse, error) {
-	orgId, orgIdOk := ctx.Value("orgId").(string)
+	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
 	if !orgIdOk {
 		return nil, fmt.Errorf("failed to parse ids from context")
