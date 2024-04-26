@@ -20,7 +20,7 @@ type Service struct {
 	s3Client *s3.Client
 }
 
-var PROMPT_KEY = "%s/%s/%s/prompt.txt"
+var PROMPT_KEY = "%s/%s/prompt.txt"
 var PROMPT_STUB_SIZE = 100
 
 // NewService initializes a new prompt service using AWS S3 client.
@@ -51,9 +51,9 @@ func (s *Service) GetPrompt(
 		return nil, fmt.Errorf("prompt cannot be retrieved as its marked as deleted")
 	}
 
-	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, branch)
+	key := fmt.Sprintf(PROMPT_KEY, promptId, branch)
 	obj, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(orgId),
+		Bucket: aws.String(util.GetBucketString(orgId, projectId)),
 		Key:    aws.String(key),
 	})
 	if err != nil {
@@ -95,11 +95,11 @@ func (s *Service) CreatePrompt(
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
-	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, createPromptRequest.Branch)
+	key := fmt.Sprintf(PROMPT_KEY, promptId, createPromptRequest.Branch)
 
 	// Attempt to put the prompt into an S3 bucket
 	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(orgId),
+		Bucket:      aws.String(util.GetBucketString(orgId, projectId)),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader([]byte(createPromptRequest.Prompt)),
 		ContentType: aws.String("text/plain"),
@@ -143,11 +143,11 @@ func (s *Service) UpdatePrompt(
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
-	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, updatePromptRequest.Branch)
+	key := fmt.Sprintf(PROMPT_KEY, promptId, updatePromptRequest.Branch)
 
 	// Attempt to put the prompt into an S3 bucket
 	obj, s3Err := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(orgId),
+		Bucket:      aws.String(util.GetBucketString(orgId, projectId)),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader([]byte(updatePromptRequest.Prompt)),
 		ContentType: aws.String("text/plain"),
@@ -244,9 +244,9 @@ func (s *Service) UpdateActiveVersion(
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
-	key := fmt.Sprintf(PROMPT_KEY, projectId, promptId, updateActiveVersionRequest.Branch)
+	key := fmt.Sprintf(PROMPT_KEY, promptId, updateActiveVersionRequest.Branch)
 	getObj, s3GetErr := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket:    aws.String(orgId),
+		Bucket:    aws.String(util.GetBucketString(orgId, projectId)),
 		Key:       aws.String(key),
 		VersionId: &updateActiveVersionRequest.Version,
 	})
@@ -262,7 +262,7 @@ func (s *Service) UpdateActiveVersion(
 	}
 
 	putObj, s3PutErr := s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(orgId),
+		Bucket:      aws.String(util.GetBucketString(orgId, projectId)),
 		Key:         aws.String(key),
 		Body:        bytes.NewReader(promptBytes),
 		ContentType: aws.String("text/plain"),
