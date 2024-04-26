@@ -2,62 +2,75 @@ package router
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"plato/app/pkg/client/auth"
+
+	"plato/app/pkg/auth"
 	"plato/app/pkg/service/apikey"
-	"strings"
 )
 
-// Authorizes request based on API key or auth token
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		apikeyService := apikey.NewService()
+		var userCtx context.Context
+		var err error
+
 		apiKey := r.Header.Get("x-api-key")
 		if apiKey != "" {
-			apikeyRecord, err := apikeyService.GetApiKey(r.Context(), apiKey)
+			userCtx, err = validateAPIKey(r, apiKey)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			if apikeyRecord != nil && apikeyRecord.Active && validateScopes(apikeyRecord.Scopes, r.Method, r.URL.Path) {
-				ctx := context.WithValue(r.Context(), "projectId", apikeyRecord.ProjectId)
-				ctx = context.WithValue(ctx, "orgId", apikeyRecord.OrgId)
-				next.ServeHTTP(w, r.WithContext(ctx))
+				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
 			}
 		}
 
-		// Check for OAuth Token in the Authorization header
-		authHeader := r.Header.Get("Authorization")
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			token := strings.TrimPrefix(authHeader, "Bearer ")
+		// if userCtx == nil {
+		// 	authHeader := r.Header.Get("Authorization")
+		// 	if strings.HasPrefix(authHeader, "Bearer ") {
+		// 		userCtx, err = validateOAuthToken(r.Context(), strings.TrimPrefix(authHeader, "Bearer "))
+		// 		if err != nil {
+		// 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
+		// 			return
+		// 		}
+		// 	}
+		// }
 
-			// Validate OAuth token and extract user info
-			claims, err := auth.ValidateOAuthToken(token)
-			if err == nil && claims != nil {
-				ctx := context.WithValue(r.Context(), "userId", claims.UserId)
-				ctx = context.WithValue(ctx, "orgId", claims.OrgId)
-				next.ServeHTTP(w, r.WithContext(ctx))
-				return
-			}
+		if userCtx == nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
 		}
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+
+		next.ServeHTTP(w, r.WithContext(userCtx))
 	})
 }
 
+func validateAPIKey(r *http.Request, apiKey string) (context.Context, error) {
+	apikeyService := apikey.NewService()
+	apikeyRecord, err := apikeyService.GetApiKey(r.Context(), apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get api key: %w", err)
+	}
+	if apikeyRecord == nil || !apikeyRecord.Active {
+		return nil, fmt.Errorf("invalid or inactive api key")
+	}
+	if !validateScopes(apikeyRecord.Scopes, r.Method, r.URL.Path) {
+		return nil, fmt.Errorf("insufficient permissions for %s %s", r.Method, r.URL.Path)
+	}
+
+	userCtx := context.WithValue(r.Context(), auth.OrgId{}, apikeyRecord.OrgId)
+	return context.WithValue(userCtx, auth.ProjectId{}, apikeyRecord.ProjectId), nil
+}
+
+// func validateOAuthToken(ctx context.Context, token string) (context.Context, error) {
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	userCtx := context.WithValue(ctx, auth.OrgId{}, claims.OrgId)
+// 	return context.WithValue(userCtx, auth.UserId{}, claims.UserId), nil
+// }
+
 func validateScopes(scopes []string, method string, path string) bool {
-	// scopeHierarchy := map[string]int{
-	// 	"read":  1,
-	// 	"write": 2,
-	// 	"admin": 3,
-	// }
-
-	// scopeMethods := map[string]string{
-	// 	"prompts": "prompts",
-	// 	"keys":    "keys",
-	// 	"users":   "users",
-	// 	"teams":   "",
-	// }
-
+	// Implement your scope validation logic here
+	// This example always returns true, replace with your authorization checks
 	return true
 }
