@@ -12,9 +12,9 @@ func DeleteBranchHandler(w http.ResponseWriter, r *http.Request) {
 	promptService, _ := promptservice.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
-	promptId := urlSlices[5]
-	branch := urlSlices[7]
+	projectId := urlSlices[4]
+	promptId := urlSlices[6]
+	branch := urlSlices[8]
 
 	response, err := promptService.DeleteBranch(
 		r.Context(),

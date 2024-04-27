@@ -32,7 +32,7 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
+	projectId := urlSlices[4]
 
 	response, err := promptService.CreatePrompt(
 		r.Context(),

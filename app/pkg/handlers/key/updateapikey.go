@@ -20,8 +20,8 @@ func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
-	apikey := urlSlices[5]
+	projectId := urlSlices[4]
+	apikey := urlSlices[6]
 
 	err := apiKeyService.UpdateApiKey(
 		r.Context(),

@@ -12,7 +12,7 @@ func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
+	projectId := urlSlices[4]
 
 	response, err := apiKeyService.ListApiKeys(
 		r.Context(),
