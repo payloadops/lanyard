@@ -31,7 +31,6 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest projec
 
 	projectId := util.GenIDString()
 
-	var createProjectResponse projectservicemodel.CreateProjectResponse
 	_, err := dbdal.AddProject(
 		ctx,
 		orgId,
@@ -64,7 +63,15 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest projec
 		return nil, fmt.Errorf("failed to enable bucket versioning with err: %w", err)
 	}
 
-	return &createProjectResponse, err
+	createProjectResponse := &projectservicemodel.CreateProjectResponse{
+		ProjectId:   projectId,
+		OrgId:       orgId,
+		TeamId:      createProjectRequest.TeamId,
+		Name:        createProjectRequest.Name,
+		Description: createProjectRequest.Description,
+	}
+
+	return createProjectResponse, err
 }
 
 func (s *Service) GetProject(ctx context.Context, projectId string) (*projectservicemodel.GetProjectResponse, error) {
