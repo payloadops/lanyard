@@ -1,9 +1,9 @@
-package handlers
+package prompthandler
 
 import (
 	"encoding/json"
 	"net/http"
-
+	"plato/app/pkg/model"
 	promptservicemodel "plato/app/pkg/model/prompt/service"
 	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
@@ -12,18 +12,18 @@ import (
 	"github.com/go-chi/render"
 )
 
-func CreateBranchHandler(w http.ResponseWriter, r *http.Request) {
-	validator := util.GetValidator()
+func UpdatePromptHandler(w http.ResponseWriter, r *http.Request) {
 	promptService, _ := promptservice.NewService()
+	validator := util.GetValidator()
 
-	var createPromptBranchRequest promptservicemodel.CreateBranchRequest
-	if err := json.NewDecoder(r.Body).Decode(&createPromptBranchRequest); err != nil {
+	var updatePromptRequest promptservicemodel.UpdatePromptRequest
+	if err := json.NewDecoder(r.Body).Decode(&updatePromptRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validator.Struct(createPromptBranchRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := validator.Struct(updatePromptRequest); err != nil {
+		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -31,11 +31,11 @@ func CreateBranchHandler(w http.ResponseWriter, r *http.Request) {
 	projectId := urlSlices[3]
 	promptId := urlSlices[5]
 
-	response, err := promptService.CreateBranch(
+	response, err := promptService.UpdatePrompt(
 		r.Context(),
 		projectId,
 		promptId,
-		createPromptBranchRequest,
+		updatePromptRequest,
 	)
 
 	if err != nil {

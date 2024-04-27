@@ -1,4 +1,4 @@
-package handlers
+package teamhandler
 
 import (
 	"net/http"
@@ -8,15 +8,15 @@ import (
 	"github.com/go-chi/render"
 )
 
-func GetApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+func ListTeamsHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	apikey := urlSlices[5]
+	projectId := urlSlices[3]
 
-	response, err := apiKeyService.GetApiKey(
+	response, err := apiKeyService.ListApiKeys(
 		r.Context(),
-		apikey,
+		projectId,
 	)
 
 	if err != nil {

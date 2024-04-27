@@ -1,4 +1,4 @@
-package handlers
+package projecthandler
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func UpdateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateProjectHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
 	var updateApiKeyRequest keyservicemodel.CreateApiKeyRequest

@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 )
 
-var PROJECT_TABLE_NAME = aws.String("ProjectsProjects")
+var PROJECT_TABLE_NAME = aws.String("ProjectsPrompts")
 
 type Project struct {
 	Id          string `dynamodbav:"projectId" json:"project_id"`

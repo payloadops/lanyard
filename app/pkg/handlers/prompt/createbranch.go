@@ -1,9 +1,9 @@
-package handlers
+package prompthandler
 
 import (
 	"encoding/json"
 	"net/http"
-	"plato/app/pkg/model"
+
 	promptservicemodel "plato/app/pkg/model/prompt/service"
 	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
@@ -12,18 +12,18 @@ import (
 	"github.com/go-chi/render"
 )
 
-func UpdateLiveVersionHandler(w http.ResponseWriter, r *http.Request) {
-	promptService, _ := promptservice.NewService()
+func CreateBranchHandler(w http.ResponseWriter, r *http.Request) {
 	validator := util.GetValidator()
+	promptService, _ := promptservice.NewService()
 
-	var updateActiveVersionRequest promptservicemodel.UpdateActiveVersionRequest
-	if err := json.NewDecoder(r.Body).Decode(&updateActiveVersionRequest); err != nil {
+	var createPromptBranchRequest promptservicemodel.CreateBranchRequest
+	if err := json.NewDecoder(r.Body).Decode(&createPromptBranchRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validator.Struct(updateActiveVersionRequest); err != nil {
-		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
+	if err := validator.Struct(createPromptBranchRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -31,11 +31,11 @@ func UpdateLiveVersionHandler(w http.ResponseWriter, r *http.Request) {
 	projectId := urlSlices[3]
 	promptId := urlSlices[5]
 
-	response, err := promptService.UpdateActiveVersion(
+	response, err := promptService.CreateBranch(
 		r.Context(),
 		projectId,
 		promptId,
-		&updateActiveVersionRequest,
+		createPromptBranchRequest,
 	)
 
 	if err != nil {

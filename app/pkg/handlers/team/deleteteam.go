@@ -1,4 +1,4 @@
-package handlers
+package teamhandler
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func DeleteApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+func DeleteTeamHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")

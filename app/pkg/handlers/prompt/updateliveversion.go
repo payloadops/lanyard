@@ -1,4 +1,4 @@
-package handlers
+package prompthandler
 
 import (
 	"encoding/json"
@@ -12,28 +12,30 @@ import (
 	"github.com/go-chi/render"
 )
 
-func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateLiveVersionHandler(w http.ResponseWriter, r *http.Request) {
 	promptService, _ := promptservice.NewService()
 	validator := util.GetValidator()
 
-	var createPromptRequest promptservicemodel.CreatePromptRequest
-	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {
+	var updateActiveVersionRequest promptservicemodel.UpdateActiveVersionRequest
+	if err := json.NewDecoder(r.Body).Decode(&updateActiveVersionRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validator.Struct(createPromptRequest); err != nil {
+	if err := validator.Struct(updateActiveVersionRequest); err != nil {
 		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
 		return
 	}
 
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
+	promptId := urlSlices[5]
 
-	response, err := promptService.CreatePrompt(
+	response, err := promptService.UpdateActiveVersion(
 		r.Context(),
 		projectId,
-		createPromptRequest,
+		promptId,
+		&updateActiveVersionRequest,
 	)
 
 	if err != nil {

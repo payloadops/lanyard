@@ -1,4 +1,4 @@
-package handlers
+package prompthandler
 
 import (
 	"net/http"

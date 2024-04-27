@@ -1,22 +1,22 @@
-package handlers
+package userhandler
 
 import (
 	"net/http"
-	promptservice "plato/app/pkg/service/prompt"
+	"plato/app/pkg/service/apikey"
 	"strings"
 
 	"github.com/go-chi/render"
 )
 
-func ListPromptsHandler(w http.ResponseWriter, r *http.Request) {
-	promptService, _ := promptservice.NewService()
+func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+	apiKeyService := apikey.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
+	apikey := urlSlices[5]
 
-	response, err := promptService.ListPrompts(
+	response, err := apiKeyService.GetApiKey(
 		r.Context(),
-		projectId,
+		apikey,
 	)
 
 	if err != nil {

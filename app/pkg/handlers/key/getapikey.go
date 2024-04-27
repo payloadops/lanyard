@@ -1,4 +1,4 @@
-package handlers
+package keyhandler
 
 import (
 	"net/http"
@@ -8,15 +8,15 @@ import (
 	"github.com/go-chi/render"
 )
 
-func ListApiKeysHandler(w http.ResponseWriter, r *http.Request) {
+func GetApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	apiKeyService := apikey.NewService()
 
 	urlSlices := strings.Split(r.URL.Path, "/")
-	projectId := urlSlices[3]
+	apikey := urlSlices[5]
 
-	response, err := apiKeyService.ListApiKeys(
+	response, err := apiKeyService.GetApiKey(
 		r.Context(),
-		projectId,
+		apikey,
 	)
 
 	if err != nil {

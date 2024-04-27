@@ -1,28 +1,28 @@
-package handlers
+package prompthandler
 
 import (
 	"encoding/json"
 	"net/http"
 	"plato/app/pkg/model"
-	keyservicemodel "plato/app/pkg/model/apikey/service"
-	"plato/app/pkg/service/apikey"
+	promptservicemodel "plato/app/pkg/model/prompt/service"
+	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
 	"strings"
 
 	"github.com/go-chi/render"
 )
 
-func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
+func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
+	promptService, _ := promptservice.NewService()
 	validator := util.GetValidator()
-	apiKeyService := apikey.NewService()
 
-	var createApiKeyRequest keyservicemodel.CreateApiKeyRequest
-	if err := json.NewDecoder(r.Body).Decode(&createApiKeyRequest); err != nil {
+	var createPromptRequest promptservicemodel.CreatePromptRequest
+	if err := json.NewDecoder(r.Body).Decode(&createPromptRequest); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := validator.Struct(createApiKeyRequest); err != nil {
+	if err := validator.Struct(createPromptRequest); err != nil {
 		render.Render(w, r, model.ErrorResponseRenderer(http.StatusBadRequest, err.Error()))
 		return
 	}
@@ -30,17 +30,17 @@ func CreateApiKeyHandler(w http.ResponseWriter, r *http.Request) {
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
 
-	response, err := apiKeyService.Mint(
+	response, err := promptService.CreatePrompt(
 		r.Context(),
 		projectId,
-		createApiKeyRequest.Description,
-		createApiKeyRequest.Scopes,
+		createPromptRequest,
 	)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, response)
 }

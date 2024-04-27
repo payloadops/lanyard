@@ -2,7 +2,13 @@ package router
 
 import (
 	"net/http"
-	"plato/app/pkg/handlers"
+	healthhandler "plato/app/pkg/handlers/health"
+	keyhandler "plato/app/pkg/handlers/key"
+	orghandler "plato/app/pkg/handlers/org"
+	projecthandler "plato/app/pkg/handlers/project"
+	prompthandler "plato/app/pkg/handlers/prompt"
+	teamhandler "plato/app/pkg/handlers/team"
+	userhandler "plato/app/pkg/handlers/user"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -31,28 +37,59 @@ func setupMiddleware(r *chi.Mux) {
 }
 
 func setupRoutes(r *chi.Mux) {
-	// API key management routes
-	r.Post(API_V1_PREFIX+"/{projectId}/api-keys", handlers.CreateApiKeyHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/api-keys", handlers.ListApiKeysHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.GetApiKeyHandler)
-	r.Patch(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.UpdateApiKeyHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", handlers.DeleteApiKeyHandler)
-
 	// Health check routes
-	r.Get(API_V1_PREFIX+"/health", handlers.HealthCheckHandler)
+	r.Get(API_V1_PREFIX+"/health", healthhandler.HealthCheckHandler)
+
+	// API key management routes
+	r.Post(API_V1_PREFIX+"/{projectId}/api-keys", keyhandler.CreateApiKeyHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/api-keys", keyhandler.ListApiKeysHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.GetApiKeyHandler)
+	r.Patch(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.UpdateApiKeyHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.DeleteApiKeyHandler)
 
 	// Prompt management routes
-	r.Post(API_V1_PREFIX+"/{projectId}/prompts", handlers.CreatePromptHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts", handlers.ListPromptsHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/prompts", prompthandler.CreatePromptHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts", prompthandler.ListPromptsHandler)
 
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.GetPromptHandler)
-	r.Patch(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.UpdatePromptHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", handlers.DeletePromptHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.GetPromptHandler)
+	r.Patch(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.UpdatePromptHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.DeletePromptHandler)
 
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.ListVersionsHandler)
-	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", handlers.UpdateLiveVersionHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", prompthandler.ListVersionsHandler)
+	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", prompthandler.UpdateLiveVersionHandler)
 
-	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.CreateBranchHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", handlers.ListBranchesHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", handlers.DeleteBranchHandler)
+	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", prompthandler.CreateBranchHandler)
+	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", prompthandler.ListBranchesHandler)
+	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", prompthandler.DeleteBranchHandler)
+
+	// Project management routes
+	r.Get(API_V1_PREFIX+"/projects", projecthandler.ListProjectsHandler)
+	r.Post(API_V1_PREFIX+"/projects", projecthandler.CreateProjectHandler)
+
+	r.Get(API_V1_PREFIX+"/projects/{projectId}", projecthandler.GetProjectHandler)
+	r.Patch(API_V1_PREFIX+"/projects/{projectId}", projecthandler.UpdateProjectHandler)
+	r.Delete(API_V1_PREFIX+"/projects/{projectId}", projecthandler.DeleteProjectHandler)
+
+	// Team management routes
+	r.Get(API_V1_PREFIX+"/teams", teamhandler.ListTeamsHandler)
+	r.Post(API_V1_PREFIX+"/teams", teamhandler.CreateTeamHandler)
+
+	r.Get(API_V1_PREFIX+"/teams/{teamId}", teamhandler.GetTeamHandler)
+	r.Patch(API_V1_PREFIX+"/teams/{teamId}", teamhandler.UpdateTeamHandler)
+	r.Delete(API_V1_PREFIX+"/teams/{teamId}", teamhandler.DeleteTeamHandler)
+
+	// User management routes
+	r.Get(API_V1_PREFIX+"/users", userhandler.ListUsersHandler)
+	r.Post(API_V1_PREFIX+"/users", userhandler.CreateUserHandler)
+
+	r.Get(API_V1_PREFIX+"/users/{userId}", userhandler.GetUserHandler)
+	r.Patch(API_V1_PREFIX+"/users/{userId}", userhandler.UpdateUserHandler)
+	r.Delete(API_V1_PREFIX+"/users/{userId}", userhandler.DeleteUserHandler)
+
+	// Org management routes
+	r.Post(API_V1_PREFIX+"/users", orghandler.CreateOrgHandler)
+
+	r.Get(API_V1_PREFIX+"/users/{userId}", orghandler.GetOrgHandler)
+	r.Patch(API_V1_PREFIX+"/users/{userId}", orghandler.UpdateOrgHandler)
+	r.Delete(API_V1_PREFIX+"/users/{userId}", orghandler.DeleteOrgHandler)
 }
