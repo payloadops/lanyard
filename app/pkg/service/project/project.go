@@ -172,12 +172,6 @@ func (s *Service) UpdateProject(ctx context.Context, projectId string, updatePro
 }
 
 func (s *Service) DeleteProject(ctx context.Context, projectId string) (*projectservicemodel.DeleteProjectResponse, error) {
-	// orgId, ok := ctx.Value(auth.OrgContext{}).(string)
-
-	// if !ok {
-	// 	return nil, fmt.Errorf("failed to org id from context")
-	// }
-
 	_, err := dbdal.SoftDeleteProject(
 		ctx,
 		projectId,
