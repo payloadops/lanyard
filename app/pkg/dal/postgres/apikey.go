@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	awsclient "plato/app/pkg/client/aws"
-	dbClient "plato/app/pkg/client/db"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -27,10 +26,6 @@ type ApiKeyItem struct {
 // Lists active Api keys by project id
 func ListApiKeysByProjectId(ctx context.Context, projectId string) (*[]ApiKeyItem, error) {
 	apiKeys := &[]ApiKeyItem{}
-	err := dbClient.GetClient().NewSelect().Model(apiKeys).Where("project_id = ?", projectId).Where("active = TRUE").Scan(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error querying Api keys: %w", err)
-	}
 	return apiKeys, nil
 }
 
@@ -98,18 +93,10 @@ func CreateApiKey(
 
 // UpdateApiKey updates an existing Api key's description and scopes.
 func UpdateApiKey(ctx context.Context, projectId string, apiKeyId string, newDesc string, newScopes []string) error {
-	_, err := dbClient.GetClient().NewUpdate().Model(&ApiKeyItem{}).Set("description = ?", newDesc).Set("scopes = ?", newScopes).Where("api_key = ?", apiKeyId).Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("error updating Api key: %w", err)
-	}
 	return nil
 }
 
 // DeactivateApiKey deactivates a specific Api key.
 func DeactivateApiKey(ctx context.Context, projectId string, apiKeyId string) error {
-	_, err := dbClient.GetClient().NewUpdate().Model(&ApiKeyItem{}).Set("active = false").Where("api_key = ?", apiKeyId).Exec(ctx)
-	if err != nil {
-		return fmt.Errorf("error deactivating Api key: %w", err)
-	}
 	return nil
 }
