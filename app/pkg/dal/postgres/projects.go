@@ -112,6 +112,7 @@ func GetProject(ctx context.Context, projectId string) (*Project, error) {
 func AddProject(ctx context.Context, orgId string, projectId string, name string, desc string) (*Project, error) {
 	project := &Project{
 		Id:          projectId,
+		OrgId:       orgId,
 		Name:        name,
 		Description: desc,
 		Deleted:     false,

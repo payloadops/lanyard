@@ -35,18 +35,18 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest projec
 	_, err := dbdal.AddProject(
 		ctx,
 		orgId,
-		createProjectRequest.TeamId,
 		projectId,
 		createProjectRequest.Name,
-		// createProjectRequest.Description,
+		createProjectRequest.Description,
 	)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create project record with err: %w", err)
 	}
 
+	bucketName := aws.String(util.GetBucketString(orgId, projectId))
 	_, err = s.s3Client.CreateBucket(ctx, &s3.CreateBucketInput{
-		Bucket: aws.String(fmt.Sprintf("%s/%s", orgId, projectId)),
+		Bucket: bucketName,
 	})
 
 	if err != nil {
@@ -54,6 +54,7 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest projec
 	}
 
 	_, err = s.s3Client.PutBucketVersioning(ctx, &s3.PutBucketVersioningInput{
+		Bucket: bucketName,
 		VersioningConfiguration: &types.VersioningConfiguration{
 			Status: types.BucketVersioningStatusEnabled,
 		},

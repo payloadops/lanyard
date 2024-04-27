@@ -95,6 +95,10 @@ func (s *Service) CreatePrompt(
 		return nil, fmt.Errorf("failed to parse ids from context")
 	}
 
+	if len(createPromptRequest.Branch) == 0 {
+		return nil, fmt.Errorf("no branch provided")
+	}
+
 	key := fmt.Sprintf(PROMPT_KEY, promptId, createPromptRequest.Branch)
 
 	// Attempt to put the prompt into an S3 bucket

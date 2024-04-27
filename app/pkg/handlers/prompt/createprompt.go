@@ -27,6 +27,10 @@ func CreatePromptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(createPromptRequest.Branch) == 0 {
+		createPromptRequest.Branch = "main"
+	}
+
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[3]
 

@@ -41,26 +41,26 @@ func setupRoutes(r *chi.Mux) {
 	r.Get(API_V1_PREFIX+"/health", healthhandler.HealthCheckHandler)
 
 	// API key management routes
-	r.Post(API_V1_PREFIX+"/{projectId}/api-keys", keyhandler.CreateApiKeyHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/api-keys", keyhandler.ListApiKeysHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.GetApiKeyHandler)
-	r.Patch(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.UpdateApiKeyHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/api-keys/{apiKey}", keyhandler.DeleteApiKeyHandler)
+	r.Post(API_V1_PREFIX+"/projects/{projectId}/api-keys", keyhandler.CreateApiKeyHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/api-keys", keyhandler.ListApiKeysHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/api-keys/{apiKey}", keyhandler.GetApiKeyHandler)
+	r.Patch(API_V1_PREFIX+"/projects/{projectId}/api-keys/{apiKey}", keyhandler.UpdateApiKeyHandler)
+	r.Delete(API_V1_PREFIX+"/projects/{projectId}/api-keys/{apiKey}", keyhandler.DeleteApiKeyHandler)
 
 	// Prompt management routes
-	r.Post(API_V1_PREFIX+"/{projectId}/prompts", prompthandler.CreatePromptHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts", prompthandler.ListPromptsHandler)
+	r.Post(API_V1_PREFIX+"/projects/{projectId}/prompts", prompthandler.CreatePromptHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/prompts", prompthandler.ListPromptsHandler)
 
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.GetPromptHandler)
-	r.Patch(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.UpdatePromptHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}", prompthandler.DeletePromptHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}", prompthandler.GetPromptHandler)
+	r.Patch(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}", prompthandler.UpdatePromptHandler)
+	r.Delete(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}", prompthandler.DeletePromptHandler)
 
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", prompthandler.ListVersionsHandler)
-	r.Put(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/versions", prompthandler.UpdateLiveVersionHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}/versions", prompthandler.ListVersionsHandler)
+	r.Put(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}/versions", prompthandler.UpdateLiveVersionHandler)
 
-	r.Post(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", prompthandler.CreateBranchHandler)
-	r.Get(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches", prompthandler.ListBranchesHandler)
-	r.Delete(API_V1_PREFIX+"/{projectId}/prompts/{promptId}/branches/{branch}", prompthandler.DeleteBranchHandler)
+	r.Post(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}/branches", prompthandler.CreateBranchHandler)
+	r.Get(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}/branches", prompthandler.ListBranchesHandler)
+	r.Delete(API_V1_PREFIX+"/projects/{projectId}/prompts/{promptId}/branches/{branchName}", prompthandler.DeleteBranchHandler)
 
 	// Project management routes
 	r.Get(API_V1_PREFIX+"/projects", projecthandler.ListProjectsHandler)
@@ -87,9 +87,9 @@ func setupRoutes(r *chi.Mux) {
 	r.Delete(API_V1_PREFIX+"/users/{userId}", userhandler.DeleteUserHandler)
 
 	// Org management routes
-	r.Post(API_V1_PREFIX+"/users", orghandler.CreateOrgHandler)
+	r.Post(API_V1_PREFIX+"/orgs", orghandler.CreateOrgHandler)
 
-	r.Get(API_V1_PREFIX+"/users/{userId}", orghandler.GetOrgHandler)
-	r.Patch(API_V1_PREFIX+"/users/{userId}", orghandler.UpdateOrgHandler)
-	r.Delete(API_V1_PREFIX+"/users/{userId}", orghandler.DeleteOrgHandler)
+	r.Get(API_V1_PREFIX+"/orgs/{orgId}", orghandler.GetOrgHandler)
+	r.Patch(API_V1_PREFIX+"/orgs/{orgId}", orghandler.UpdateOrgHandler)
+	r.Delete(API_V1_PREFIX+"/orgs/{orgId}", orghandler.DeleteOrgHandler)
 }
