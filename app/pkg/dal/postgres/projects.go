@@ -20,7 +20,7 @@ type Project struct {
 	OrgId       string `dynamodbav:"orgId" json:"org_id"`
 	TeamId      string `dynamodbav:"teamId" json:"team_id"`
 	Name        string `dynamodbav:"name" json:"name"`
-	Description string `dynamodbav:"desc" json:"desc"`
+	Description string `dynamodbav:"description" json:"description"`
 	Deleted     bool   `dynamodbav:"deleted" json:"deleted"`
 }
 
@@ -109,12 +109,12 @@ func GetProject(ctx context.Context, projectId string) (*Project, error) {
 }
 
 // AddProject adds a new project to the database
-func AddProject(ctx context.Context, orgId string, projectId string, name string, desc string) (*Project, error) {
+func AddProject(ctx context.Context, orgId string, projectId string, name string, description string) (*Project, error) {
 	project := &Project{
 		Id:          projectId,
 		OrgId:       orgId,
 		Name:        name,
-		Description: desc,
+		Description: description,
 		Deleted:     false,
 	}
 	pk := fmt.Sprintf("PROJECT#%s", projectId)

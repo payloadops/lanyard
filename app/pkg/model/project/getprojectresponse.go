@@ -1,5 +1,9 @@
 package projectservicemodel
 
 type GetProjectResponse struct {
-	Name string `validate:"required" json:"name"`
+	ProjectId   string `json:"project_id"`
+	OrgId       string `json:"orgId"`
+	TeamId      string `json:"team_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

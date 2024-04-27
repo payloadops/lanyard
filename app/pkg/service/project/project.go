@@ -75,14 +75,7 @@ func (s *Service) CreateProject(ctx context.Context, createProjectRequest projec
 }
 
 func (s *Service) GetProject(ctx context.Context, projectId string) (*projectservicemodel.GetProjectResponse, error) {
-	// orgId, ok := ctx.Value(auth.OrgContext{}).(string)
-
-	// if !ok {
-	// 	return fmt.Errorf("failed to org id from context")
-	// }
-
-	var getProjectResponse projectservicemodel.GetProjectResponse
-	_, err := dbdal.GetProject(
+	record, err := dbdal.GetProject(
 		ctx,
 		projectId,
 	)
@@ -91,7 +84,15 @@ func (s *Service) GetProject(ctx context.Context, projectId string) (*projectser
 		return nil, fmt.Errorf("failed to fetch project record with err: %w", err)
 	}
 
-	return &getProjectResponse, err
+	getProjectResponse := &projectservicemodel.GetProjectResponse{
+		OrgId:       record.OrgId,
+		ProjectId:   record.Id,
+		TeamId:      record.TeamId,
+		Name:        record.Name,
+		Description: record.Description,
+	}
+
+	return getProjectResponse, err
 }
 
 func (s *Service) ListProjectsByOrg(ctx context.Context) (*projectservicemodel.ListProjectsResponse, error) {
@@ -101,8 +102,7 @@ func (s *Service) ListProjectsByOrg(ctx context.Context) (*projectservicemodel.L
 		return nil, fmt.Errorf("failed to org id from context")
 	}
 
-	var listProjectsResponse projectservicemodel.ListProjectsResponse
-	_, err := dbdal.ListProjectsByOrgId(
+	records, err := dbdal.ListProjectsByOrgId(
 		ctx,
 		orgId,
 	)
@@ -110,18 +110,22 @@ func (s *Service) ListProjectsByOrg(ctx context.Context) (*projectservicemodel.L
 	if err != nil {
 		return nil, fmt.Errorf("failed to list project records with err: %w", err)
 	}
-	return &listProjectsResponse, err
+
+	listProjectsResponse := &projectservicemodel.ListProjectsResponse{
+		OrgId:    orgId,
+		Projects: &records,
+	}
+	return listProjectsResponse, err
 }
 
 func (s *Service) ListProjectsByTeam(ctx context.Context, teamId string) (*projectservicemodel.ListProjectsResponse, error) {
-	// orgId, ok := ctx.Value(auth.OrgContext{}).(string)
+	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
-	// if !ok {
-	// 	return fmt.Errorf("failed to org id from context")
-	// }
+	if !ok {
+		return nil, fmt.Errorf("failed to org id from context")
+	}
 
-	var listProjectsResponse projectservicemodel.ListProjectsResponse
-	_, err := dbdal.ListProjectsByTeamId(
+	records, err := dbdal.ListProjectsByTeamId(
 		ctx,
 		teamId,
 	)
@@ -129,17 +133,22 @@ func (s *Service) ListProjectsByTeam(ctx context.Context, teamId string) (*proje
 	if err != nil {
 		return nil, fmt.Errorf("failed to list project records with err: %w", err)
 	}
-	return &listProjectsResponse, err
+
+	listProjectsResponse := &projectservicemodel.ListProjectsResponse{
+		OrgId:    orgId,
+		TeamId:   teamId,
+		Projects: &records,
+	}
+	return listProjectsResponse, err
 }
 
 func (s *Service) UpdateProject(ctx context.Context, projectId string, updateProjectRequest projectservicemodel.UpdateProjectRequest) (*projectservicemodel.UpdateProjectResponse, error) {
-	// orgId, ok := ctx.Value(auth.OrgContext{}).(string)
+	orgId, ok := ctx.Value(auth.OrgContext{}).(string)
 
-	// if !ok {
-	// 	return fmt.Errorf("failed to org id from context")
-	// }
+	if !ok {
+		return nil, fmt.Errorf("failed to org id from context")
+	}
 
-	var updateProjectResponse projectservicemodel.UpdateProjectResponse
 	_, err := dbdal.UpdateProject(
 		ctx,
 		projectId,
@@ -152,7 +161,14 @@ func (s *Service) UpdateProject(ctx context.Context, projectId string, updatePro
 		return nil, fmt.Errorf("failed to update project record with err: %w", err)
 	}
 
-	return &updateProjectResponse, err
+	updateProjectResponse := &projectservicemodel.UpdateProjectResponse{
+		OrgId:       orgId,
+		ProjectId:   projectId,
+		TeamId:      updateProjectRequest.TeamId,
+		Name:        updateProjectRequest.Name,
+		Description: updateProjectRequest.Description,
+	}
+	return updateProjectResponse, err
 }
 
 func (s *Service) DeleteProject(ctx context.Context, projectId string) (*projectservicemodel.DeleteProjectResponse, error) {
@@ -162,7 +178,6 @@ func (s *Service) DeleteProject(ctx context.Context, projectId string) (*project
 	// 	return nil, fmt.Errorf("failed to org id from context")
 	// }
 
-	var deleteProjectResponse projectservicemodel.DeleteProjectResponse
 	_, err := dbdal.SoftDeleteProject(
 		ctx,
 		projectId,
@@ -171,5 +186,8 @@ func (s *Service) DeleteProject(ctx context.Context, projectId string) (*project
 	if err != nil {
 		return nil, fmt.Errorf("failed to soft delete project record with err: %w", err)
 	}
-	return &deleteProjectResponse, err
+
+	deleteProjectResponse := &projectservicemodel.DeleteProjectResponse{}
+
+	return deleteProjectResponse, err
 }
