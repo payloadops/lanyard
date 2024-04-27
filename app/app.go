@@ -2,7 +2,6 @@ package main
 
 import (
 	awsclient "plato/app/pkg/client/aws"
-	dbClient "plato/app/pkg/client/db"
 	"plato/app/pkg/router"
 )
 
@@ -13,11 +12,9 @@ func main() {
 }
 
 func initializeClients() {
-	dbClient.Init()
 	awsclient.InitDynamoClient()
 	awsclient.InitS3Client()
 }
 
 func cleanupResources() {
-	dbClient.CleanUp()
 }
