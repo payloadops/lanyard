@@ -22,5 +22,7 @@ WORKDIR /root/
 # Copy the built executable from the builder stage.
 COPY --from=builder /app/app .
 
+EXPOSE 80
+
 # Command to run the executable.
 CMD ["./app"]

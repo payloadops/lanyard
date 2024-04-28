@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
@@ -17,7 +18,7 @@ var (
 
 func InitDynamoClient() (*dynamodb.Client, error) {
 	dynamoOnce.Do(func() {
-		cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"))
+		cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"), config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 		if err != nil {
 			dynamoInitErr = fmt.Errorf("failed to load AWS config: %w", err)
 			return

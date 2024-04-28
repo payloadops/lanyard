@@ -1,45 +1,67 @@
 package stacks
 
 import (
+	constants "infra/pkg/const"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awscertificatemanager"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsecr"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsecs"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awselasticloadbalancingv2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsroute53"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsroute53targets"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
 
 func CreateEcsFargateAPI(scope constructs.Construct, vpc awsec2.IVpc, stage string, region string) awsecs.IFargateService {
 	stack := awscdk.NewStack(scope, jsii.String("ECSApiGatewayStack"), nil)
-	cluster := awsecs.NewCluster(stack, jsii.String("EcsCluster"), &awsecs.ClusterProps{})
+
+	taskRole := awsiam.NewRole(stack, jsii.String("ecsTaskRole"), &awsiam.RoleProps{
+		AssumedBy: awsiam.NewServicePrincipal(jsii.String("ecs-tasks.amazonaws.com"), &awsiam.ServicePrincipalOpts{}),
+		ManagedPolicies: &[]awsiam.IManagedPolicy{
+			awsiam.ManagedPolicy_FromAwsManagedPolicyName(jsii.String("service-role/AmazonECSTaskExecutionRolePolicy")),
+		},
+	})
+
+	taskRole.AddToPolicy(awsiam.NewPolicyStatement(&awsiam.PolicyStatementProps{
+		Actions:   &[]*string{jsii.String("s3:*"), jsii.String("dynamodb:*")},
+		Resources: &[]*string{jsii.String("arn:aws:s3:::*/*"), jsii.String("arn:aws:dynamodb:::*/*")},
+	}))
 
 	repository := awsecr.NewRepository(stack, jsii.String("MyRepository"), &awsecr.RepositoryProps{
 		RepositoryName: jsii.String("my-ecr-repo"),
 		RemovalPolicy:  awscdk.RemovalPolicy_DESTROY, // Change to RETAIN for production
 	})
 
-	// awsec2.NewInterfaceVpcEndpoint(stack, jsii.String("EcrApiVpcEndpoint"), &awsec2.InterfaceVpcEndpointProps{
-	// 	Service:           awsec2.InterfaceVpcEndpointAwsService_ECR(),
-	// 	PrivateDnsEnabled: jsii.Bool(true),
-	// 	Subnets:           &awsec2.SubnetSelection{SubnetType: awsec2.SubnetType_PRIVATE_ISOLATED},
-	// })
-
-	// // ECR VPC Endpoint for Docker image pulling (ECR_DOCKER)
-	// awsec2.NewInterfaceVpcEndpoint(stack, jsii.String("EcrDockerVpcEndpoint"), &awsec2.InterfaceVpcEndpointProps{
-	// 	Service:           awsec2.InterfaceVpcEndpointAwsService_ECR_DOCKER(),
-	// 	PrivateDnsEnabled: jsii.Bool(true),
-	// 	Subnets:           &awsec2.SubnetSelection{SubnetType: awsec2.SubnetType_PRIVATE_ISOLATED},
-	// })
-
-	// Define the task definition with a single container using an image from ECR
-	taskDefinition := awsecs.NewFargateTaskDefinition(stack, jsii.String("TaskDef"), nil)
-	container := taskDefinition.AddContainer(jsii.String("web"), &awsecs.ContainerDefinitionOptions{
-		Image:          awsecs.ContainerImage_FromEcrRepository(repository, jsii.String("latest")), // Assuming 'latest' tag is used
-		MemoryLimitMiB: jsii.Number(512),
+	// Create an ECS cluster
+	cluster := awsecs.NewCluster(stack, jsii.String("EcsCluster"), &awsecs.ClusterProps{
+		Vpc: vpc,
 	})
+
+	// Create a task definition
+	taskDefinition := awsecs.NewTaskDefinition(stack, jsii.String("TaskDef"), &awsecs.TaskDefinitionProps{
+		Compatibility: awsecs.Compatibility_FARGATE,
+		Cpu:           jsii.String("256"), // 0.25 vCPU
+		MemoryMiB:     jsii.String("512"), // 512 MiB
+		TaskRole:      taskRole,           // Assign the created IAM role to the task
+	})
+
+	// Add a container to the task definition
+	container := taskDefinition.AddContainer(jsii.String("WebContainer"), &awsecs.ContainerDefinitionOptions{
+		Image:          awsecs.ContainerImage_FromEcrRepository(repository, jsii.String("latest")),
+		MemoryLimitMiB: jsii.Number(512),
+		Environment: &map[string]*string{
+			"PORT": jsii.String("80"),
+		},
+	})
+
+	// Map port 80 on the container to port 80 on the host
 	container.AddPortMappings(&awsecs.PortMapping{
 		ContainerPort: jsii.Number(80),
+		Protocol:      awsecs.Protocol_TCP,
 	})
 
 	service := awsecs.NewFargateService(stack, jsii.String("Service"), &awsecs.FargateServiceProps{
@@ -48,44 +70,39 @@ func CreateEcsFargateAPI(scope constructs.Construct, vpc awsec2.IVpc, stage stri
 		DesiredCount:   jsii.Number(1),
 	})
 
-	// lb := awselasticloadbalancingv2.NewApplicationLoadBalancer(stack, jsii.String("LB"), &awselasticloadbalancingv2.ApplicationLoadBalancerProps{
-	// 	InternetFacing: jsii.Bool(true),
-	// })
-
-	// listener := lb.AddListener(jsii.String("Listener"), &awselasticloadbalancingv2.BaseApplicationListenerProps{Port: jsii.Number(80)})
-	// listener.AddTargets(jsii.String("Target"), &awselasticloadbalancingv2.AddApplicationTargetsProps{
-	// 	Targets: &[]awselasticloadbalancingv2.IApplicationLoadBalancerTarget{service},
-	// 	Port:    jsii.Number(80),
-	// })
-
-	awsapigatewayv2.NewCfnApi(stack, jsii.String("HttpApi"), &awsapigatewayv2.CfnApiProps{
-		Name:         jsii.String("MyAPI"),
-		ProtocolType: jsii.String("HTTP"),
+	hostedZone := awsroute53.NewHostedZone(stack, jsii.String("MyHostedZone"), &awsroute53.HostedZoneProps{
+		ZoneName: jsii.String(constants.DOMAIN),
 	})
 
-	// integration := awsapigatewayv2.NewCfnIntegration(stack, jsii.String("ApiIntegration"), &awsapigatewayv2.CfnIntegrationProps{
-	// 	ApiId:                api.AttrApiId(),
-	// 	IntegrationType:      jsii.String("HTTP_PROXY"),
-	// 	IntegrationUri:       listener.ListenerArn(),
-	// 	IntegrationMethod:    jsii.String("ANY"),
-	// 	PayloadFormatVersion: jsii.String("1.0"),
-	// })
+	certificate := awscertificatemanager.NewCertificate(stack, jsii.String("MyCertificate"), &awscertificatemanager.CertificateProps{
+		DomainName: jsii.String(constants.DOMAIN),
+		Validation: awscertificatemanager.CertificateValidation_FromDns(hostedZone),
+	})
 
-	// awsapigatewayv2.NewCfnRoute(stack, jsii.String("ApiRoute"), &awsapigatewayv2.CfnRouteProps{
-	// 	ApiId:    api.AttrApiId(),
-	// 	RouteKey: jsii.String("ANY /{proxy+}"),
-	// 	Target:   jsii.String("integrations/" + *integration.ApiId()),
-	// })
+	lb := awselasticloadbalancingv2.NewApplicationLoadBalancer(stack, jsii.String("LB"), &awselasticloadbalancingv2.ApplicationLoadBalancerProps{
+		Vpc:            vpc,
+		InternetFacing: jsii.Bool(true),
+	})
 
-	// awsapigatewayv2.NewCfnStage(stack, jsii.String("ApiStage"), &awsapigatewayv2.CfnStageProps{
-	// 	ApiId:      api.AttrApiId(),
-	// 	StageName:  jsii.String(stage),
-	// 	AutoDeploy: jsii.Bool(true),
-	// 	DefaultRouteSettings: &awsapigatewayv2.CfnStage_RouteSettingsProperty{
-	// 		ThrottlingRateLimit:  jsii.Number(10), // max requests per second
-	// 		ThrottlingBurstLimit: jsii.Number(20), // max concurrent requests
-	// 	},
-	// })
+	awsroute53.NewARecord(stack, jsii.String("DNSRecord"), &awsroute53.ARecordProps{
+		Zone:       hostedZone,
+		Target:     awsroute53.RecordTarget_FromAlias(awsroute53targets.NewLoadBalancerTarget(lb)),
+		RecordName: jsii.String(constants.DOMAIN),
+	})
+
+	listener := lb.AddListener(jsii.String("HttpsListener"), &awselasticloadbalancingv2.BaseApplicationListenerProps{
+		Port: jsii.Number(443),
+		Certificates: &[]awselasticloadbalancingv2.IListenerCertificate{
+			awselasticloadbalancingv2.ListenerCertificate_FromCertificateManager(certificate),
+		},
+	})
+
+	listener.AddTargets(jsii.String("ECSTargets"), &awselasticloadbalancingv2.AddApplicationTargetsProps{
+		Port: jsii.Number(80),
+		Targets: &[]awselasticloadbalancingv2.IApplicationLoadBalancerTarget{
+			service,
+		},
+	})
 
 	return service
 }
