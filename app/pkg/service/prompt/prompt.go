@@ -118,7 +118,7 @@ func (s *Service) CreatePrompt(
 
 	// Attempt to add the prompt to the database
 	stub := buildPromptStub(createPromptRequest.Prompt)
-	promptRecord, dbErr := dbdal.AddPrompt(ctx, createPromptRequest.Name, stub, projectId, promptId, fmt.Sprintf("%s/%s", projectId, promptId), *obj.VersionId)
+	promptRecord, dbErr := dbdal.AddPrompt(ctx, createPromptRequest.Name, stub, projectId, promptId, fmt.Sprintf("%s/%s", projectId, promptId), *obj.VersionId, createPromptRequest.Branch)
 	if dbErr != nil {
 		return nil, fmt.Errorf("error recording prompt in database: %w", dbErr)
 	}
