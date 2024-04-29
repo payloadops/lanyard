@@ -17,14 +17,15 @@ var PROMPT_TABLE_NAME = aws.String("ProjectsPrompts") // Updated to the correct 
 
 // Prompt represents the structure of a prompt record in the database.
 type Prompt struct {
-	Id           string `dynamodbav:"promptId" json:"prompt_id"`
-	Name         string `dynamodbav:"name" json:"name"`
-	ProjectId    string `dynamodbav:"projectId" json:"project_id"`
-	PromptS3Path string `dynamodbav:"promptS3Path" json:"prompt_s3_path"`
-	Deleted      bool   `dynamodbav:"deleted" json:"deleted"`
-	Version      string `dynamodbav:"version" json:"version"`
-	Stub         string `dynamodbav:"stub" json:"stub"`
-	ModifiedAt   string `dynamodbav:"modifiedAt" json:"modified_at"`
+	Id            string `dynamodbav:"promptId" json:"prompt_id"`
+	Name          string `dynamodbav:"name" json:"name"`
+	ProjectId     string `dynamodbav:"projectId" json:"project_id"`
+	PromptS3Path  string `dynamodbav:"promptS3Path" json:"prompt_s3_path"`
+	Deleted       bool   `dynamodbav:"deleted" json:"deleted"`
+	Version       string `dynamodbav:"version" json:"version"`
+	Stub          string `dynamodbav:"stub" json:"stub"`
+	DefaultBranch string `dynamodbav:"default_branch" json:"default_branch"`
+	ModifiedAt    string `dynamodbav:"modifiedAt" json:"modified_at"`
 }
 
 // ListPromptsByProjectId fetches prompts for a given project Id
@@ -83,16 +84,17 @@ func GetPromptById(ctx context.Context, projectId string, promptId string) (*Pro
 }
 
 // AddPrompt adds a new prompt to the database
-func AddPrompt(ctx context.Context, name string, stub string, projectId string, promptId string, promptS3Path string, version string) (*Prompt, error) {
+func AddPrompt(ctx context.Context, name string, stub string, projectId string, promptId string, promptS3Path string, version string, branch string) (*Prompt, error) {
 	prompt := &Prompt{
-		ProjectId:    projectId,
-		Name:         name,
-		Id:           promptId,
-		PromptS3Path: promptS3Path,
-		Version:      version,
-		Deleted:      false,
-		Stub:         stub,
-		ModifiedAt:   time.Now().UTC().Format(time.RFC3339),
+		ProjectId:     projectId,
+		Name:          name,
+		Id:            promptId,
+		DefaultBranch: branch,
+		PromptS3Path:  promptS3Path,
+		Version:       version,
+		Deleted:       false,
+		Stub:          stub,
+		ModifiedAt:    time.Now().UTC().Format(time.RFC3339),
 	}
 	pk := fmt.Sprintf("PROJECT#%s", projectId)
 	sk := fmt.Sprintf("PROMPT#%s", promptId)
@@ -180,7 +182,8 @@ func UpdatePrompt(ctx context.Context, name string, projectId string, promptId s
 			"PK": &types.AttributeValueMemberS{Value: pk},
 			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
-		UpdateExpression: aws.String("SET stub = :stub, version = :version, modifiedAt = :modifiedAt, name = :name"),
+		UpdateExpression:         aws.String("SET stub = :stub, version = :version, modifiedAt = :modifiedAt, #n = :name"),
+		ExpressionAttributeNames: map[string]string{"#n": "name"},
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":name":       &types.AttributeValueMemberS{Value: name},
 			":stub":       &types.AttributeValueMemberS{Value: stub},
@@ -189,7 +192,7 @@ func UpdatePrompt(ctx context.Context, name string, projectId string, promptId s
 		},
 	})
 	if err != nil {
-		return "", fmt.Errorf("error updating prompt deleted status: %w", err)
+		return "", fmt.Errorf("error updating prompt: %w", err)
 	}
 
 	return modifiedAt, nil

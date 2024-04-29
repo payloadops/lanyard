@@ -50,6 +50,9 @@ func (s *Service) GetPrompt(
 	if promptRecord.Deleted {
 		return nil, fmt.Errorf("prompt cannot be retrieved as its marked as deleted")
 	}
+	if len(branch) == 0 {
+		branch = promptRecord.DefaultBranch
+	}
 
 	key := fmt.Sprintf(PROMPT_KEY, promptId, branch)
 	obj, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{

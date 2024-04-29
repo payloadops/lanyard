@@ -14,7 +14,8 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 	urlSlices := strings.Split(r.URL.Path, "/")
 	projectId := urlSlices[4]
 	promptId := urlSlices[6]
-	branch := "main"
+	query := r.URL.Query()
+	branch := query.Get("branch")
 
 	response, err := promptService.GetPrompt(
 		r.Context(),
