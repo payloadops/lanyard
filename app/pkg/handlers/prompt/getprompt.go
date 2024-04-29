@@ -16,12 +16,14 @@ func GetPromptHandler(w http.ResponseWriter, r *http.Request) {
 	promptId := urlSlices[6]
 	query := r.URL.Query()
 	branch := query.Get("branch")
+	version := query.Get("version")
 
 	response, err := promptService.GetPrompt(
 		r.Context(),
 		projectId,
 		promptId,
 		branch,
+		version,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

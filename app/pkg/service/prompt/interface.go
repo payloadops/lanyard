@@ -11,6 +11,7 @@ type PromptService interface {
 		projectId string,
 		promptId string,
 		branch string,
+		version string,
 	) (*promptservicemodel.GetPromptResponse, error)
 	UpdatePrompt(
 		ctx context.Context,

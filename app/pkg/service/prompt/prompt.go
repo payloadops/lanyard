@@ -34,6 +34,7 @@ func (s *Service) GetPrompt(
 	projectId string,
 	promptId string,
 	branch string,
+	version string,
 ) (*promptservicemodel.GetPromptResponse, error) {
 	orgId, orgIdOk := ctx.Value(auth.OrgContext{}).(string)
 
@@ -55,10 +56,16 @@ func (s *Service) GetPrompt(
 	}
 
 	key := fmt.Sprintf(PROMPT_KEY, promptId, branch)
-	obj, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
+	getObjectInput := &s3.GetObjectInput{
 		Bucket: aws.String(util.GetBucketString(orgId, projectId)),
 		Key:    aws.String(key),
-	})
+	}
+
+	if len(version) > 0 {
+		getObjectInput.VersionId = aws.String(version)
+	}
+
+	obj, err := s.s3Client.GetObject(ctx, getObjectInput)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get object: %w", err)
 	}
