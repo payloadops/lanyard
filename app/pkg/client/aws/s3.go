@@ -29,5 +29,8 @@ func InitS3Client() (*s3.Client, error) {
 }
 
 func GetS3Client() *s3.Client {
+	if s3Client == nil {
+		panic("Client not initialized")
+	}
 	return s3Client
 }

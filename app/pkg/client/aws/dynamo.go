@@ -29,5 +29,8 @@ func InitDynamoClient() (*dynamodb.Client, error) {
 }
 
 func GetDynamoClient() *dynamodb.Client {
+	if dynamoClient == nil {
+		panic("Client not initialized")
+	}
 	return dynamoClient
 }
