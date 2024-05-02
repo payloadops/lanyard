@@ -22,7 +22,7 @@ WORKDIR /root/
 # Copy the built executable from the builder stage.
 COPY --from=builder /app/app .
 
-# Bind container to port 80.
+# Allow incoming traffic to port 80.
 EXPOSE 80
 
 # Command to run the executable.
