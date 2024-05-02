@@ -1,11 +1,10 @@
 package main
 
 import (
-	"infra/pkg/stacks"
-	"os"
-
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/jsii-runtime-go"
+	"infra/pkg/stacks"
+	"os"
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
 )
 
