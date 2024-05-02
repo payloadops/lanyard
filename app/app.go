@@ -17,4 +17,5 @@ func initializeClients() {
 }
 
 func cleanupResources() {
+
 }

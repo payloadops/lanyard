@@ -25,6 +25,7 @@ func main() {
 func env() *awscdk.Environment {
 	account := os.Getenv("CDK_DEFAULT_ACCOUNT")
 	region := os.Getenv("CDK_DEFAULT_REGION")
+
 	return &awscdk.Environment{
 		Account: jsii.String(account),
 		Region:  jsii.String(region),
