@@ -1,14 +1,13 @@
 package healthhandler
 
 import (
-	"net/http"
-	healthcheckservice "plato/app/pkg/service/health"
-
 	"github.com/go-chi/render"
+	"net/http"
+	"plato/app/pkg/service/health"
 )
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	response := healthcheckservice.CheckHealth()
+	response := health.NewService().CheckHealth()
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, response)
 }
