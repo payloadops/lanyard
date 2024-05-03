@@ -14,6 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 )
 
+var _ ProjectService = (*Service)(nil)
+
 type Service struct {
 	s3Client *s3.Client
 }
