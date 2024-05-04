@@ -1,5 +1,7 @@
 package health
 
+//go:generate mockgen -package=mocks -destination=mocks/mock_health.go "plato/app/pkg/service/health" HealthService
+
 // HealthService defines an interface for checking health of the service.
 type HealthService interface {
 	CheckHealth() CheckHealthResponse

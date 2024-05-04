@@ -5,7 +5,7 @@ import (
 	teamservicemodel "plato/app/pkg/model/team"
 )
 
-type OrgService interface {
+type TeamService interface {
 	CreateTeam(ctx context.Context, createTeamRequest teamservicemodel.CreateTeamRequest) (teamservicemodel.CreateTeamResponse, error)
 	GetTeam(ctx context.Context, teamId string) (teamservicemodel.GetTeamResponse, error)
 	ListTeams(ctx context.Context, orgId string) (teamservicemodel.ListTeamsResponse, error)

@@ -5,6 +5,8 @@ import (
 	dbdal "plato/app/pkg/dal/postgres"
 )
 
+//go:generate mockgen -package=mocks -destination=mocks/mock_apikey.go "plato/app/pkg/service/apikey" ApiKeyService
+
 // ApiKeyService defines the operations available for managing Api keys.
 type ApiKeyService interface {
 	ListApiKeys(ctx context.Context, projectId string) (*[]dbdal.ApiKeyItem, error)

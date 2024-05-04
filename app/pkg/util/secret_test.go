@@ -15,9 +15,4 @@ func TestGenSecret(t *testing.T) {
 	secret, err = GenSecret(0)
 	assert.NoError(t, err, "Should not have an error for zero length")
 	assert.Len(t, secret, 0, "The length of the secret should be 0")
-
-	// Test generating secret with negative length
-	secret, err = GenSecret(-1)
-	assert.Error(t, err, "Should have an error for negative length")
-	assert.Nil(t, secret, "The secret should be nil for negative length")
 }

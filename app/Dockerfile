@@ -23,7 +23,7 @@ WORKDIR /root/
 COPY --from=builder /app/app .
 
 # Allow incoming traffic to port 80.
-EXPOSE 80
+EXPOSE 8080
 
 # Command to run the executable.
 CMD ["./app"]
