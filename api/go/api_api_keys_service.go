@@ -31,7 +31,7 @@ func NewAPIKeysAPIService() APIKeysAPIServicer {
 // DeleteApiKey - Delete a specific API key
 func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (ImplResponse, error) {
 	// TODO - update DeleteApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -48,7 +48,7 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 // GenerateApiKey - Generate a new API key with specific scopes for a project
 func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput ApiKeyInput) (ImplResponse, error) {
 	// TODO - update GenerateApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(201, ApiKey{}), nil
@@ -68,7 +68,7 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 // GetApiKey - Retrieve a specific API key
 func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (ImplResponse, error) {
 	// TODO - update GetApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, ApiKey{}), nil
@@ -85,7 +85,7 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 // ListApiKeys - List all API keys for a project
 func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ListApiKeys with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, []ApiKey{}), nil
@@ -102,7 +102,7 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 // UpdateApiKey - Update an API key&#39;s scopes
 func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput ApiKeyInput) (ImplResponse, error) {
 	// TODO - update UpdateApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, ApiKey{}), nil

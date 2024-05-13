@@ -1,12 +1,14 @@
 package main
 
 import (
-	openapi "github.com/payloadops/plato/api"
+	openapi "github.com/payloadops/plato/api/go"
 	"log"
 	"net/http"
 )
 
 func main() {
+	log.Printf("Server started")
+
 	APIKeysAPIService := openapi.NewAPIKeysAPIService()
 	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 
@@ -46,6 +48,5 @@ func main() {
 		UsersAPIController,
 	)
 
-	log.Printf("Server started")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

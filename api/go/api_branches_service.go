@@ -31,7 +31,7 @@ func NewBranchesAPIService() BranchesAPIServicer {
 // CreatePromptBranch - Create a new branch for a prompt
 func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId string, branchInput BranchInput) (ImplResponse, error) {
 	// TODO - update CreatePromptBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Branch{}) or use other options such as http.Ok ...
 	// return Response(201, Branch{}), nil
@@ -51,7 +51,7 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId st
 // DeleteBranch - Delete a specific branch
 func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
 	// TODO - update DeleteBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -68,7 +68,7 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, 
 // GetBranch - Retrieve a specific branch
 func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
 	// TODO - update GetBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Branch{}) or use other options such as http.Ok ...
 	// return Response(200, Branch{}), nil
@@ -85,7 +85,7 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, bra
 // ListPromptBranches - List all branches of a specific prompt
 func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, promptId string) (ImplResponse, error) {
 	// TODO - update ListPromptBranches with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Branch{}) or use other options such as http.Ok ...
 	// return Response(200, []Branch{}), nil

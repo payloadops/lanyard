@@ -31,7 +31,7 @@ func NewCommitsAPIService() CommitsAPIServicer {
 // CreateBranchCommit - Create a new commit for a branch
 func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId string, branchId string, commitInput CommitInput) (ImplResponse, error) {
 	// TODO - update CreateBranchCommit with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Commit{}) or use other options such as http.Ok ...
 	// return Response(201, Commit{}), nil
@@ -51,7 +51,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId str
 // GetBranchCommit - Retrieve a specific commit or the latest commit of a branch
 func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, promptId string, branchId string, commitId string) (ImplResponse, error) {
 	// TODO - update GetBranchCommit with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Commit{}) or use other options such as http.Ok ...
 	// return Response(200, Commit{}), nil
@@ -68,7 +68,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, promptId string
 // ListBranchCommits - List all commits of a specific branch
 func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
 	// TODO - update ListBranchCommits with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Commit{}) or use other options such as http.Ok ...
 	// return Response(200, []Commit{}), nil
