@@ -13,28 +13,28 @@ func main() {
 	APIKeysAPIService := service.NewAPIKeysAPIService()
 	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 
-	BranchesAPIService := openapi.NewBranchesAPIService()
+	BranchesAPIService := service.NewBranchesAPIService()
 	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
 
-	CommitsAPIService := openapi.NewCommitsAPIService()
+	CommitsAPIService := service.NewCommitsAPIService()
 	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 
-	HealthCheckAPIService := openapi.NewHealthCheckAPIService()
+	HealthCheckAPIService := service.NewHealthCheckAPIService()
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
 
-	OrganizationsAPIService := openapi.NewOrganizationsAPIService()
+	OrganizationsAPIService := service.NewOrganizationsAPIService()
 	OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
 
-	ProjectsAPIService := openapi.NewProjectsAPIService()
+	ProjectsAPIService := service.NewProjectsAPIService()
 	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
 
-	PromptsAPIService := openapi.NewPromptsAPIService()
+	PromptsAPIService := service.NewPromptsAPIService()
 	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
 
-	TeamsAPIService := openapi.NewTeamsAPIService()
+	TeamsAPIService := service.NewTeamsAPIService()
 	TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
 
-	UsersAPIService := openapi.NewUsersAPIService()
+	UsersAPIService := service.NewUsersAPIService()
 	UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
 
 	router := openapi.NewRouter(
