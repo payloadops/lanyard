@@ -1,20 +1,51 @@
 package main
 
 import (
-	awsclient "plato/app/pkg/client/aws"
-	"plato/app/pkg/router"
+	openapi "github.com/payloadops/plato/api"
+	"log"
+	"net/http"
 )
 
 func main() {
-	initializeClients()
-	router.Init()
-	defer cleanupResources()
-}
+	APIKeysAPIService := openapi.NewAPIKeysAPIService()
+	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 
-func initializeClients() {
-	awsclient.InitDynamoClient()
-	awsclient.InitS3Client()
-}
+	BranchesAPIService := openapi.NewBranchesAPIService()
+	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
 
-func cleanupResources() {
+	CommitsAPIService := openapi.NewCommitsAPIService()
+	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
+
+	HealthCheckAPIService := openapi.NewHealthCheckAPIService()
+	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
+
+	OrganizationsAPIService := openapi.NewOrganizationsAPIService()
+	OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
+
+	ProjectsAPIService := openapi.NewProjectsAPIService()
+	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
+
+	PromptsAPIService := openapi.NewPromptsAPIService()
+	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
+
+	TeamsAPIService := openapi.NewTeamsAPIService()
+	TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
+
+	UsersAPIService := openapi.NewUsersAPIService()
+	UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
+
+	router := openapi.NewRouter(
+		APIKeysAPIController,
+		BranchesAPIController,
+		CommitsAPIController,
+		HealthCheckAPIController,
+		OrganizationsAPIController,
+		ProjectsAPIController,
+		PromptsAPIController,
+		TeamsAPIController,
+		UsersAPIController,
+	)
+
+	log.Printf("Server started")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
