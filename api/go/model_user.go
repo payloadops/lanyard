@@ -23,6 +23,9 @@ type User struct {
 	// Unique identifier for the user
 	Id string `json:"id,omitempty"`
 
+	// User's full name (optional)
+	Name string `json:"name,omitempty"`
+
 	// User's email address
 	Email string `json:"email,omitempty"`
 

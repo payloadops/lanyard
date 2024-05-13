@@ -1,6 +1,6 @@
-module plato/app
+module github.com/payloadops/plato/app
 
-go 1.20
+go 1.22.2
 
 require (
 	github.com/aws/aws-sdk-go v1.51.28
@@ -8,7 +8,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.13
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/render v1.0.3
-	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.19.0
 	github.com/rs/xid v1.5.0
 	github.com/stretchr/testify v1.8.4

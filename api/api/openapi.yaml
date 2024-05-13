@@ -689,6 +689,8 @@ paths:
             \ with basic details like project ID, name, and description."
         "500":
           description: "A server error occurred, preventing the listing of projects."
+      security:
+      - BearerAuth: []
       summary: List all projects
       tags:
       - Projects
@@ -727,6 +729,8 @@ paths:
                 $ref: '#/components/schemas/createProject_400_response'
           description: "Bad request due to invalid input, such as incomplete data\
             \ fields or improper values."
+      security:
+      - BearerAuth: []
       summary: Create a new project
       tags:
       - Projects
@@ -759,6 +763,8 @@ paths:
           description: No project found with the specified ID to delete.
         "500":
           description: "A server error occurred, preventing the dele"
+      security:
+      - BearerAuth: []
       summary: Delete a project
       tags:
       - Projects
@@ -794,6 +800,8 @@ paths:
           description: No project found with the specified ID.
         "500":
           description: "A server error occurred, preventing the retrieval of the project."
+      security:
+      - BearerAuth: []
       summary: Retrieve a project by ID
       tags:
       - Projects
@@ -840,6 +848,8 @@ paths:
           description: No project found with the specified ID to update.
         "500":
           description: "A server error occurred, preventing the update of the project."
+      security:
+      - BearerAuth: []
       summary: Update a project
       tags:
       - Projects
@@ -880,6 +890,8 @@ paths:
             \ project ID."
         "500":
           description: "A server error occurred, preventing the retrieval of API keys."
+      security:
+      - BearerAuth: []
       summary: List all API keys for a project
       tags:
       - API Keys
@@ -932,6 +944,8 @@ paths:
         "500":
           description: "A server error occurred, preventing the generation of the\
             \ API key."
+      security:
+      - BearerAuth: []
       summary: Generate a new API key with specific scopes for a project
       tags:
       - API Keys
@@ -974,6 +988,8 @@ paths:
         "500":
           description: "A server error occurred, preventing the deletion of the API\
             \ key."
+      security:
+      - BearerAuth: []
       summary: Delete a specific API key
       tags:
       - API Keys
@@ -1019,6 +1035,8 @@ paths:
         "500":
           description: "A server error occurred, preventing the retrieval of the API\
             \ key."
+      security:
+      - BearerAuth: []
       summary: Retrieve a specific API key
       tags:
       - API Keys
@@ -1073,6 +1091,8 @@ paths:
         "500":
           description: "A server error occurred, preventing the update of the API\
             \ key."
+      security:
+      - BearerAuth: []
       summary: Update an API key's scopes
       tags:
       - API Keys
@@ -1291,118 +1311,18 @@ paths:
       summary: Update a specific prompt in a project
       tags:
       - Prompts
-  /prompts/{promptId}/versions:
+  /prompts/{promptId}/branches:
     get:
       description: |
-        Retrieves a list of all version histories associated with a specific prompt. This endpoint is crucial for understanding the evolution and lifecycle of prompt content, allowing users to access and review all historical and current iterations of a prompt. It provides a comprehensive view of the changes made over time, which is essential for version control, auditing, and rollback operations.
-
-        **Features**:
-        - **Version Tracking**: Enables tracking of all changes made to the prompt over its lifecycle, showing who made each change and when.
-        - **Audit and Compliance**: Supports compliance with internal and external audit requirements by maintaining a clear record of content changes and updates.
-        - **Content Restoration**: Facilitates the restoration of previous versions of the content if needed, allowing for easy recovery of earlier states.
-
-        **Use Cases**:
-        - Content managers reviewing the history of prompt updates to ensure accuracy and relevance.
-        - Developers integrating version data into other systems for enhanced content lifecycle management.
-        - Compliance officers auditing content changes for regulatory adherence.
-      operationId: listPromptVersions
-      parameters:
-      - description: The unique identifier of the prompt whose version history is
-          being queried.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/PromptVersion'
-                type: array
-          description: "Successfully retrieved a list of all versions associated with\
-            \ the prompt, including details such as version identifier, creation date,\
-            \ and the author of each version."
-        "404":
-          description: "No prompt found matching the specified identifier, indicating\
-            \ that either the prompt does not exist or has been removed."
-        "500":
-          description: "A server error occurred, preventing the retrieval of version\
-            \ information. This might be due to a failure in backend services or a\
-            \ database outage."
-      summary: List all versions of a specific prompt
-      tags:
-      - Versions
-  /prompts/{promptId}/versions/{versionId}:
-    get:
-      description: |
-        Retrieves detailed information about a specific version of a prompt, or the most recent version if 'latest' is specified as the version ID. This endpoint is crucial for accessing historical data of prompt versions for review or rollback purposes. It allows users to track changes over time and manage different iterations of content efficiently.
-
-        **Features**:
-        - **Historical Tracking**: Access any version of the prompt to see its historical state and changes.
-        - **Latest Version Access**: Specify 'latest' to automatically retrieve the most current version, facilitating easy access to the newest content without needing to track specific version IDs.
-
-        **Use Cases**:
-        - Retrieving a past version of the prompt for audit or comparison.
-        - Fetching the latest version for displaying current information or further editing.
-        - Integrating version data into other systems for content lifecycle management.
-
-        **Key Parameters**:
-        - `promptId`: Identifies the prompt whose version is being queried.
-        - `versionId`: Can be a specific version identifier or 'latest' to fetch the most recent version. The special keyword 'latest' simplifies queries for the current version, eliminating the need to know the exact version number.
-      operationId: getPromptVersion
-      parameters:
-      - description: The unique identifier of the prompt.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - example: latest
-        explode: false
-        in: path
-        name: versionId
-        required: true
-        schema:
-          description: "The ID of the version to retrieve, or 'latest' to obtain the\
-            \ most recent version."
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PromptVersion'
-          description: Successfully retrieved detailed information about the specified
-            version of the prompt.
-        "404":
-          description: No prompt or version found matching the specified identifiers.
-            This includes cases where 'latest' is specified but no versions exist.
-        "500":
-          description: "A server error occurred, preventing the retrieval of the prompt\
-            \ version."
-      summary: Retrieve a specific version or the latest version of a prompt
-      tags:
-      - Versions
-  /prompts/{promptId}/drafts:
-    get:
-      description: |
-        Retrieves a list of all draft versions associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
+        Retrieves a list of all branches associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
 
         **Usage**:
-        - Facilitates the management of multiple draft versions.
+        - Facilitates the management of multiple branch versions.
         - Enables stakeholders to review historical changes and progress on a prompt.
-        - Supports collaborative review by providing access to various draft submissions.
-      operationId: listPromptDrafts
+        - Supports collaborative review by providing access to various branch submissions.
+      operationId: listPromptBranches
       parameters:
-      - description: The unique identifier of the prompt for which drafts are being
+      - description: The unique identifier of the prompt for which branches are being
           listed.
         explode: false
         in: path
@@ -1417,32 +1337,32 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/PromptDraft'
+                  $ref: '#/components/schemas/Branch'
                 type: array
-          description: Successfully retrieved a list of all drafts for the specified
+          description: Successfully retrieved a list of all branches for the specified
             prompt.
         "404":
           description: The specified prompt was not found.
         "500":
-          description: "A server error occurred, preventing the retrieval of draft\
+          description: "A server error occurred, preventing the retrieval of branch\
             \ data."
-      summary: List all drafts of a specific prompt
+      summary: List all branches of a specific prompt
       tags:
-      - Drafts
+      - Branches
     post:
       description: |
-        Creates a new draft version for a specific prompt. This endpoint allows users to start a new revision cycle by submitting initial draft content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
+        Creates a new branch version for a specific prompt. This endpoint allows users to start a new revision cycle by submitting initial branch content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
 
         **Usage**:
-        - Initiates a new draft for collaborative editing or further development.
+        - Initiates a new branch for collaborative editing or further development.
         - Helps in managing version control by starting a new branch of content development.
 
         **Requirements**:
-        - Users must provide initial content or parameters for the draft as defined in the `PromptDraftInput` schema.
-        - Appropriate permissions are required to create drafts, typically restricted to content creators or project managers.
-      operationId: createPromptDraft
+        - Users must provide initial content or parameters for the branch as defined in the `PromptBranchInput` schema.
+        - Appropriate permissions are required to create branches, typically restricted to content creators or project managers.
+      operationId: createPromptBranch
       parameters:
-      - description: The unique identifier of the prompt for which a new draft is
+      - description: The unique identifier of the prompt for which a new branch is
           being created.
         explode: false
         in: path
@@ -1455,8 +1375,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PromptDraftInput'
-        description: "Contains the necessary information for creating a new draft,\
+              $ref: '#/components/schemas/BranchInput'
+        description: "Contains the necessary information for creating a new branch,\
           \ such as initial content or metadata."
         required: true
       responses:
@@ -1464,132 +1384,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PromptDraft'
-          description: Draft created successfully and is now available for review
+                $ref: '#/components/schemas/Branch'
+          description: Branch created successfully and is now available for review
             or further editing.
         "400":
           description: "Invalid input, such as missing required fields or malformed\
             \ data."
         "404":
-          description: "The specified prompt was not found, and thus the draft could\
+          description: "The specified prompt was not found, and thus the branch could\
             \ not be created."
         "500":
           description: "A server error occurred, preventing the creation of a new\
-            \ draft."
-      summary: Create a new draft for a prompt
+            \ branch."
+      summary: Create a new branch for a prompt
       tags:
-      - Drafts
-  /prompts/{promptId}/drafts/{draftId}/comments:
-    get:
-      description: "Retrieves a comprehensive list of all comments made on a specific\
-        \ draft. This endpoint is essential for review processes, providing a complete\
-        \ view of all discussions, feedback, and interactions associated with the\
-        \ draft. \n\n**Use Cases**:\n- Reviewing all feedback received on a draft\
-        \ before finalizing content.\n- Auditing comments for compliance and oversight.\n\
-        - Engaging in dialogue with contributors directly within the drafting process.\n\
-        \n**Output**:\n- Returns a list of comments, each including details such as\
-        \ the comment text, author, and timestamp.\n"
-      operationId: listCommentsOnDraft
-      parameters:
-      - description: The unique identifier of the prompt associated with the draft.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the draft whose comments are being listed.
-        explode: false
-        in: path
-        name: draftId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Comment'
-                type: array
-          description: Successfully retrieved the list of all comments.
-        "404":
-          description: Either the prompt or draft specified was not found.
-        "500":
-          description: "A server error occurred, preventing the retrieval of comments."
-      summary: List all comments on a draft
-      tags:
-      - Comments
-    post:
-      description: |
-        Allows users to post comments on a specific draft. This feature facilitates collaborative editing by enabling stakeholders to provide feedback, ask questions, or suggest improvements directly on the draft content. Each comment is associated with the draft identified by `draftId` under the prompt `promptId`.
-
-        **Key Features**:
-        - Supports collaborative review workflows.
-        - Enables targeted feedback on draft content.
-        - Integrates seamlessly into document review cycles, enhancing communication among reviewers and authors.
-
-        **Requirements**:
-        - Users must be authenticated and authorized to comment on the draft.
-        - The comment must contain valid content as defined in the `CommentInput` schema.
-      operationId: addCommentToDraft
-      parameters:
-      - description: The unique identifier of the prompt associated with the draft.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the draft to which the comment will
-          be added.
-        explode: false
-        in: path
-        name: draftId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CommentInput'
-        description: Payload containing the comment content and any optional metadata.
-        required: true
-      responses:
-        "201":
-          description: Comment added successfully to the draft.
-        "400":
-          description: "Invalid request data, such as missing or malformed comment\
-            \ content."
-        "404":
-          description: Either the prompt or draft specified was not found.
-        "500":
-          description: "A server error occurred, preventing the comment from being\
-            \ added."
-      summary: Add a comment to a draft
-      tags:
-      - Comments
-  /prompts/{promptId}/drafts/{draftId}/comments/{commentId}:
+      - Branches
+  /prompts/{promptId}/branches/{branchId}:
     delete:
-      description: |
-        Removes a comment from a draft, effectively deleting it from the system. This operation is used when comments are no longer relevant, are incorrect, or need to be removed for compliance reasons.
-
-        **Use Cases**:
-        - Removing outdated or no longer relevant comments.
-        - Deleting comments that may have been posted in error.
-        - Compliance with data retention policies or requests for comment removal.
-
-        **Requirements**:
-        - The user requesting the deletion should have permissions to delete comments, typically either the comment creator or an administrator.
-      operationId: deleteCommentFromDraft
+      description: "Deletes a specific branch of a prompt. This endpoint allows users\
+        \ to remove an entire branch and its associated commit history from a prompt.\
+        \ \n\n**Features**:\n- **Branch Removal**: Enables the deletion of branches\
+        \ that are no longer needed or are obsolete, maintaining a clean and organized\
+        \ development environment.\n- **Cascade Deletion**: Removes all commits associated\
+        \ with the branch, ensuring no orphaned data remains.\n\n**Use Cases**:\n\
+        - Developers cleaning up old branches that are no longer in use.\n- Content\
+        \ managers removing experimental branches that didn't proceed to production.\n\
+        - Automated systems enforcing branch retention policies by deleting branches\
+        \ past their retention period.\n\n**Key Parameters**:\n- `promptId`: Identifies\
+        \ the prompt whose branch is being deleted.\n- `branchId`: Specifies the unique\
+        \ identifier of the branch to delete.\n"
+      operationId: deleteBranch
       parameters:
-      - description: The unique identifier of the prompt associated with the comment.
+      - description: The unique identifier of the prompt whose branch is being deleted.
         explode: false
         in: path
         name: promptId
@@ -1597,45 +1423,39 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the draft from which the comment is
-          being deleted.
+      - description: The unique identifier of the branch to be deleted.
         explode: false
         in: path
-        name: draftId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the comment to be deleted.
-        explode: false
-        in: path
-        name: commentId
+        name: branchId
         required: true
         schema:
           type: string
         style: simple
       responses:
         "204":
-          description: "The comment was deleted successfully, no content returned."
+          description: Branch deleted successfully.
         "404":
-          description: The specified comment was not found.
+          description: No branch found matching the specified identifiers.
         "500":
-          description: A server error occurred preventing the deletion of the comment.
-      summary: Delete a comment from a draft
+          description: "A server error occurred, preventing the deletion of the branch."
+      summary: Delete a specific branch
       tags:
-      - Comments
-    put:
-      description: |
-        Allows editing of an existing comment on a specific draft. This operation enables users to modify the content of their comments, which can be crucial for correcting errors, updating information, or refining the communication within a collaborative environment.
-
-        **Use Cases**:
-        - Correcting spelling or grammatical errors in a previously submitted comment.
-        - Updating the comment to reflect new insights or additional information.
-        - Refining responses based on ongoing discussions or feedback.
-
-        **Requirements**:
-        - The comment must exist, and the user requesting the update should have the appropriate permissions to edit the comment.
-      operationId: updateCommentOnDraft
+      - Branches
+    get:
+      description: "Retrieves detailed information about a specific branch of a prompt.\
+        \ This endpoint is crucial for accessing the current state and details of\
+        \ a branch, including its creation date, name, and associated prompt ID. \n\
+        \n**Features**:\n- **Branch Identification**: Provides unique identifiers\
+        \ for branches, allowing for precise tracking and management.\n- **Metadata\
+        \ Access**: Includes metadata such as creation date and branch name, aiding\
+        \ in branch management and auditing.\n\n**Use Cases**:\n- Developers reviewing\
+        \ the state of a branch to understand its current content and history.\n-\
+        \ Content managers assessing different branches to decide on merging or further\
+        \ development.\n- Integrating branch data into other systems for enhanced\
+        \ content lifecycle management.\n\n**Key Parameters**:\n- `promptId`: Identifies\
+        \ the prompt to which the branch belongs.\n- `branchId`: Specifies the unique\
+        \ identifier of the branch to retrieve.\n"
+      operationId: getBranch
       parameters:
       - description: The unique identifier of the prompt.
         explode: false
@@ -1645,100 +1465,47 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the draft to which the comment belongs.
+      - description: The unique identifier of the branch to retrieve.
         explode: false
         in: path
-        name: draftId
+        name: branchId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the comment being updated.
-        explode: false
-        in: path
-        name: commentId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CommentInput'
-        description: Contains the updated data for the comment.
-        required: true
       responses:
         "200":
-          description: The comment was updated successfully.
-        "400":
-          description: "Invalid request data, such as missing content in the comment\
-            \ update."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: Successfully retrieved detailed information about the specified
+            branch.
         "404":
-          description: "The specified prompt, draft, or comment was not found."
+          description: No branch found matching the specified identifiers.
         "500":
-          description: A server error occurred preventing the comment update.
-      summary: Update a comment on a draft
+          description: "A server error occurred, preventing the retrieval of the branch."
+      summary: Retrieve a specific branch
       tags:
-      - Comments
-  /prompts/{promptId}/drafts/{draftId}/approvals:
-    delete:
-      description: "This endpoint allows for the removal of a specific approval from\
-        \ a draft by a given user. It is typically used in scenarios where an approver\
-        \ wishes to retract their approval due to changes in the draft or errors in\
-        \ the initial review. \n\n**Operation Details:**\n- The API checks if the\
-        \ approval corresponding to the provided `promptId`, and `draftId` exists.\
-        \ \n- If found, the approval is removed, effectively changing the status of\
-        \ the draft if the approval was necessary for it to be considered fully approved.\n\
-        - This operation is only permitted if the user associated with `userId` has\
-        \ the rights to modify the approval status, either as the original approver\
-        \ or as an administrator.\n\n**Preconditions:**\n- The draft identified by\
-        \ `draftId` must exist within the prompt specified by `promptId`.\n- The user\
-        \ must have previously approved the draft.\n- The user must have permissions\
-        \ to retract approvals.\n\n**Postconditions:**\n- The draft will no longer\
-        \ have the user's approval.\n- If the draft's approval policy requires multiple\
-        \ approvals, the removal of this approval may affect its readiness for merging\
-        \ or publishing.\n\nUse this endpoint with caution as it can impact the workflow\
-        \ of content approval and publication.\n"
-      operationId: removeApprovalFromDraft
-      parameters:
-      - description: The unique identifier of the prompt associated with the draft.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the draft from which the approval is
-          to be removed.
-        explode: false
-        in: path
-        name: draftId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: Approval removed successfully. No content is returned.
-        "404":
-          description: "Either the prompt, draft, or approval specified was not found."
-        "500":
-          description: A server error occurred preventing the operation.
-      summary: Remove an approval from a draft
-      tags:
-      - Approvals
+      - Branches
+  /prompts/{promptId}/branches/{branchId}/commits:
     get:
       description: |
-        Retrieves a list of all approvals associated with a specific draft. This endpoint is useful for audit purposes and managing draft reviews, providing an overview of who has approved the draft and any associated comments or metadata. It helps in understanding the approval state of the draft, whether it is ready to be finalized or requires more reviews.
+        Retrieves a list of all commit histories associated with a specific branch of a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
 
-        **Usage**:
-        - Useful in collaborative environments where multiple approvals are needed.
-        - Helps in tracking the approval process and ensuring all necessary validations are met before publishing or merging a draft.
-      operationId: listApprovalsOnDraft
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+      operationId: listBranchCommits
       parameters:
-      - description: The unique identifier of the prompt associated with the draft.
+      - description: The unique identifier of the prompt whose branch commits are
+          being listed.
         explode: false
         in: path
         name: promptId
@@ -1746,11 +1513,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the draft whose approvals are being
-          listed.
+      - description: The unique identifier of the branch whose commits are being listed.
         explode: false
         in: path
-        name: draftId
+        name: branchId
         required: true
         schema:
           type: string
@@ -1761,27 +1527,35 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Approval'
+                  $ref: '#/components/schemas/Commit'
                 type: array
-          description: Successfully retrieved the list of approvals.
+          description: Successfully retrieved a list of all commits associated with
+            the branch.
         "404":
-          description: Either the prompt or the draft specified was not found.
+          description: No branch found matching the specified identifiers.
         "500":
-          description: "A server error occurred, preventing the retrieval of approvals."
-      summary: List all approvals on a draft
+          description: "A server error occurred, preventing the retrieval of commit\
+            \ information."
+      summary: List all commits of a specific branch
       tags:
-      - Approvals
+      - Commits
     post:
       description: |
-        Submits an approval for a draft from the authenticated user. This endpoint does not require explicit input for the approval as it assumes the user's identity and approval intent are derived from the authentication context. The system records the approval along with any automatic timestamp and the user's ID.
+        Creates a new commit for a specific branch of a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
 
-        **Usage**:
-        - Allows a user to approve a draft indicating readiness or agreement with its content.
-        - Automatically logs the approval action for compliance and tracking.
-      operationId: addApprovalToDraft
+        **Features**:
+        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
+        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
+        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
+
+        **Use Cases**:
+        - Developers committing new changes or features to a branch.
+        - Content managers updating prompt content and documenting the changes.
+        - Teams collaborating on a project and needing a clear record of each member's contributions.
+      operationId: createBranchCommit
       parameters:
-      - description: The unique identifier of the prompt associated with the draft
-          being approved.
+      - description: The unique identifier of the prompt whose branch is being committed
+          to.
         explode: false
         in: path
         name: promptId
@@ -1789,11 +1563,11 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the draft to which the approval is being
-          added.
+      - description: The unique identifier of the branch for which a new commit is
+          being created.
         explode: false
         in: path
-        name: draftId
+        name: branchId
         required: true
         schema:
           type: string
@@ -1802,46 +1576,46 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApprovalInput'
-        description: No input is required as the approval assumes authenticated user
-          context.
-        required: false
+              $ref: '#/components/schemas/CommitInput'
+        description: "Contains the necessary information for creating a new commit,\
+          \ such as commit message and changes."
+        required: true
       responses:
         "201":
-          description: "Approval added successfully, including the user's ID and the\
-            \ timestamp."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+          description: Commit created successfully and is now part of the branch history.
         "400":
-          description: "Invalid request, possibly due to missing authentication or\
-            \ authorization."
+          description: "Invalid input, such as missing required fields or malformed\
+            \ data."
         "404":
-          description: Either the prompt or the draft specified was not found.
+          description: "The specified branch was not found, and thus the commit could\
+            \ not be created."
         "500":
-          description: "A server error occurred, preventing the addition of the approval."
-      summary: Add an approval to a draft
+          description: "A server error occurred, preventing the creation of a new\
+            \ commit."
+      summary: Create a new commit for a branch
       tags:
-      - Approvals
-  /prompts/{promptId}/drafts/{draftId}/merge:
-    post:
+      - Commits
+  /prompts/{promptId}/branches/{branchId}/commits/{commitId}:
+    get:
       description: |
-        This endpoint merges an approved draft into a new version of the prompt. It requires that the draft has received all necessary approvals as specified by the workflow rules. Upon successful merging, a new version of the prompt is created with the content from the approved draft.
+        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
 
-        The operation checks that the specified draft has the status 'approved'. If the draft does not meet this criterion, or if any other validation fails (such as the prompt or draft not existing), an error is returned. This endpoint is crucial for transitioning a draft, which has been collaboratively edited and reviewed, into a finalized version that is accessible to end users.
+        **Features**:
+        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
+        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
+        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
 
-        **Requirements:**
-        - The draft must be explicitly marked as approved.
-        - Both the `promptId` and `draftId` must correspond to existing records.
-
-        **Process:**
-        - Validate the existence and status of the draft and the prompt.
-        - Merge the draft content into the main prompt structure, creating a new version.
-        - Archive or mark the draft as merged.
-
-        **Use Cases:**
-        - Finalizing content revisions in a collaborative editing environment.
-        - Updating official documentation or feature descriptions after a review process.
-      operationId: mergeDraftIntoVersion
+        **Use Cases**:
+        - Retrieving past commits for audit or comparison purposes.
+        - Accessing the latest commit to continue development or review current changes.
+        - Integrating commit data into other systems for enhanced content lifecycle management.
+      operationId: getBranchCommit
       parameters:
-      - description: The unique identifier of the prompt to which the draft belongs.
+      - description: The unique identifier of the prompt.
         explode: false
         in: path
         name: promptId
@@ -1849,28 +1623,40 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the draft to be merged.
+      - description: The unique identifier of the branch.
         explode: false
         in: path
-        name: draftId
+        name: branchId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "The ID of the commit to retrieve, or 'latest' to obtain the\
+          \ most recent commit."
+        example: latest
+        explode: false
+        in: path
+        name: commitId
         required: true
         schema:
           type: string
         style: simple
       responses:
-        "201":
-          description: Draft successfully merged and a new version of the prompt was
-            created.
-        "400":
-          description: The draft is not approved or other validation errors occurred.
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+          description: Successfully retrieved detailed information about the specified
+            commit of the branch.
         "404":
-          description: Either the prompt or the draft specified by the IDs was not
-            found.
+          description: No branch or commit found matching the specified identifiers.
         "500":
-          description: An unexpected error occurred which prevented the merging operation.
-      summary: Merge an approved draft into a new version
+          description: "A server error occurred, preventing the retrieval of the branch\
+            \ commit."
+      summary: Retrieve a specific commit or the latest commit of a branch
       tags:
-      - Drafts
+      - Commits
 components:
   schemas:
     Organization:
@@ -1960,12 +1746,16 @@ components:
     User:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
+        name: name
         id: id
         email: email
         updatedAt: updatedAt
       properties:
         id:
           description: Unique identifier for the user
+          type: string
+        name:
+          description: User's full name (optional)
           type: string
         email:
           description: User's email address
@@ -1979,8 +1769,12 @@ components:
       type: object
     UserInput:
       example:
+        name: name
         email: email
       properties:
+        name:
+          description: User's full name (optional)
+          type: string
         email:
           description: User's email address
           type: string
@@ -2135,173 +1929,63 @@ components:
       required:
       - name
       type: object
-    PromptVersion:
+    Branch:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        promptId: promptId
+        id: id
+      properties:
+        id:
+          description: Unique identifier for the branch of the prompt
+          type: string
+        createdAt:
+          description: Timestamp when this branch was created
+          format: date-time
+          type: string
+      type: object
+    BranchInput:
+      example:
+        id: id
+      properties:
+        id:
+          description: Unique identifier for the branch of the prompt
+          type: string
+      required:
+      - id
+      type: object
+    Commit:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
         id: id
         content: content
       properties:
         id:
-          description: Unique identifier for the version of the prompt
+          description: Unique identifier for the commit of the branch
           type: string
         content:
-          description: Content of the prompt at this version
-          type: string
-        promptId:
-          description: Identifier of the prompt this version belongs to
+          description: Content of the prompt in this commit
           type: string
         createdAt:
-          description: Timestamp when this version was created
+          description: Timestamp when this commit was created
           format: date-time
           type: string
       type: object
-    PromptVersionInput:
+    CommitInput:
+      example:
+        content: content
       properties:
         content:
-          description: Content of the prompt at this version
+          description: Content of the prompt in this commit
           type: string
       required:
       - content
-      type: object
-    PromptDraft:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        promptId: promptId
-        name: name
-        description: description
-        id: id
-        content: content
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          description: Unique identifier for the draft
-          type: string
-        name:
-          description: Name of the draft
-          type: string
-        description:
-          description: A brief description of the project
-          type: string
-        content:
-          description: Content of the draft
-          type: string
-        promptId:
-          description: Identifier of the prompt this draft belongs to
-          type: string
-        createdAt:
-          description: Timestamp when the draft was created
-          format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp when the draft was last updated
-          format: date-time
-          type: string
-      type: object
-    PromptDraftInput:
-      example:
-        name: name
-        description: description
-        content: content
-      properties:
-        name:
-          description: Name of the draft
-          type: string
-        description:
-          description: A brief description of the project
-          type: string
-        content:
-          description: Content of the draft
-          type: string
-      required:
-      - content
-      - name
-      type: object
-    Comment:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        id: id
-        text: text
-        lineNumber: 0
-        userId: userId
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          description: Unique identifier for the comment
-          type: string
-        userId:
-          description: User ID of the author of the comment
-          type: string
-        text:
-          description: Text content of the comment
-          type: string
-        lineNumber:
-          description: Optional reference to a specific line in the draft content
-          type: integer
-        createdAt:
-          description: Timestamp when the comment was created
-          format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp when the comment was last updated
-          format: date-time
-          type: string
-      type: object
-    CommentInput:
-      example:
-        text: text
-        lineNumber: 0
-      properties:
-        text:
-          description: Text content of the comment
-          type: string
-        lineNumber:
-          description: Optional reference to a specific line in the draft content
-          type: integer
-      required:
-      - text
-      type: object
-    Approval:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        userId: userId
-      properties:
-        userId:
-          description: User ID of the person who approved the draft
-          type: string
-        createdAt:
-          description: Timestamp when the approval was given
-          format: date-time
-          type: string
-      type: object
-    ApprovalInput:
-      type: object
-    healthCheck_200_response_details:
-      example:
-        database: connected
-        uptime: 0.8008281904610115
-      properties:
-        database:
-          example: connected
-          type: string
-        uptime:
-          description: "Time in milliseconds that the API has been operational, indicating\
-            \ stability and reliability."
-          format: double
-          type: number
       type: object
     healthCheck_200_response:
       example:
-        details:
-          database: connected
-          uptime: 0.8008281904610115
         status: healthy
       properties:
         status:
           example: healthy
           type: string
-        details:
-          $ref: '#/components/schemas/healthCheck_200_response_details'
       type: object
     healthCheck_500_response:
       example:

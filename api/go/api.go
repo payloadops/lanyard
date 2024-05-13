@@ -28,30 +28,22 @@ type APIKeysAPIRouter interface {
 	ListApiKeys(http.ResponseWriter, *http.Request)
 	UpdateApiKey(http.ResponseWriter, *http.Request)
 }
-// ApprovalsAPIRouter defines the required methods for binding the api requests to a responses for the ApprovalsAPI
-// The ApprovalsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a ApprovalsAPIServicer to perform the required actions, then write the service results to the http response.
-type ApprovalsAPIRouter interface { 
-	AddApprovalToDraft(http.ResponseWriter, *http.Request)
-	ListApprovalsOnDraft(http.ResponseWriter, *http.Request)
-	RemoveApprovalFromDraft(http.ResponseWriter, *http.Request)
+// BranchesAPIRouter defines the required methods for binding the api requests to a responses for the BranchesAPI
+// The BranchesAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a BranchesAPIServicer to perform the required actions, then write the service results to the http response.
+type BranchesAPIRouter interface { 
+	CreatePromptBranch(http.ResponseWriter, *http.Request)
+	DeleteBranch(http.ResponseWriter, *http.Request)
+	GetBranch(http.ResponseWriter, *http.Request)
+	ListPromptBranches(http.ResponseWriter, *http.Request)
 }
-// CommentsAPIRouter defines the required methods for binding the api requests to a responses for the CommentsAPI
-// The CommentsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a CommentsAPIServicer to perform the required actions, then write the service results to the http response.
-type CommentsAPIRouter interface { 
-	AddCommentToDraft(http.ResponseWriter, *http.Request)
-	DeleteCommentFromDraft(http.ResponseWriter, *http.Request)
-	ListCommentsOnDraft(http.ResponseWriter, *http.Request)
-	UpdateCommentOnDraft(http.ResponseWriter, *http.Request)
-}
-// DraftsAPIRouter defines the required methods for binding the api requests to a responses for the DraftsAPI
-// The DraftsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a DraftsAPIServicer to perform the required actions, then write the service results to the http response.
-type DraftsAPIRouter interface { 
-	CreatePromptDraft(http.ResponseWriter, *http.Request)
-	ListPromptDrafts(http.ResponseWriter, *http.Request)
-	MergeDraftIntoVersion(http.ResponseWriter, *http.Request)
+// CommitsAPIRouter defines the required methods for binding the api requests to a responses for the CommitsAPI
+// The CommitsAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a CommitsAPIServicer to perform the required actions, then write the service results to the http response.
+type CommitsAPIRouter interface { 
+	CreateBranchCommit(http.ResponseWriter, *http.Request)
+	GetBranchCommit(http.ResponseWriter, *http.Request)
+	ListBranchCommits(http.ResponseWriter, *http.Request)
 }
 // HealthCheckAPIRouter defines the required methods for binding the api requests to a responses for the HealthCheckAPI
 // The HealthCheckAPIRouter implementation should parse necessary information from the http request,
@@ -109,13 +101,6 @@ type UsersAPIRouter interface {
 	ListUsers(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
-// VersionsAPIRouter defines the required methods for binding the api requests to a responses for the VersionsAPI
-// The VersionsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a VersionsAPIServicer to perform the required actions, then write the service results to the http response.
-type VersionsAPIRouter interface { 
-	GetPromptVersion(http.ResponseWriter, *http.Request)
-	ListPromptVersions(http.ResponseWriter, *http.Request)
-}
 
 
 // APIKeysAPIServicer defines the api actions for the APIKeysAPI service
@@ -131,37 +116,26 @@ type APIKeysAPIServicer interface {
 }
 
 
-// ApprovalsAPIServicer defines the api actions for the ApprovalsAPI service
+// BranchesAPIServicer defines the api actions for the BranchesAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type ApprovalsAPIServicer interface { 
-	AddApprovalToDraft(context.Context, string, string, map[string]interface{}) (ImplResponse, error)
-	ListApprovalsOnDraft(context.Context, string, string) (ImplResponse, error)
-	RemoveApprovalFromDraft(context.Context, string, string) (ImplResponse, error)
+type BranchesAPIServicer interface { 
+	CreatePromptBranch(context.Context, string, BranchInput) (ImplResponse, error)
+	DeleteBranch(context.Context, string, string) (ImplResponse, error)
+	GetBranch(context.Context, string, string) (ImplResponse, error)
+	ListPromptBranches(context.Context, string) (ImplResponse, error)
 }
 
 
-// CommentsAPIServicer defines the api actions for the CommentsAPI service
+// CommitsAPIServicer defines the api actions for the CommitsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type CommentsAPIServicer interface { 
-	AddCommentToDraft(context.Context, string, string, CommentInput) (ImplResponse, error)
-	DeleteCommentFromDraft(context.Context, string, string, string) (ImplResponse, error)
-	ListCommentsOnDraft(context.Context, string, string) (ImplResponse, error)
-	UpdateCommentOnDraft(context.Context, string, string, string, CommentInput) (ImplResponse, error)
-}
-
-
-// DraftsAPIServicer defines the api actions for the DraftsAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type DraftsAPIServicer interface { 
-	CreatePromptDraft(context.Context, string, PromptDraftInput) (ImplResponse, error)
-	ListPromptDrafts(context.Context, string) (ImplResponse, error)
-	MergeDraftIntoVersion(context.Context, string, string) (ImplResponse, error)
+type CommitsAPIServicer interface { 
+	CreateBranchCommit(context.Context, string, string, CommitInput) (ImplResponse, error)
+	GetBranchCommit(context.Context, string, string, string) (ImplResponse, error)
+	ListBranchCommits(context.Context, string, string) (ImplResponse, error)
 }
 
 
@@ -236,14 +210,4 @@ type UsersAPIServicer interface {
 	GetUser(context.Context, string) (ImplResponse, error)
 	ListUsers(context.Context) (ImplResponse, error)
 	UpdateUser(context.Context, string, UserInput) (ImplResponse, error)
-}
-
-
-// VersionsAPIServicer defines the api actions for the VersionsAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type VersionsAPIServicer interface { 
-	GetPromptVersion(context.Context, string, string) (ImplResponse, error)
-	ListPromptVersions(context.Context, string) (ImplResponse, error)
 }

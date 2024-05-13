@@ -17,15 +17,10 @@ package openapi
 type HealthCheck200Response struct {
 
 	Status string `json:"status,omitempty"`
-
-	Details HealthCheck200ResponseDetails `json:"details,omitempty"`
 }
 
 // AssertHealthCheck200ResponseRequired checks if the required fields are not zero-ed
 func AssertHealthCheck200ResponseRequired(obj HealthCheck200Response) error {
-	if err := AssertHealthCheck200ResponseDetailsRequired(obj.Details); err != nil {
-		return err
-	}
 	return nil
 }
 

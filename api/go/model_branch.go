@@ -18,27 +18,21 @@ import (
 
 
 
-type PromptVersion struct {
+type Branch struct {
 
-	// Unique identifier for the version of the prompt
+	// Unique identifier for the branch of the prompt
 	Id string `json:"id,omitempty"`
 
-	// Content of the prompt at this version
-	Content string `json:"content,omitempty"`
-
-	// Identifier of the prompt this version belongs to
-	PromptId string `json:"promptId,omitempty"`
-
-	// Timestamp when this version was created
+	// Timestamp when this branch was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }
 
-// AssertPromptVersionRequired checks if the required fields are not zero-ed
-func AssertPromptVersionRequired(obj PromptVersion) error {
+// AssertBranchRequired checks if the required fields are not zero-ed
+func AssertBranchRequired(obj Branch) error {
 	return nil
 }
 
-// AssertPromptVersionConstraints checks if the values respects the defined constraints
-func AssertPromptVersionConstraints(obj PromptVersion) error {
+// AssertBranchConstraints checks if the values respects the defined constraints
+func AssertBranchConstraints(obj Branch) error {
 	return nil
 }

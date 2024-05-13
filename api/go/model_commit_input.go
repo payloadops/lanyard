@@ -14,22 +14,15 @@ package openapi
 
 
 
-type PromptDraftInput struct {
+type CommitInput struct {
 
-	// Name of the draft
-	Name string `json:"name"`
-
-	// A brief description of the project
-	Description string `json:"description,omitempty"`
-
-	// Content of the draft
+	// Content of the prompt in this commit
 	Content string `json:"content"`
 }
 
-// AssertPromptDraftInputRequired checks if the required fields are not zero-ed
-func AssertPromptDraftInputRequired(obj PromptDraftInput) error {
+// AssertCommitInputRequired checks if the required fields are not zero-ed
+func AssertCommitInputRequired(obj CommitInput) error {
 	elements := map[string]interface{}{
-		"name": obj.Name,
 		"content": obj.Content,
 	}
 	for name, el := range elements {
@@ -41,7 +34,7 @@ func AssertPromptDraftInputRequired(obj PromptDraftInput) error {
 	return nil
 }
 
-// AssertPromptDraftInputConstraints checks if the values respects the defined constraints
-func AssertPromptDraftInputConstraints(obj PromptDraftInput) error {
+// AssertCommitInputConstraints checks if the values respects the defined constraints
+func AssertCommitInputConstraints(obj CommitInput) error {
 	return nil
 }

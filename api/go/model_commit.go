@@ -18,21 +18,24 @@ import (
 
 
 
-type Approval struct {
+type Commit struct {
 
-	// User ID of the person who approved the draft
-	UserId string `json:"userId,omitempty"`
+	// Unique identifier for the commit of the branch
+	Id string `json:"id,omitempty"`
 
-	// Timestamp when the approval was given
+	// Content of the prompt in this commit
+	Content string `json:"content,omitempty"`
+
+	// Timestamp when this commit was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }
 
-// AssertApprovalRequired checks if the required fields are not zero-ed
-func AssertApprovalRequired(obj Approval) error {
+// AssertCommitRequired checks if the required fields are not zero-ed
+func AssertCommitRequired(obj Commit) error {
 	return nil
 }
 
-// AssertApprovalConstraints checks if the values respects the defined constraints
-func AssertApprovalConstraints(obj Approval) error {
+// AssertCommitConstraints checks if the values respects the defined constraints
+func AssertCommitConstraints(obj Commit) error {
 	return nil
 }

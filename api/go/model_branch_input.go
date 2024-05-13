@@ -14,19 +14,16 @@ package openapi
 
 
 
-type CommentInput struct {
+type BranchInput struct {
 
-	// Text content of the comment
-	Text string `json:"text"`
-
-	// Optional reference to a specific line in the draft content
-	LineNumber int32 `json:"lineNumber,omitempty"`
+	// Unique identifier for the branch of the prompt
+	Id string `json:"id"`
 }
 
-// AssertCommentInputRequired checks if the required fields are not zero-ed
-func AssertCommentInputRequired(obj CommentInput) error {
+// AssertBranchInputRequired checks if the required fields are not zero-ed
+func AssertBranchInputRequired(obj BranchInput) error {
 	elements := map[string]interface{}{
-		"text": obj.Text,
+		"id": obj.Id,
 	}
 	for name, el := range elements {
 		if isZero := IsZeroValue(el); isZero {
@@ -37,7 +34,7 @@ func AssertCommentInputRequired(obj CommentInput) error {
 	return nil
 }
 
-// AssertCommentInputConstraints checks if the values respects the defined constraints
-func AssertCommentInputConstraints(obj CommentInput) error {
+// AssertBranchInputConstraints checks if the values respects the defined constraints
+func AssertBranchInputConstraints(obj BranchInput) error {
 	return nil
 }
