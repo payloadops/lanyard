@@ -3,7 +3,7 @@ package userhandler
 import (
 	"encoding/json"
 	"net/http"
-	keyservicemodel "plato/app/openapi/model/apikey/service"
+	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/model"
 	"plato/app/pkg/service/apikey"
 	"plato/app/pkg/util"

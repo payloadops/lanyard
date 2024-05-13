@@ -2,7 +2,7 @@ package prompthandler
 
 import (
 	"net/http"
-	promptservice "plato/app/openapi/service/prompt"
+	promptservice "plato/app/pkg/service/prompt"
 	"strings"
 
 	"github.com/go-chi/render"

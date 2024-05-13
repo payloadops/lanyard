@@ -2,7 +2,7 @@ package healthhandler
 
 import (
 	"net/http"
-	healthcheckservice "plato/app/openapi/service/health"
+	healthcheckservice "plato/app/pkg/service/health"
 
 	"github.com/go-chi/render"
 )

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	dbdal "plato/app/openapi/dal/postgres"
+	dbdal "plato/app/pkg/dal/postgres"
 	"plato/app/pkg/auth"
 )
 

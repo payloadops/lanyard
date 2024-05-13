@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	promptservicemodel "plato/app/openapi/model/prompt/service"
-	promptservice "plato/app/openapi/service/prompt"
+	promptservicemodel "plato/app/pkg/model/prompt/service"
+	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
 	"strings"
 

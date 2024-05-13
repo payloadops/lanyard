@@ -2,7 +2,7 @@ package project
 
 import (
 	"context"
-	projectservicemodel "plato/app/openapi/model/project"
+	projectservicemodel "plato/app/pkg/model/project"
 )
 
 type ProjectService interface {

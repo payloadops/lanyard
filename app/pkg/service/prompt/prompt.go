@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	awsclient "plato/app/openapi/client/aws"
-	dbdal "plato/app/openapi/dal/postgres"
-	promptservicemodel "plato/app/openapi/model/prompt/service"
+	awsclient "plato/app/pkg/client/aws"
+	dbdal "plato/app/pkg/dal/postgres"
+	promptservicemodel "plato/app/pkg/model/prompt/service"
 	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
 

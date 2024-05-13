@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	userservicemodel "plato/app/openapi/model/user"
+	userservicemodel "plato/app/pkg/model/user"
 )
 
 type OrgService interface {

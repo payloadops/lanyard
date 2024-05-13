@@ -1,7 +1,7 @@
 package main
 
 import (
-	awsclient "plato/app/openapi/client/aws"
+	awsclient "plato/app/pkg/client/aws"
 	"plato/app/pkg/router"
 )
 
