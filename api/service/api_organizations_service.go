@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type OrganizationsAPIService struct {
 }
 
 // NewOrganizationsAPIService creates a default api service
-func NewOrganizationsAPIService() OrganizationsAPIServicer {
+func NewOrganizationsAPIService() openapi.OrganizationsAPIServicer {
 	return &OrganizationsAPIService{}
 }
 
 // CreateOrganization - Create a new organization
-func (s *OrganizationsAPIService) CreateOrganization(ctx context.Context, organizationInput OrganizationInput) (ImplResponse, error) {
+func (s *OrganizationsAPIService) CreateOrganization(ctx context.Context, organizationInput openapi.OrganizationInput) (openapi.ImplResponse, error) {
 	// TODO - update CreateOrganization with the required logic for this service method.
-	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Organization{}) or use other options such as http.Ok ...
 	// return Response(201, Organization{}), nil
@@ -42,13 +43,13 @@ func (s *OrganizationsAPIService) CreateOrganization(ctx context.Context, organi
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateOrganization method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("CreateOrganization method not implemented")
 }
 
 // DeleteOrganization - Delete a specific organization
-func (s *OrganizationsAPIService) DeleteOrganization(ctx context.Context, orgId string) (ImplResponse, error) {
+func (s *OrganizationsAPIService) DeleteOrganization(ctx context.Context, orgId string) (openapi.ImplResponse, error) {
 	// TODO - update DeleteOrganization with the required logic for this service method.
-	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -59,13 +60,13 @@ func (s *OrganizationsAPIService) DeleteOrganization(ctx context.Context, orgId 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteOrganization method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("DeleteOrganization method not implemented")
 }
 
 // GetOrganization - Get a specific organization
-func (s *OrganizationsAPIService) GetOrganization(ctx context.Context, orgId string) (ImplResponse, error) {
+func (s *OrganizationsAPIService) GetOrganization(ctx context.Context, orgId string) (openapi.ImplResponse, error) {
 	// TODO - update GetOrganization with the required logic for this service method.
-	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Organization{}) or use other options such as http.Ok ...
 	// return Response(200, Organization{}), nil
@@ -76,13 +77,13 @@ func (s *OrganizationsAPIService) GetOrganization(ctx context.Context, orgId str
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetOrganization method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetOrganization method not implemented")
 }
 
 // ListOrganizations - List all organizations
-func (s *OrganizationsAPIService) ListOrganizations(ctx context.Context) (ImplResponse, error) {
+func (s *OrganizationsAPIService) ListOrganizations(ctx context.Context) (openapi.ImplResponse, error) {
 	// TODO - update ListOrganizations with the required logic for this service method.
-	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Organization{}) or use other options such as http.Ok ...
 	// return Response(200, []Organization{}), nil
@@ -90,13 +91,13 @@ func (s *OrganizationsAPIService) ListOrganizations(ctx context.Context) (ImplRe
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListOrganizations method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListOrganizations method not implemented")
 }
 
 // UpdateOrganization - Update a specific organization
-func (s *OrganizationsAPIService) UpdateOrganization(ctx context.Context, orgId string, organizationInput OrganizationInput) (ImplResponse, error) {
+func (s *OrganizationsAPIService) UpdateOrganization(ctx context.Context, orgId string, organizationInput openapi.OrganizationInput) (openapi.ImplResponse, error) {
 	// TODO - update UpdateOrganization with the required logic for this service method.
-	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Organization{}) or use other options such as http.Ok ...
 	// return Response(200, Organization{}), nil
@@ -110,5 +111,5 @@ func (s *OrganizationsAPIService) UpdateOrganization(ctx context.Context, orgId 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateOrganization method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("UpdateOrganization method not implemented")
 }

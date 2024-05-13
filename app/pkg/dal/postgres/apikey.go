@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	awsclient "plato/app/go/client/aws"
+	awsclient "plato/app/openapi/client/aws"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"

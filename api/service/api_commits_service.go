@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type CommitsAPIService struct {
 }
 
 // NewCommitsAPIService creates a default api service
-func NewCommitsAPIService() CommitsAPIServicer {
+func NewCommitsAPIService() openapi.CommitsAPIServicer {
 	return &CommitsAPIService{}
 }
 
 // CreateBranchCommit - Create a new commit for a branch
-func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId string, branchId string, commitInput CommitInput) (ImplResponse, error) {
+func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId string, branchId string, commitInput openapi.CommitInput) (openapi.ImplResponse, error) {
 	// TODO - update CreateBranchCommit with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Commit{}) or use other options such as http.Ok ...
 	// return Response(201, Commit{}), nil
@@ -45,13 +46,13 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId str
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateBranchCommit method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("CreateBranchCommit method not implemented")
 }
 
 // GetBranchCommit - Retrieve a specific commit or the latest commit of a branch
-func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, promptId string, branchId string, commitId string) (ImplResponse, error) {
+func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, promptId string, branchId string, commitId string) (openapi.ImplResponse, error) {
 	// TODO - update GetBranchCommit with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Commit{}) or use other options such as http.Ok ...
 	// return Response(200, Commit{}), nil
@@ -62,13 +63,13 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, promptId string
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetBranchCommit method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetBranchCommit method not implemented")
 }
 
 // ListBranchCommits - List all commits of a specific branch
-func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
+func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, promptId string, branchId string) (openapi.ImplResponse, error) {
 	// TODO - update ListBranchCommits with the required logic for this service method.
-	// Add api_commits_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_commits_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Commit{}) or use other options such as http.Ok ...
 	// return Response(200, []Commit{}), nil
@@ -79,5 +80,5 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, promptId stri
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListBranchCommits method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListBranchCommits method not implemented")
 }

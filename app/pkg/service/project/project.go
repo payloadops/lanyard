@@ -3,9 +3,9 @@ package project
 import (
 	"context"
 	"fmt"
-	awsclient "plato/app/go/client/aws"
-	dbdal "plato/app/go/dal/postgres"
-	projectservicemodel "plato/app/go/model/project"
+	awsclient "plato/app/openapi/client/aws"
+	dbdal "plato/app/openapi/dal/postgres"
+	projectservicemodel "plato/app/openapi/model/project"
 	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
 

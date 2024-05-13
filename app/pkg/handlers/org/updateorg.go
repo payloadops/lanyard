@@ -3,7 +3,7 @@ package orghandler
 import (
 	"encoding/json"
 	"net/http"
-	keyservicemodel "plato/app/go/model/apikey/service"
+	keyservicemodel "plato/app/openapi/model/apikey/service"
 	"plato/app/pkg/service/apikey"
 	"strings"
 

@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type PromptsAPIService struct {
 }
 
 // NewPromptsAPIService creates a default api service
-func NewPromptsAPIService() PromptsAPIServicer {
+func NewPromptsAPIService() openapi.PromptsAPIServicer {
 	return &PromptsAPIService{}
 }
 
 // CreatePrompt - Create a new prompt in a project
-func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, promptInput PromptInput) (ImplResponse, error) {
+func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
 	// TODO - update CreatePrompt with the required logic for this service method.
-	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Prompt{}) or use other options such as http.Ok ...
 	// return Response(201, Prompt{}), nil
@@ -45,13 +46,13 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreatePrompt method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("CreatePrompt method not implemented")
 }
 
 // DeletePrompt - Delete a specific prompt from a project
-func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, promptId string) (ImplResponse, error) {
+func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, promptId string) (openapi.ImplResponse, error) {
 	// TODO - update DeletePrompt with the required logic for this service method.
-	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -62,13 +63,13 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeletePrompt method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("DeletePrompt method not implemented")
 }
 
 // GetPrompt - Retrieve a specific prompt within a project
-func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, promptId string) (ImplResponse, error) {
+func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, promptId string) (openapi.ImplResponse, error) {
 	// TODO - update GetPrompt with the required logic for this service method.
-	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, Prompt{}), nil
@@ -79,13 +80,13 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, pro
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetPrompt method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetPrompt method not implemented")
 }
 
 // ListPrompts - List all prompts in a project
-func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (ImplResponse, error) {
+func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
 	// TODO - update ListPrompts with the required logic for this service method.
-	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, []Prompt{}), nil
@@ -96,13 +97,13 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListPrompts method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListPrompts method not implemented")
 }
 
 // UpdatePrompt - Update a specific prompt in a project
-func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, promptId string, promptInput PromptInput) (ImplResponse, error) {
+func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, promptId string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
 	// TODO - update UpdatePrompt with the required logic for this service method.
-	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, Prompt{}), nil
@@ -116,5 +117,5 @@ func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdatePrompt method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("UpdatePrompt method not implemented")
 }

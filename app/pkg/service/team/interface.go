@@ -2,7 +2,7 @@ package team
 
 import (
 	"context"
-	teamservicemodel "plato/app/go/model/team"
+	teamservicemodel "plato/app/openapi/model/team"
 )
 
 type OrgService interface {

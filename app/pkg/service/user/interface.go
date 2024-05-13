@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	userservicemodel "plato/app/go/model/user"
+	userservicemodel "plato/app/openapi/model/user"
 )
 
 type OrgService interface {

@@ -2,7 +2,7 @@ package org
 
 import (
 	"context"
-	orgservicemodel "plato/app/go/model/org"
+	orgservicemodel "plato/app/openapi/model/org"
 )
 
 type OrgService interface {

@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type TeamsAPIService struct {
 }
 
 // NewTeamsAPIService creates a default api service
-func NewTeamsAPIService() TeamsAPIServicer {
+func NewTeamsAPIService() openapi.TeamsAPIServicer {
 	return &TeamsAPIService{}
 }
 
 // CreateTeam - Create a new team for an organization
-func (s *TeamsAPIService) CreateTeam(ctx context.Context, orgId string, teamInput TeamInput) (ImplResponse, error) {
+func (s *TeamsAPIService) CreateTeam(ctx context.Context, orgId string, teamInput openapi.TeamInput) (openapi.ImplResponse, error) {
 	// TODO - update CreateTeam with the required logic for this service method.
-	// Add api_teams_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_teams_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Team{}) or use other options such as http.Ok ...
 	// return Response(201, Team{}), nil
@@ -42,13 +43,13 @@ func (s *TeamsAPIService) CreateTeam(ctx context.Context, orgId string, teamInpu
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateTeam method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("CreateTeam method not implemented")
 }
 
 // DeleteTeam - Delete a specific team
-func (s *TeamsAPIService) DeleteTeam(ctx context.Context, orgId string, teamId string) (ImplResponse, error) {
+func (s *TeamsAPIService) DeleteTeam(ctx context.Context, orgId string, teamId string) (openapi.ImplResponse, error) {
 	// TODO - update DeleteTeam with the required logic for this service method.
-	// Add api_teams_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_teams_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -59,13 +60,13 @@ func (s *TeamsAPIService) DeleteTeam(ctx context.Context, orgId string, teamId s
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteTeam method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("DeleteTeam method not implemented")
 }
 
 // GetTeam - Get a specific team by ID
-func (s *TeamsAPIService) GetTeam(ctx context.Context, orgId string, teamId string) (ImplResponse, error) {
+func (s *TeamsAPIService) GetTeam(ctx context.Context, orgId string, teamId string) (openapi.ImplResponse, error) {
 	// TODO - update GetTeam with the required logic for this service method.
-	// Add api_teams_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_teams_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Team{}) or use other options such as http.Ok ...
 	// return Response(200, Team{}), nil
@@ -76,13 +77,13 @@ func (s *TeamsAPIService) GetTeam(ctx context.Context, orgId string, teamId stri
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetTeam method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetTeam method not implemented")
 }
 
 // ListTeams - List all teams in an organization
-func (s *TeamsAPIService) ListTeams(ctx context.Context, orgId string) (ImplResponse, error) {
+func (s *TeamsAPIService) ListTeams(ctx context.Context, orgId string) (openapi.ImplResponse, error) {
 	// TODO - update ListTeams with the required logic for this service method.
-	// Add api_teams_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_teams_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Team{}) or use other options such as http.Ok ...
 	// return Response(200, []Team{}), nil
@@ -90,13 +91,13 @@ func (s *TeamsAPIService) ListTeams(ctx context.Context, orgId string) (ImplResp
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListTeams method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListTeams method not implemented")
 }
 
 // UpdateTeam - Update a specific team
-func (s *TeamsAPIService) UpdateTeam(ctx context.Context, orgId string, teamId string, teamInput TeamInput) (ImplResponse, error) {
+func (s *TeamsAPIService) UpdateTeam(ctx context.Context, orgId string, teamId string, teamInput openapi.TeamInput) (openapi.ImplResponse, error) {
 	// TODO - update UpdateTeam with the required logic for this service method.
-	// Add api_teams_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_teams_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Team{}) or use other options such as http.Ok ...
 	// return Response(200, Team{}), nil
@@ -110,5 +111,5 @@ func (s *TeamsAPIService) UpdateTeam(ctx context.Context, orgId string, teamId s
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateTeam method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("UpdateTeam method not implemented")
 }

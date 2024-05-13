@@ -2,13 +2,13 @@ package router
 
 import (
 	"net/http"
-	healthhandler "plato/app/go/handlers/health"
-	keyhandler "plato/app/go/handlers/key"
-	orghandler "plato/app/go/handlers/org"
-	projecthandler "plato/app/go/handlers/project"
-	prompthandler "plato/app/go/handlers/prompt"
-	teamhandler "plato/app/go/handlers/team"
-	userhandler "plato/app/go/handlers/user"
+	healthhandler "plato/app/openapi/handlers/health"
+	keyhandler "plato/app/openapi/handlers/key"
+	orghandler "plato/app/openapi/handlers/org"
+	projecthandler "plato/app/openapi/handlers/project"
+	prompthandler "plato/app/openapi/handlers/prompt"
+	teamhandler "plato/app/openapi/handlers/team"
+	userhandler "plato/app/openapi/handlers/user"
 	"time"
 
 	"github.com/go-chi/chi/v5"

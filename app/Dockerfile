@@ -8,7 +8,7 @@ COPY . .
 
 # Build the application. This results in a statically linked executable named 'app'.
 # If needed, add flags like -ldflags="-s -w" to reduce binary size.
-RUN CGO_ENABLED=0 GOOS=linux go build -o app
+RUN CGO_ENABLED=0 GOOS=linux openapi build -o app
 
 # Start from a smaller base image to run the app.
 FROM alpine:latest  

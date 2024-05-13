@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type APIKeysAPIService struct {
 }
 
 // NewAPIKeysAPIService creates a default api service
-func NewAPIKeysAPIService() APIKeysAPIServicer {
+func NewAPIKeysAPIService() openapi.APIKeysAPIServicer {
 	return &APIKeysAPIService{}
 }
 
 // DeleteApiKey - Delete a specific API key
-func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (ImplResponse, error) {
+func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	// TODO - update DeleteApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -42,13 +43,13 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteApiKey method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("DeleteApiKey method not implemented")
 }
 
 // GenerateApiKey - Generate a new API key with specific scopes for a project
-func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput ApiKeyInput) (ImplResponse, error) {
+func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	// TODO - update GenerateApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(201, ApiKey{}), nil
@@ -62,13 +63,13 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GenerateApiKey method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GenerateApiKey method not implemented")
 }
 
 // GetApiKey - Retrieve a specific API key
-func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (ImplResponse, error) {
+func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	// TODO - update GetApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, ApiKey{}), nil
@@ -79,13 +80,13 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetApiKey method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetApiKey method not implemented")
 }
 
 // ListApiKeys - List all API keys for a project
-func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (ImplResponse, error) {
+func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
 	// TODO - update ListApiKeys with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, []ApiKey{}), nil
@@ -96,13 +97,13 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListApiKeys method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListApiKeys method not implemented")
 }
 
 // UpdateApiKey - Update an API key&#39;s scopes
-func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput ApiKeyInput) (ImplResponse, error) {
+func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	// TODO - update UpdateApiKey with the required logic for this service method.
-	// Add api_api_keys_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_api_keys_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, ApiKey{}) or use other options such as http.Ok ...
 	// return Response(200, ApiKey{}), nil
@@ -116,5 +117,5 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateApiKey method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("UpdateApiKey method not implemented")
 }

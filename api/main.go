@@ -1,7 +1,8 @@
 package main
 
 import (
-	openapi "github.com/payloadops/plato/api/go"
+	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/api/service"
 	"log"
 	"net/http"
 )
@@ -9,7 +10,7 @@ import (
 func main() {
 	log.Printf("Server started")
 
-	APIKeysAPIService := openapi.NewAPIKeysAPIService()
+	APIKeysAPIService := service.NewAPIKeysAPIService()
 	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 
 	BranchesAPIService := openapi.NewBranchesAPIService()

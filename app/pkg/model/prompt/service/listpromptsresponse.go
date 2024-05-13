@@ -1,6 +1,6 @@
 package promptservicemodel
 
-import dbdal "plato/app/go/dal/postgres"
+import dbdal "plato/app/openapi/dal/postgres"
 
 type ListPromptsResponse struct {
 	Prompts   *[]dbdal.Prompt `json:"prompts"`

@@ -9,10 +9,11 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
 	"errors"
 )
@@ -24,14 +25,14 @@ type BranchesAPIService struct {
 }
 
 // NewBranchesAPIService creates a default api service
-func NewBranchesAPIService() BranchesAPIServicer {
+func NewBranchesAPIService() openapi.BranchesAPIServicer {
 	return &BranchesAPIService{}
 }
 
 // CreatePromptBranch - Create a new branch for a prompt
-func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId string, branchInput BranchInput) (ImplResponse, error) {
+func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId string, branchInput openapi.BranchInput) (openapi.ImplResponse, error) {
 	// TODO - update CreatePromptBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Branch{}) or use other options such as http.Ok ...
 	// return Response(201, Branch{}), nil
@@ -45,13 +46,13 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId st
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreatePromptBranch method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("CreatePromptBranch method not implemented")
 }
 
 // DeleteBranch - Delete a specific branch
-func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
+func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, branchId string) (openapi.ImplResponse, error) {
 	// TODO - update DeleteBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -62,13 +63,13 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, 
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteBranch method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("DeleteBranch method not implemented")
 }
 
 // GetBranch - Retrieve a specific branch
-func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, branchId string) (ImplResponse, error) {
+func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, branchId string) (openapi.ImplResponse, error) {
 	// TODO - update GetBranch with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Branch{}) or use other options such as http.Ok ...
 	// return Response(200, Branch{}), nil
@@ -79,13 +80,13 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, bra
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetBranch method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("GetBranch method not implemented")
 }
 
 // ListPromptBranches - List all branches of a specific prompt
-func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, promptId string) (ImplResponse, error) {
+func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, promptId string) (openapi.ImplResponse, error) {
 	// TODO - update ListPromptBranches with the required logic for this service method.
-	// Add api_branches_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_branches_service.openapi to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Branch{}) or use other options such as http.Ok ...
 	// return Response(200, []Branch{}), nil
@@ -96,5 +97,5 @@ func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, promptId st
 	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
 	// return Response(500, nil),nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListPromptBranches method not implemented")
+	return openapi.Response(http.StatusNotImplemented, nil), errors.New("ListPromptBranches method not implemented")
 }

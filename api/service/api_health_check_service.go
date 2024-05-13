@@ -9,35 +9,40 @@
  * Contact: info@payloadops.com
  */
 
-package openapi
+package service
 
 import (
 	"context"
+	"github.com/payloadops/plato/api/openapi"
 	"net/http"
-	"errors"
+)
+
+const (
+	HealthCheckStatus_Healthy = "healthy"
+	HealthCheckStatus_Unhealthy = "unhealthy"
 )
 
 // HealthCheckAPIService is a service that implements the logic for the HealthCheckAPIServicer
 // This service should implement the business logic for every endpoint for the HealthCheckAPI API.
 // Include any external packages or services that will be required by this service.
 type HealthCheckAPIService struct {
+	healthy bool
 }
 
 // NewHealthCheckAPIService creates a default api service
-func NewHealthCheckAPIService() HealthCheckAPIServicer {
-	return &HealthCheckAPIService{}
+func NewHealthCheckAPIService() openapi.HealthCheckAPIServicer {
+	return &HealthCheckAPIService{healthy: true}
 }
 
 // HealthCheck - Health Check Endpoint
-func (s *HealthCheckAPIService) HealthCheck(ctx context.Context) (ImplResponse, error) {
-	// TODO - update HealthCheck with the required logic for this service method.
-	// Add api_health_check_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+func (s *HealthCheckAPIService) HealthCheck(ctx context.Context) (openapi.ImplResponse, error) {
+	if !s.healthy {
+		return openapi.Response(http.StatusInternalServerError, openapi.HealthCheck500Response{
+			Status: HealthCheckStatus_Unhealthy,
+		}), nil
+	}
 
-	// TODO: Uncomment the next line to return response Response(200, HealthCheck200Response{}) or use other options such as http.Ok ...
-	// return Response(200, HealthCheck200Response{}), nil
-
-	// TODO: Uncomment the next line to return response Response(500, HealthCheck500Response{}) or use other options such as http.Ok ...
-	// return Response(500, HealthCheck500Response{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("HealthCheck method not implemented")
+	return openapi.Response(http.StatusOK, openapi.HealthCheck200Response{
+		Status: HealthCheckStatus_Healthy,
+	}), nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/payloadops/plato/infra/pkg/stacks"
 	"os"
-	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	// "github.com/aws/aws-cdk-openapi/awscdk/v2/awssqs"
 )
 
 type InfraStackProps struct {

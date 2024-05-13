@@ -1,6 +1,6 @@
 # Use the official Golang image to build the binary.
 # This ensures you have all necessary Go tools and libraries.
-FROM golang:1.20 as builder
+FROM golang:1.22.2 as builder
 WORKDIR /app
 
 # Copy everything from the current directory to the /app directory in the container
