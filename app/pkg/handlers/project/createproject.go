@@ -3,8 +3,8 @@ package projecthandler
 import (
 	"encoding/json"
 	"net/http"
-	projectservicemodel "plato/app/pkg/model/project"
 	"plato/app/pkg/model"
+	projectservicemodel "plato/app/pkg/model/project"
 	"plato/app/pkg/service/project"
 	"plato/app/pkg/util"
 

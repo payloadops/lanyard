@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"io"
 
+	"plato/app/pkg/auth"
 	awsclient "plato/app/pkg/client/aws"
 	dbdal "plato/app/pkg/dal/postgres"
 	promptservicemodel "plato/app/pkg/model/prompt/service"
-	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"

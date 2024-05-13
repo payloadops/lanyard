@@ -1,4 +1,4 @@
-module github.com/payloadops/plato/app
+module plato/app
 
 go 1.22.2
 

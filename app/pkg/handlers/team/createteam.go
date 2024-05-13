@@ -3,8 +3,8 @@ package teamhandler
 import (
 	"encoding/json"
 	"net/http"
-	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/model"
+	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/service/apikey"
 	"plato/app/pkg/util"
 	"strings"

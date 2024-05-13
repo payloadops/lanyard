@@ -3,10 +3,10 @@ package project
 import (
 	"context"
 	"fmt"
+	"plato/app/pkg/auth"
 	awsclient "plato/app/pkg/client/aws"
 	dbdal "plato/app/pkg/dal/postgres"
 	projectservicemodel "plato/app/pkg/model/project"
-	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"

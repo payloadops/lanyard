@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	dbdal "plato/app/pkg/dal/postgres"
 	"plato/app/pkg/auth"
+	dbdal "plato/app/pkg/dal/postgres"
 )
 
 type service struct {

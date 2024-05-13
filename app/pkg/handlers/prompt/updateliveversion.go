@@ -3,9 +3,9 @@ package prompthandler
 import (
 	"encoding/json"
 	"net/http"
+	"plato/app/pkg/model"
 	promptservicemodel "plato/app/pkg/model/prompt/service"
 	promptservice "plato/app/pkg/service/prompt"
-	"plato/app/pkg/model"
 	"plato/app/pkg/util"
 	"strings"
 
