@@ -4,7 +4,7 @@ FROM golang:1.20 as builder
 WORKDIR /app
 
 # Copy everything from the current directory to the /app directory in the container
-COPY . .
+COPY ../app .
 
 # Build the application. This results in a statically linked executable named 'app'.
 # If needed, add flags like -ldflags="-s -w" to reduce binary size.
