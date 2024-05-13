@@ -3,8 +3,8 @@ package teamhandler
 import (
 	"encoding/json"
 	"net/http"
-	keyservicemodel "plato/app/pkg/model/apikey/service"
 	"plato/app/pkg/service/apikey"
+	keyservicemodel "plato/app_1/pkg/model/apikey/service"
 	"strings"
 
 	"github.com/go-chi/render"

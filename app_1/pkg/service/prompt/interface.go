@@ -2,7 +2,7 @@ package promptservice
 
 import (
 	"context"
-	promptservicemodel "plato/app/pkg/model/prompt/service"
+	promptservicemodel "plato/app_1/pkg/model/prompt/service"
 )
 
 type PromptService interface {

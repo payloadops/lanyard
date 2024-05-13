@@ -12,10 +12,10 @@ package main
 // example resource in infra_test.go
 // func TestInfraStack(t *testing.T) {
 // 	// GIVEN
-// 	app := awscdk.NewApp(nil)
+// 	app_1 := awscdk.NewApp(nil)
 
 // 	// WHEN
-// 	stack := NewInfraStack(app, "MyStack", nil)
+// 	stack := NewInfraStack(app_1, "MyStack", nil)
 
 // 	// THEN
 // 	template := assertions.Template_FromStack(stack)

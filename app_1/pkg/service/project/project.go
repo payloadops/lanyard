@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"plato/app/pkg/auth"
-	awsclient "plato/app/pkg/client/aws"
-	dbdal "plato/app/pkg/dal/postgres"
-	projectservicemodel "plato/app/pkg/model/project"
 	"plato/app/pkg/util"
+	awsclient "plato/app_1/pkg/client/aws"
+	dbdal "plato/app_1/pkg/dal/postgres"
+	projectservicemodel "plato/app_1/pkg/model/project"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"

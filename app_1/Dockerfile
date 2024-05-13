@@ -3,14 +3,14 @@
 FROM golang:1.20 as builder
 WORKDIR /app
 
-# Copy everything from the current directory to the /app directory in the container
+# Copy everything from the current directory to the /app_1 directory in the container
 COPY . .
 
-# Build the application. This results in a statically linked executable named 'app'.
+# Build the application. This results in a statically linked executable named 'app_1'.
 # If needed, add flags like -ldflags="-s -w" to reduce binary size.
-RUN CGO_ENABLED=0 GOOS=linux go build -o app
+RUN CGO_ENABLED=0 GOOS=linux go build -o app_1
 
-# Start from a smaller base image to run the app.
+# Start from a smaller base image to run the app_1.
 FROM alpine:latest  
 
 # Add CA Certificates for HTTPS connections.
@@ -20,7 +20,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the built executable from the builder stage.
-COPY --from=builder /app/app .
+COPY --from=builder /app_1/app .
 
 # Bind container to port 80.
 EXPOSE 80

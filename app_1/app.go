@@ -1,8 +1,8 @@
 package main
 
 import (
-	awsclient "plato/app/pkg/client/aws"
 	"plato/app/pkg/router"
+	awsclient "plato/app_1/pkg/client/aws"
 )
 
 func main() {

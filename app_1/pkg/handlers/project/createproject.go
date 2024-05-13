@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"plato/app/pkg/model"
-	projectservicemodel "plato/app/pkg/model/project"
 	"plato/app/pkg/service/project"
 	"plato/app/pkg/util"
+	projectservicemodel "plato/app_1/pkg/model/project"
 
 	"github.com/go-chi/render"
 )

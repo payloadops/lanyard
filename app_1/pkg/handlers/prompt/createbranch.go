@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	promptservicemodel "plato/app/pkg/model/prompt/service"
-	promptservice "plato/app/pkg/service/prompt"
 	"plato/app/pkg/util"
+	promptservicemodel "plato/app_1/pkg/model/prompt/service"
+	promptservice "plato/app_1/pkg/service/prompt"
 	"strings"
 
 	"github.com/go-chi/render"

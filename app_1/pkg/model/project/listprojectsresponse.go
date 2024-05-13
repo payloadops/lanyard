@@ -1,6 +1,6 @@
 package projectservicemodel
 
-import dbdal "plato/app/pkg/dal/postgres"
+import dbdal "plato/app_1/pkg/dal/postgres"
 
 type ListProjectsResponse struct {
 	OrgId    string           `json:"org_id"`

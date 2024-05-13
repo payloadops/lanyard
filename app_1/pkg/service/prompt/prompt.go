@@ -7,10 +7,10 @@ import (
 	"io"
 
 	"plato/app/pkg/auth"
-	awsclient "plato/app/pkg/client/aws"
-	dbdal "plato/app/pkg/dal/postgres"
-	promptservicemodel "plato/app/pkg/model/prompt/service"
 	"plato/app/pkg/util"
+	awsclient "plato/app_1/pkg/client/aws"
+	dbdal "plato/app_1/pkg/dal/postgres"
+	promptservicemodel "plato/app_1/pkg/model/prompt/service"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws"

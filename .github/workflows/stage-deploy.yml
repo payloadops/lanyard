@@ -42,11 +42,11 @@ jobs:
       
       - name: Deploy container
         needs: Deploy with CDK
-        uses: ./.github/workflows/app-deploy.yml
+        uses: ./.github/workflows/app_1-deploy.yml
         with:
           aws-region: ${{ inputs.aws_region }}
           environment: ${{ inputs.environment }}
           aws-access-key-id: ${{ inputs.aws-access-key-id }}
           aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-          ecr-repository: app
+          ecr-repository: app_1
           image-tag: latest
