@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/jsii-runtime-go"
-	"infra/pkg/stacks"
+	"github.com/payloadops/plato/infra/pkg/stacks"
 	"os"
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
 )

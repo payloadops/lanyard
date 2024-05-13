@@ -1,8 +1,6 @@
 package stacks
 
 import (
-	constants "infra/go/const"
-
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awscertificatemanager"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
@@ -14,6 +12,7 @@ import (
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsroute53targets"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
+	constants "github.com/payloadops/plato/infra/pkg/const"
 )
 
 func CreateEcsFargateAPI(scope constructs.Construct, vpc awsec2.IVpc, stage string, region string) awsecs.IFargateService {
