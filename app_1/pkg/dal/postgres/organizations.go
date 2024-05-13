@@ -3,7 +3,7 @@ package dbdal
 import (
 	"context"
 	"fmt"
-	awsclient "plato/app_1/pkg/client/aws"
+	awsclient "plato/app_1/go/client/aws"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"

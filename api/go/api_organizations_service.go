@@ -31,7 +31,7 @@ func NewOrganizationsAPIService() OrganizationsAPIServicer {
 // CreateOrganization - Create a new organization
 func (s *OrganizationsAPIService) CreateOrganization(ctx context.Context, organizationInput OrganizationInput) (ImplResponse, error) {
 	// TODO - update CreateOrganization with the required logic for this service method.
-	// Add api_organizations_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Organization{}) or use other options such as http.Ok ...
 	// return Response(201, Organization{}), nil
@@ -48,7 +48,7 @@ func (s *OrganizationsAPIService) CreateOrganization(ctx context.Context, organi
 // DeleteOrganization - Delete a specific organization
 func (s *OrganizationsAPIService) DeleteOrganization(ctx context.Context, orgId string) (ImplResponse, error) {
 	// TODO - update DeleteOrganization with the required logic for this service method.
-	// Add api_organizations_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -65,7 +65,7 @@ func (s *OrganizationsAPIService) DeleteOrganization(ctx context.Context, orgId 
 // GetOrganization - Get a specific organization
 func (s *OrganizationsAPIService) GetOrganization(ctx context.Context, orgId string) (ImplResponse, error) {
 	// TODO - update GetOrganization with the required logic for this service method.
-	// Add api_organizations_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Organization{}) or use other options such as http.Ok ...
 	// return Response(200, Organization{}), nil
@@ -82,7 +82,7 @@ func (s *OrganizationsAPIService) GetOrganization(ctx context.Context, orgId str
 // ListOrganizations - List all organizations
 func (s *OrganizationsAPIService) ListOrganizations(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListOrganizations with the required logic for this service method.
-	// Add api_organizations_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Organization{}) or use other options such as http.Ok ...
 	// return Response(200, []Organization{}), nil
@@ -96,7 +96,7 @@ func (s *OrganizationsAPIService) ListOrganizations(ctx context.Context) (ImplRe
 // UpdateOrganization - Update a specific organization
 func (s *OrganizationsAPIService) UpdateOrganization(ctx context.Context, orgId string, organizationInput OrganizationInput) (ImplResponse, error) {
 	// TODO - update UpdateOrganization with the required logic for this service method.
-	// Add api_organizations_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_organizations_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Organization{}) or use other options such as http.Ok ...
 	// return Response(200, Organization{}), nil

@@ -31,7 +31,7 @@ func NewProjectsAPIService() ProjectsAPIServicer {
 // CreateProject - Create a new project
 func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ProjectInput) (ImplResponse, error) {
 	// TODO - update CreateProject with the required logic for this service method.
-	// Add api_projects_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_projects_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Project{}) or use other options such as http.Ok ...
 	// return Response(201, Project{}), nil
@@ -45,7 +45,7 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput Pro
 // DeleteProject - Delete a project
 func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update DeleteProject with the required logic for this service method.
-	// Add api_projects_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_projects_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -62,7 +62,7 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectId string
 // GetProject - Retrieve a project by ID
 func (s *ProjectsAPIService) GetProject(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update GetProject with the required logic for this service method.
-	// Add api_projects_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_projects_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Project{}) or use other options such as http.Ok ...
 	// return Response(200, Project{}), nil
@@ -79,7 +79,7 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectId string) (
 // ListProjects - List all projects
 func (s *ProjectsAPIService) ListProjects(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListProjects with the required logic for this service method.
-	// Add api_projects_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_projects_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Project{}) or use other options such as http.Ok ...
 	// return Response(200, []Project{}), nil
@@ -93,7 +93,7 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (ImplResponse, er
 // UpdateProject - Update a project
 func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectId string, projectInput ProjectInput) (ImplResponse, error) {
 	// TODO - update UpdateProject with the required logic for this service method.
-	// Add api_projects_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_projects_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Project{}) or use other options such as http.Ok ...
 	// return Response(200, Project{}), nil

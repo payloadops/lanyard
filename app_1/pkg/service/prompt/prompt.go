@@ -8,9 +8,9 @@ import (
 
 	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
-	awsclient "plato/app_1/pkg/client/aws"
-	dbdal "plato/app_1/pkg/dal/postgres"
-	promptservicemodel "plato/app_1/pkg/model/prompt/service"
+	awsclient "plato/app_1/go/client/aws"
+	dbdal "plato/app_1/go/dal/postgres"
+	promptservicemodel "plato/app_1/go/model/prompt/service"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go/aws"

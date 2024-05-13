@@ -31,7 +31,7 @@ func NewUsersAPIService() UsersAPIServicer {
 // CreateUser - Create a new user
 func (s *UsersAPIService) CreateUser(ctx context.Context, userInput UserInput) (ImplResponse, error) {
 	// TODO - update CreateUser with the required logic for this service method.
-	// Add api_users_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_users_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, User{}) or use other options such as http.Ok ...
 	// return Response(201, User{}), nil
@@ -48,7 +48,7 @@ func (s *UsersAPIService) CreateUser(ctx context.Context, userInput UserInput) (
 // DeleteUser - Delete a specific user
 func (s *UsersAPIService) DeleteUser(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update DeleteUser with the required logic for this service method.
-	// Add api_users_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_users_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -65,7 +65,7 @@ func (s *UsersAPIService) DeleteUser(ctx context.Context, userId string) (ImplRe
 // GetUser - Get a specific user by ID
 func (s *UsersAPIService) GetUser(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update GetUser with the required logic for this service method.
-	// Add api_users_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_users_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, User{}) or use other options such as http.Ok ...
 	// return Response(200, User{}), nil
@@ -82,7 +82,7 @@ func (s *UsersAPIService) GetUser(ctx context.Context, userId string) (ImplRespo
 // ListUsers - List all users
 func (s *UsersAPIService) ListUsers(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListUsers with the required logic for this service method.
-	// Add api_users_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_users_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []User{}) or use other options such as http.Ok ...
 	// return Response(200, []User{}), nil
@@ -96,7 +96,7 @@ func (s *UsersAPIService) ListUsers(ctx context.Context) (ImplResponse, error) {
 // UpdateUser - Update a specific user
 func (s *UsersAPIService) UpdateUser(ctx context.Context, userId string, userInput UserInput) (ImplResponse, error) {
 	// TODO - update UpdateUser with the required logic for this service method.
-	// Add api_users_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_users_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, User{}) or use other options such as http.Ok ...
 	// return Response(200, User{}), nil

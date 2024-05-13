@@ -31,7 +31,7 @@ func NewPromptsAPIService() PromptsAPIServicer {
 // CreatePrompt - Create a new prompt in a project
 func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, promptInput PromptInput) (ImplResponse, error) {
 	// TODO - update CreatePrompt with the required logic for this service method.
-	// Add api_prompts_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Prompt{}) or use other options such as http.Ok ...
 	// return Response(201, Prompt{}), nil
@@ -51,7 +51,7 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, 
 // DeletePrompt - Delete a specific prompt from a project
 func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, promptId string) (ImplResponse, error) {
 	// TODO - update DeletePrompt with the required logic for this service method.
-	// Add api_prompts_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
@@ -68,7 +68,7 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, 
 // GetPrompt - Retrieve a specific prompt within a project
 func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, promptId string) (ImplResponse, error) {
 	// TODO - update GetPrompt with the required logic for this service method.
-	// Add api_prompts_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, Prompt{}), nil
@@ -85,7 +85,7 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, pro
 // ListPrompts - List all prompts in a project
 func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ListPrompts with the required logic for this service method.
-	// Add api_prompts_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, []Prompt{}), nil
@@ -102,7 +102,7 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (
 // UpdatePrompt - Update a specific prompt in a project
 func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, promptId string, promptInput PromptInput) (ImplResponse, error) {
 	// TODO - update UpdatePrompt with the required logic for this service method.
-	// Add api_prompts_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_prompts_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, Prompt{}) or use other options such as http.Ok ...
 	// return Response(200, Prompt{}), nil

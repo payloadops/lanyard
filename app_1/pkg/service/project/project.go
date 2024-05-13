@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"plato/app/pkg/auth"
 	"plato/app/pkg/util"
-	awsclient "plato/app_1/pkg/client/aws"
-	dbdal "plato/app_1/pkg/dal/postgres"
-	projectservicemodel "plato/app_1/pkg/model/project"
+	awsclient "plato/app_1/go/client/aws"
+	dbdal "plato/app_1/go/dal/postgres"
+	projectservicemodel "plato/app_1/go/model/project"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"

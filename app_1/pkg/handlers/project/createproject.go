@@ -6,7 +6,7 @@ import (
 	"plato/app/pkg/model"
 	"plato/app/pkg/service/project"
 	"plato/app/pkg/util"
-	projectservicemodel "plato/app_1/pkg/model/project"
+	projectservicemodel "plato/app_1/go/model/project"
 
 	"github.com/go-chi/render"
 )

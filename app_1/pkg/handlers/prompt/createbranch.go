@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"plato/app/pkg/util"
-	promptservicemodel "plato/app_1/pkg/model/prompt/service"
-	promptservice "plato/app_1/pkg/service/prompt"
+	promptservicemodel "plato/app_1/go/model/prompt/service"
+	promptservice "plato/app_1/go/service/prompt"
 	"strings"
 
 	"github.com/go-chi/render"

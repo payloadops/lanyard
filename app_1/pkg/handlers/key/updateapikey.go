@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"plato/app/pkg/service/apikey"
-	keyservicemodel "plato/app_1/pkg/model/apikey/service"
+	keyservicemodel "plato/app_1/go/model/apikey/service"
 	"strings"
 
 	"github.com/go-chi/render"

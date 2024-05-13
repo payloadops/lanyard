@@ -31,7 +31,7 @@ func NewHealthCheckAPIService() HealthCheckAPIServicer {
 // HealthCheck - Health Check Endpoint
 func (s *HealthCheckAPIService) HealthCheck(ctx context.Context) (ImplResponse, error) {
 	// TODO - update HealthCheck with the required logic for this service method.
-	// Add api_health_check_service.pkg to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	// Add api_health_check_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, HealthCheck200Response{}) or use other options such as http.Ok ...
 	// return Response(200, HealthCheck200Response{}), nil

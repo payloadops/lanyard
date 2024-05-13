@@ -6,7 +6,7 @@ import (
 	"plato/app/pkg/model"
 	"plato/app/pkg/service/apikey"
 	"plato/app/pkg/util"
-	keyservicemodel "plato/app_1/pkg/model/apikey/service"
+	keyservicemodel "plato/app_1/go/model/apikey/service"
 	"strings"
 
 	"github.com/go-chi/render"

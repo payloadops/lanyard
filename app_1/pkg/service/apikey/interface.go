@@ -2,7 +2,7 @@ package apikey
 
 import (
 	"context"
-	dbdal "plato/app_1/pkg/dal/postgres"
+	dbdal "plato/app_1/go/dal/postgres"
 )
 
 // ApiKeyService defines the operations available for managing Api keys.

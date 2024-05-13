@@ -2,7 +2,7 @@ package project
 
 import (
 	"context"
-	projectservicemodel "plato/app_1/pkg/model/project"
+	projectservicemodel "plato/app_1/go/model/project"
 )
 
 type ProjectService interface {
