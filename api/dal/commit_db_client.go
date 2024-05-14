@@ -3,6 +3,9 @@ package dal
 import (
 	"context"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -29,13 +32,14 @@ var _ CommitManager = &CommitDBClient{}
 type Commit struct {
 	ID        string `json:"id"`
 	BranchID  string `json:"branchId"`
-	Content   string `json:"content"`
+	Content   string `json:"-"`
 	CreatedAt string `json:"createdAt"`
 }
 
 // CommitDBClient is a client for interacting with DynamoDB for commit-related operations.
 type CommitDBClient struct {
-	service *dynamodb.Client
+	dynamoDb *dynamodb.Client
+	s3       *s3.Client
 }
 
 // NewCommitDBClient creates a new CommitDBClient with the AWS configuration.
@@ -44,14 +48,27 @@ func NewCommitDBClient() (*CommitDBClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	svc := dynamodb.NewFromConfig(cfg)
 	return &CommitDBClient{
-		service: svc,
+		dynamoDb: dynamodb.NewFromConfig(cfg),
+		s3:       s3.NewFromConfig(cfg),
 	}, nil
 }
 
 // CreateCommit creates a new commit in the DynamoDB table.
 func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error {
+	// First, upload the content to S3
+	key := "commits/" + commit.ID + ".txt"
+	_, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String("your-bucket-name"),
+		Key:    aws.String(key),
+		Body:   strings.NewReader(commit.Content),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to upload commit content to S3: %v", err)
+	}
+
+	// Remove content from the commit before saving to DynamoDB
+	commit.Content = ""
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
 
@@ -65,7 +82,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error 
 		Item:      av,
 	}
 
-	_, err = d.service.PutItem(ctx, input)
+	_, err = d.dynamoDb.PutItem(ctx, input)
 	if err != nil {
 		return fmt.Errorf("failed to put item in DynamoDB: %v", err)
 	}
@@ -82,7 +99,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 		},
 	}
 
-	result, err := d.service.GetItem(ctx, input)
+	result, err := d.dynamoDb.GetItem(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
 	}
@@ -97,6 +114,24 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
+	// Retrieve the content from S3
+	key := "commits/" + commit.ID + ".txt"
+	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String("your-bucket-name"),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get commit content from S3: %v", err)
+	}
+
+	defer obj.Body.Close()
+	content, err := io.ReadAll(obj.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read commit content: %v", err)
+	}
+
+	commit.Content = string(content)
 	return &commit, nil
 }
 
@@ -106,7 +141,7 @@ func (d *CommitDBClient) ListCommits(ctx context.Context) ([]Commit, error) {
 		TableName: aws.String("Commits"),
 	}
 
-	result, err := d.service.Scan(ctx, input)
+	result, err := d.dynamoDb.Scan(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
 	}
@@ -130,7 +165,7 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, branchID strin
 		},
 	}
 
-	result, err := d.service.Scan(ctx, input)
+	result, err := d.dynamoDb.Scan(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
 	}
