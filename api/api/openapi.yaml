@@ -1956,6 +1956,8 @@ components:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         id: id
+        message: message
+        userId: userId
         content: content
       properties:
         id:
@@ -1964,6 +1966,12 @@ components:
         content:
           description: Content of the prompt in this commit
           type: string
+        message:
+          description: Message describing the changes in this commit
+          type: string
+        userId:
+          description: Identifier of the user that created this commit
+          type: string
         createdAt:
           description: Timestamp when this commit was created
           format: date-time
@@ -1971,10 +1979,14 @@ components:
       type: object
     CommitInput:
       example:
+        message: message
         content: content
       properties:
         content:
           description: Content of the prompt in this commit
+          type: string
+        message:
+          description: Message describing the changes in this commit
           type: string
       required:
       - content

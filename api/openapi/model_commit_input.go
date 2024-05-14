@@ -18,6 +18,9 @@ type CommitInput struct {
 
 	// Content of the prompt in this commit
 	Content string `json:"content"`
+
+	// Message describing the changes in this commit
+	Message string `json:"message,omitempty"`
 }
 
 // AssertCommitInputRequired checks if the required fields are not zero-ed

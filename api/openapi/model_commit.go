@@ -26,6 +26,12 @@ type Commit struct {
 	// Content of the prompt in this commit
 	Content string `json:"content,omitempty"`
 
+	// Message describing the changes in this commit
+	Message string `json:"message,omitempty"`
+
+	// Identifier of the user that created this commit
+	UserId string `json:"userId,omitempty"`
+
 	// Timestamp when this commit was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }
