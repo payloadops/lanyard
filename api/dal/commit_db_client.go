@@ -35,6 +35,8 @@ type Commit struct {
 	UserID    string `json:"userId"`
 	Message   string `json:"message"`
 	Content   string `json:"-"`
+	Checksum  string `json:"checksum"`
+	VersionID string `json:"versionId"`
 	CreatedAt string `json:"createdAt"`
 }
 
@@ -58,9 +60,9 @@ func NewCommitDBClient() (*CommitDBClient, error) {
 
 // CreateCommit creates a new commit in the DynamoDB table.
 func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error {
-	// First, upload the content to S3
-	key := "commits/" + commit.ID + ".txt"
-	_, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
+	// Use the BranchID as the key, ensuring all commits on the same branch refer to the same object
+	key := "commits/" + commit.BranchID + ".txt"
+	obj, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String("your-bucket-name"),
 		Key:    aws.String(key),
 		Body:   strings.NewReader(commit.Content),
@@ -68,6 +70,10 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error 
 	if err != nil {
 		return fmt.Errorf("failed to upload commit content to S3: %v", err)
 	}
+
+	// Set version to commit so that we can retrieve it later, as well as the hash of the commit
+	commit.VersionID = aws.ToString(obj.VersionId)
+	commit.Checksum = aws.ToString(obj.ChecksumSHA256)
 
 	// Remove content from the commit before saving to DynamoDB
 	commit.Content = ""
@@ -116,18 +122,18 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
-	// Retrieve the content from S3
-	key := "commits/" + commit.ID + ".txt"
+	// Retrieve the content from S3 using the BranchID and VersionID
+	key := "commits/" + commit.BranchID + ".txt"
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String("your-bucket-name"),
-		Key:    aws.String(key),
+		Bucket:    aws.String("your-bucket-name"),
+		Key:       aws.String(key),
+		VersionId: aws.String(commit.VersionID),
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commit content from S3: %v", err)
 	}
-
 	defer obj.Body.Close()
+
 	content, err := io.ReadAll(obj.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read commit content: %v", err)

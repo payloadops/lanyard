@@ -1955,6 +1955,7 @@ components:
     Commit:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
+        checksum: checksum
         id: id
         message: message
         userId: userId
@@ -1968,6 +1969,9 @@ components:
           type: string
         message:
           description: Message describing the changes in this commit
+          type: string
+        checksum:
+          description: SHA-256 checksum of the content in this commit
           type: string
         userId:
           description: Identifier of the user that created this commit
