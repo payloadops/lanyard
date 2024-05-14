@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/payloadops/plato/api/cache"
 	"io"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -44,21 +44,19 @@ type Commit struct {
 type CommitDBClient struct {
 	dynamoDb *dynamodb.Client
 	s3       *s3.Client
+	cache    cache.Cache
 }
 
 // NewCommitDBClient creates a new CommitDBClient with the AWS configuration.
-func NewCommitDBClient() (*CommitDBClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, err
-	}
+func NewCommitDBClient(dynamoDb *dynamodb.Client, s3 *s3.Client, cache cache.Cache) *CommitDBClient {
 	return &CommitDBClient{
-		dynamoDb: dynamodb.NewFromConfig(cfg),
-		s3:       s3.NewFromConfig(cfg),
-	}, nil
+		dynamoDb: dynamoDb,
+		s3:       s3,
+		cache:    cache,
+	}
 }
 
-// CreateCommit creates a new commit in the DynamoDB table.
+// / CreateCommit creates a new commit in the DynamoDB table.
 func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error {
 	// Use the BranchID as the key, ensuring all commits on the same branch refer to the same object
 	key := "commits/" + commit.BranchID + ".txt"
@@ -95,6 +93,12 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error 
 		return fmt.Errorf("failed to put item in DynamoDB: %v", err)
 	}
 
+	// Cache the latest commit content
+	cacheKey := fmt.Sprintf("commit:%s", commit.BranchID)
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, 10*time.Minute); err != nil {
+		return fmt.Errorf("failed to cache commit content: %v", err)
+	}
+
 	return nil
 }
 
@@ -122,7 +126,13 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
-	// Retrieve the content from S3 using the BranchID and VersionID
+	// Try to get the content from the cache
+	cacheKey := fmt.Sprintf("commit:%s", commit.BranchID)
+	if err := d.cache.Get(ctx, cacheKey, &commit.Content); err == nil {
+		return &commit, nil
+	}
+
+	// Retrieve the content from S3 using the BranchID and VersionID if not in cache
 	key := "commits/" + commit.BranchID + ".txt"
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
 		Bucket:    aws.String("your-bucket-name"),
@@ -140,6 +150,12 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 	}
 
 	commit.Content = string(content)
+
+	// Cache the retrieved content
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, 10*time.Minute); err != nil {
+		return nil, fmt.Errorf("failed to cache commit content: %v", err)
+	}
+
 	return &commit, nil
 }
 

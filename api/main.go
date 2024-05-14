@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/go-redis/redis/v8"
+	"github.com/payloadops/plato/api/cache"
 	"github.com/payloadops/plato/api/dal"
 	"github.com/payloadops/plato/api/openapi"
 	"github.com/payloadops/plato/api/service"
@@ -87,8 +89,8 @@ func LoadAWSConfig() (aws.Config, error) {
 	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 
-	endpointResolver := aws.EndpointResolverWithOptionsFunc(
-		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+	endpointResolver := aws.EndpointResolverFunc(
+		func(service, region string) (aws.Endpoint, error) {
 			if os.Getenv("ENVIRONMENT") == "local" {
 				switch service {
 				case dynamodb.ServiceID:
@@ -112,7 +114,7 @@ func LoadAWSConfig() (aws.Config, error) {
 	}
 
 	if os.Getenv("ENVIRONMENT") == "local" {
-		options = append(options, config.WithEndpointResolverWithOptions(endpointResolver))
+		options = append(options, config.WithEndpointResolver(endpointResolver))
 	}
 
 	return config.LoadDefaultConfig(context.TODO(), options...)
@@ -138,8 +140,16 @@ func main() {
 	elastiCacheClient := elasticache.NewFromConfig(awsConfig)
 	cloudwatchClient := cloudwatch.NewFromConfig(awsConfig)
 
+	// Initialize Redis client for ElastiCache
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_ENDPOINT"),
+	})
+
+	// Create cache instance
+	cache := cache.NewRedisCache(redisClient)
+
 	// Initialize database clients
-	commitDBClient := &dal.CommitDBClient{dynamoDb: dynamoClient, s3: s3Client}
+	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 	branchDBClient := &dal.BranchDBClient{service: dynamoClient}
 	orgDBClient := &dal.OrgDBClient{service: dynamoClient}
 	projectDBClient := &dal.ProjectDBClient{service: dynamoClient}
