@@ -1,29 +1,40 @@
-# Use the official Golang image to build the binary.
-# This ensures you have all necessary Go tools and libraries.
-FROM golang:1.22.2 as builder
+# Use the official Golang image to create a build artifact
+# This stage is based on the official golang image with alpine
+FROM golang:1.22.2-alpine AS builder
+
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy everything from the current directory to the /app directory in the container
-COPY ../app .
+# Install git and other necessary dependencies
+RUN apk add --no-cache git
 
-# Build the application. This results in a statically linked executable named 'app'.
-# If needed, add flags like -ldflags="-s -w" to reduce binary size.
-RUN CGO_ENABLED=0 GOOS=linux go build -o app
+# Copy go mod and sum files
+COPY go.mod go.sum ./
 
-# Start from a smaller base image to run the app.
-FROM alpine:latest  
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
+
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
+RUN go build -o main .
+
+# Use a minimal base image to copy the build artifact
+# This stage uses an official alpine image
+FROM alpine:latest
 
 # Add CA Certificates for HTTPS connections.
 RUN apk --no-cache add ca-certificates
 
-# Set the working directory to /root/
+# Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# Copy the built executable from the builder stage.
-COPY --from=builder /app/app .
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /app/main .
 
-# Bind container to port 80.
-EXPOSE 80
+# Expose port 8080 to the outside world
+EXPOSE 8080
 
-# Command to run the executable.
-CMD ["./app"]
+# Command to run the executable
+CMD ["./main"]
