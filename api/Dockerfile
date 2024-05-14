@@ -1,12 +1,8 @@
-# Use the official Golang image to create a build artifact
-# This stage is based on the official golang image with alpine
-FROM golang:1.22.2-alpine AS builder
+# Use the official Golang image as a build stage
+FROM golang:1.22.2-alpine as builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
-
-# Install git and other necessary dependencies
-RUN apk add --no-cache git
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -14,21 +10,20 @@ COPY go.mod go.sum ./
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
 RUN go mod download
 
-# Copy the source from the current directory to the Working Directory inside the container
+# Copy the source code into the container
 COPY . .
 
 # Build the Go app
 RUN go build -o main .
 
-# Use a minimal base image to copy the build artifact
-# This stage uses an official alpine image
+# Start a new stage from scratch
 FROM alpine:latest
 
 # Add CA Certificates for HTTPS connections.
 RUN apk --no-cache add ca-certificates
 
 # Set the Current Working Directory inside the container
-WORKDIR /root/
+WORKDIR /app
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main .

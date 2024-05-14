@@ -3,17 +3,19 @@ module github.com/payloadops/plato/api
 go 1.22.2
 
 require (
-	github.com/aws/aws-sdk-go v1.53.1
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.13
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.13
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.38.1
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.32.1
+	github.com/aws/aws-sdk-go-v2/service/elasticache v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/segmentio/ksuid v1.0.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/mock v0.4.0
+	go.uber.org/zap v1.27.0
 )
 
 require (
@@ -37,5 +39,6 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

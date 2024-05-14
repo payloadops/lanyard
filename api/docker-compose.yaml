@@ -4,35 +4,36 @@ services:
   localstack:
     image: localstack/localstack:latest
     container_name: localstack
-    ports:
-      - "4566:4566"  # Edge port
-      - "4571:4571"  # DynamoDB port
-      - "4572:4572"  # S3 port
-      - "4578:4578"  # ElastiCache port
     environment:
-      - SERVICES=dynamodb,s3,elasticache
-      - DEBUG=1
+      - SERVICES=dynamodb,s3,elasticache,cloudwatch
+      - EDGE_PORT=4566
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "4566:4566"
+      - "4571:4571"
     volumes:
-      - "./localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "localstack_data:/tmp/localstack"
 
   go_service:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: go_service
-    ports:
-      - "8080:8080"
     environment:
-      - ENVIRONMENT=local
+      - AWS_DEFAULT_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
-      - AWS_DEFAULT_REGION=us-east-1
+      - ENVIRONMENT=local
       - DYNAMODB_ENDPOINT=http://localstack:4566
       - S3_ENDPOINT=http://localstack:4566
       - ELASTICACHE_ENDPOINT=http://localstack:4566
+      - CLOUDWATCH_ENDPOINT=http://localstack:4566
+    ports:
+      - "8080:8080"
     depends_on:
       - localstack
 
-networks:
-  default:
-    name: my_network
+volumes:
+  localstack_data:
