@@ -32,6 +32,8 @@ var _ CommitManager = &CommitDBClient{}
 type Commit struct {
 	ID        string `json:"id"`
 	BranchID  string `json:"branchId"`
+	UserID    string `json:"userId"`
+	Message   string `json:"message"`
 	Content   string `json:"-"`
 	CreatedAt string `json:"createdAt"`
 }
