@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/payloadops/plato/api/config"
+	"github.com/payloadops/plato/api/logging"
 	"github.com/payloadops/plato/api/openapi"
 	"github.com/payloadops/plato/api/service"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"log"
 	"net/http"
 	"os"
@@ -14,65 +15,6 @@ import (
 	"syscall"
 	"time"
 )
-
-// NewLogger initializes a Zap logger suitable for the given environment.
-func NewLogger(cfg *config.Config) (*zap.Logger, error) {
-	if os.Getenv("ENVIRONMENT") == "local" {
-		return newLocalLogger()
-	} else {
-		return newProductionLogger()
-	}
-}
-
-// newLocalLogger initializes a Zap sugared logger for local development.
-func newLocalLogger() (*zap.Logger, error) {
-	config := zap.Config{
-		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "timestamp",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "message",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.LowercaseLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-
-	return config.Build()
-}
-
-// newProductionLogger initializes a Zap logger suitable for production.
-func newProductionLogger() (*zap.Logger, error) {
-	config := zap.Config{
-		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stderr"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "timestamp",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "message",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.LowercaseLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-
-	return config.Build()
-}
 
 /*
 // LoadAWSConfig loads AWS configuration based on the environment
@@ -120,14 +62,15 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Initialize service logger
-	logger, err := NewLogger(cfg)
+	// Initialize service logging
+	logger, err := logging.NewLogger(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize logger: %v", err)
+		log.Fatalf("Failed to initialize logging: %v", err)
 	}
 
+	// Set global logger to use this implementation
+	// zap.ReplaceGlobals(logger)
 	defer logger.Sync()
-	sugar := logger.Sugar()
 
 	// Load AWS/localstack config values
 	/*
@@ -216,28 +159,29 @@ func main() {
 
 	// Graceful shutdown
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			sugar.Fatalf("Listen: %s\n", err)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.Fatal("Listen", zap.Error(err))
 		}
 	}()
 
-	sugar.Info("Server started",
-		zap.String("BIND_ADDRESS", cfg.BindAddress))
+	logger.Info("Server started",
+		zap.String("bind_address", cfg.BindAddress),
+		zap.String("environment", cfg.Environment))
 
 	// Wait for interrupt signal to shut down
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	<-quit
-	sugar.Infof("Shutting down server...")
+	logger.Info("Shutting down server...")
 
 	// Set a timeout of 5 seconds for graceful shutdown.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		sugar.Fatalf("Server forced to shutdown: %v", err)
+		logger.Fatal("Server forced to shutdown: %v", zap.Error(err))
 	}
 
-	sugar.Infof("Server exiting")
+	logger.Info("Server exiting")
 }
