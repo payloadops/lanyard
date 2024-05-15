@@ -4,23 +4,32 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// EnvironmentType is a string enum for environment values.
+type EnvironmentType string
+
+const (
+	Local       EnvironmentType = "local"
+	Development EnvironmentType = "development"
+	Production  EnvironmentType = "production"
+	Test        EnvironmentType = "test"
+)
+
 // AWSConfig holds AWS-specific configuration values.
 type AWSConfig struct {
-	Region              string `envconfig:"AWS_DEFAULT_REGION"`
-	AccessKeyID         string `envconfig:"AWS_ACCESS_KEY_ID"`
-	SecretAccessKey     string `envconfig:"AWS_SECRET_ACCESS_KEY"`
-	Environment         string `envconfig:"ENVIRONMENT"`
-	DynamoDBEndpoint    string `envconfig:"DYNAMODB_ENDPOINT"`
-	S3Endpoint          string `envconfig:"S3_ENDPOINT"`
-	ElasticacheEndpoint string `envconfig:"ELASTICACHE_ENDPOINT"`
-	CloudWatchEndpoint  string `envconfig:"CLOUDWATCH_ENDPOINT"`
+	Region             string          `envconfig:"AWS_DEFAULT_REGION"`
+	AccessKeyID        string          `envconfig:"AWS_ACCESS_KEY_ID"`
+	SecretAccessKey    string          `envconfig:"AWS_SECRET_ACCESS_KEY"`
+	Environment        EnvironmentType `envconfig:"ENVIRONMENT"`
+	DynamoDBEndpoint   string          `envconfig:"DYNAMODB_ENDPOINT"`
+	S3Endpoint         string          `envconfig:"S3_ENDPOINT"`
+	CloudWatchEndpoint string          `envconfig:"CLOUDWATCH_ENDPOINT"`
 }
 
 // Config holds the entire configuration for the application.
 type Config struct {
-	Environment string `envconfig:"ENVIRONMENT"`
-	BindAddress string `envconfig:"BIND_ADDRESS" default:":8080"`
-	JWTSecret   string `envconfig:"JWT_SECRET" required:"true"`
+	Environment EnvironmentType `envconfig:"ENVIRONMENT"`
+	BindAddress string          `envconfig:"BIND_ADDRESS" default:":8080"`
+	JWTSecret   string          `envconfig:"JWT_SECRET" required:"true"`
 	AWS         AWSConfig
 }
 

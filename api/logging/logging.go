@@ -10,7 +10,7 @@ import (
 func NewLogger(cfg *config.Config) (*zap.Logger, error) {
 	level := zap.InfoLevel
 	switch cfg.Environment {
-	case "local", "development":
+	case config.Local, config.Development:
 		level = zap.DebugLevel
 	}
 

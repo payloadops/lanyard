@@ -16,44 +16,8 @@ import (
 	"time"
 )
 
-/*
-// LoadAWSConfig loads AWS configuration based on the environment
-func LoadAWSConfig() (aws.Config, error) {
-	region := os.Getenv("AWS_DEFAULT_REGION")
-	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
-
-	endpointResolver := aws.EndpointResolverWithOptionsFunc(
-		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			if os.Getenv("ENVIRONMENT") == "local" {
-				switch service {
-				case dynamodb.ServiceID:
-					return aws.Endpoint{URL: os.Getenv("DYNAMODB_ENDPOINT")}, nil
-				case s3.ServiceID:
-					return aws.Endpoint{URL: os.Getenv("S3_ENDPOINT")}, nil
-				case "elasticache":
-					return aws.Endpoint{URL: os.Getenv("ELASTICACHE_ENDPOINT")}, nil
-				case cloudwatch.ServiceID:
-					return aws.Endpoint{URL: os.Getenv("CLOUDWATCH_ENDPOINT")}, nil
-				default:
-					return aws.Endpoint{}, &aws.EndpointNotFoundError{}
-				}
-			}
-			return aws.Endpoint{}, &aws.EndpointNotFoundError{}
-		})
-
-	options := []func(*config.LoadOptions) error{
-		config.WithRegion(region),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, "")),
-	}
-
-	if os.Getenv("ENVIRONMENT") == "local" {
-		options = append(options, config.WithEndpointResolverWithOptions(endpointResolver))
-	}
-
-	return config.LoadDefaultConfig(context.TODO(), options...)
-}
-*/
+// shutdownTimeout represents the time to wait in graceful-shutdown before force exiting
+const shutdownTimeout = 5 * time.Second
 
 func main() {
 	// Load config from environment variables
@@ -165,8 +129,8 @@ func main() {
 	}()
 
 	logger.Info("Server started",
-		zap.String("bind_address", cfg.BindAddress),
-		zap.String("environment", cfg.Environment))
+		zap.String("address", cfg.BindAddress),
+		zap.String("environment", string(cfg.Environment)))
 
 	// Wait for interrupt signal to shut down
 	quit := make(chan os.Signal, 1)
@@ -176,7 +140,7 @@ func main() {
 	logger.Info("Shutting down server...")
 
 	// Set a timeout of 5 seconds for graceful shutdown.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
