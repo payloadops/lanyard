@@ -53,11 +53,11 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "us-west-2", cfg.AWS.Region)
 	assert.Equal(t, "test-access-key-id", cfg.AWS.AccessKeyID)
 	assert.Equal(t, "test-secret-access-key", cfg.AWS.SecretAccessKey)
-	assert.Equal(t, "local", cfg.AWS.Environment)
+	assert.Equal(t, "local", string(cfg.AWS.Environment))
 	assert.Equal(t, "http://localhost:8000", cfg.AWS.DynamoDBEndpoint)
 	assert.Equal(t, "http://localhost:4566", cfg.AWS.S3Endpoint)
-	assert.Equal(t, "http://localhost:6379", cfg.AWS.ElasticacheEndpoint)
 	assert.Equal(t, "http://localhost:4582", cfg.AWS.CloudWatchEndpoint)
+	assert.Equal(t, "local", string(cfg.Environment))
 	assert.Equal(t, ":8080", cfg.BindAddress)
 	assert.Equal(t, "test-jwt-secret", cfg.JWTSecret)
 }

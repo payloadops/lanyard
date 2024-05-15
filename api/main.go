@@ -29,20 +29,20 @@ func main() {
 	// Initialize service logging
 	logger, err := logging.NewLogger(cfg)
 	if err != nil {
-		log.Fatalf("Failed to initialize logging: %v", err)
+		log.Fatalf("Failed to initialize logger: %v", err)
 	}
+
+	// Flush buffered logs upon exiting
+	defer logger.Sync()
 
 	// Set global logger to use this implementation
 	// zap.ReplaceGlobals(logger)
-	defer logger.Sync()
 
 	// Load AWS/localstack config values
-	/*
-		awsConfig, err := LoadAWSConfig()
-		if err != nil {
-			sugar.Fatalf("Unable to load SDK config, %v", err)
-		}
-	*/
+	// awsConfig, err := client.LoadAWSConfig(cfg)
+	// if err != nil {
+	//	logger.Fatal("Failed to initialize aws config", zap.Error(err))
+	// }
 
 	/*
 		// Create AWS clients
