@@ -1,5 +1,5 @@
 # Use the official Golang image as a build stage
-FROM golang:1.22.2-alpine as builder
+FROM golang:1.22.2-alpine AS builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 # Start a new stage from scratch
 FROM alpine:latest
