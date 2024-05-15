@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	"github.com/payloadops/plato/api/cache"
-	"github.com/payloadops/plato/api/dal"
+	"github.com/payloadops/plato/api/config"
 	"github.com/payloadops/plato/api/openapi"
 	"github.com/payloadops/plato/api/service"
 	"go.uber.org/zap"
@@ -15,22 +13,15 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/elasticache"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 // NewLogger initializes a Zap logger suitable for the given environment.
-func NewLogger() (*zap.Logger, error) {
+func NewLogger(cfg *config.Config) (*zap.Logger, error) {
 	if os.Getenv("ENVIRONMENT") == "local" {
 		return newLocalLogger()
+	} else {
+		return newProductionLogger()
 	}
-	return newProductionLogger()
 }
 
 // newLocalLogger initializes a Zap sugared logger for local development.
@@ -83,14 +74,15 @@ func newProductionLogger() (*zap.Logger, error) {
 	return config.Build()
 }
 
+/*
 // LoadAWSConfig loads AWS configuration based on the environment
 func LoadAWSConfig() (aws.Config, error) {
 	region := os.Getenv("AWS_DEFAULT_REGION")
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
 	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
 
-	endpointResolver := aws.EndpointResolverFunc(
-		func(service, region string) (aws.Endpoint, error) {
+	endpointResolver := aws.EndpointResolverWithOptionsFunc(
+		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 			if os.Getenv("ENVIRONMENT") == "local" {
 				switch service {
 				case dynamodb.ServiceID:
@@ -114,14 +106,22 @@ func LoadAWSConfig() (aws.Config, error) {
 	}
 
 	if os.Getenv("ENVIRONMENT") == "local" {
-		options = append(options, config.WithEndpointResolver(endpointResolver))
+		options = append(options, config.WithEndpointResolverWithOptions(endpointResolver))
 	}
 
 	return config.LoadDefaultConfig(context.TODO(), options...)
 }
+*/
 
 func main() {
-	logger, err := NewLogger()
+	// Load config from environment variables
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	// Initialize service logger
+	logger, err := NewLogger(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
 	}
@@ -129,73 +129,88 @@ func main() {
 	defer logger.Sync()
 	sugar := logger.Sugar()
 
-	awsConfig, err := LoadAWSConfig()
-	if err != nil {
-		sugar.Fatalf("Unable to load SDK config, %v", err)
-	}
+	// Load AWS/localstack config values
+	/*
+		awsConfig, err := LoadAWSConfig()
+		if err != nil {
+			sugar.Fatalf("Unable to load SDK config, %v", err)
+		}
+	*/
 
-	// Create AWS clients
-	dynamoClient := dynamodb.NewFromConfig(awsConfig)
-	s3Client := s3.NewFromConfig(awsConfig)
-	elastiCacheClient := elasticache.NewFromConfig(awsConfig)
-	cloudwatchClient := cloudwatch.NewFromConfig(awsConfig)
+	/*
+		// Create AWS clients
+		dynamoClient := dynamodb.NewFromConfig(awsConfig)
+		s3Client := s3.NewFromConfig(awsConfig)
+		elastiCacheClient := elasticache.NewFromConfig(awsConfig)
+		cloudwatchClient := cloudwatch.NewFromConfig(awsConfig)
 
-	// Initialize Redis client for ElastiCache
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: os.Getenv("REDIS_ENDPOINT"),
-	})
+		// Initialize Redis client for ElastiCache
+		redisClient := redis.NewClient(&redis.Options{
+			Addr: os.Getenv("REDIS_ENDPOINT"),
+		})
 
-	// Create cache instance
-	cache := cache.NewRedisCache(redisClient)
+		// Create cache instance
+		cache := cache.NewRedisCache(redisClient)
+	*/
 
 	// Initialize database clients
-	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
-	branchDBClient := &dal.BranchDBClient{service: dynamoClient}
-	orgDBClient := &dal.OrgDBClient{service: dynamoClient}
-	projectDBClient := &dal.ProjectDBClient{service: dynamoClient}
-	promptDBClient := &dal.PromptDBClient{service: dynamoClient}
-	teamDBClient := &dal.TeamDBClient{service: dynamoClient}
-	userDBClient := &dal.UserDBClient{service: dynamoClient}
-	apiKeyDBClient := &dal.APIKeyDBClient{service: dynamoClient}
+	/*
+		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
+		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
+		orgDBClient := &dal.OrgDBClient{service: dynamoClient}
+		projectDBClient := &dal.ProjectDBClient{service: dynamoClient}
+		promptDBClient := &dal.PromptDBClient{service: dynamoClient}
+		teamDBClient := &dal.TeamDBClient{service: dynamoClient}
+		userDBClient := &dal.UserDBClient{service: dynamoClient}
+		apiKeyDBClient := &dal.APIKeyDBClient{service: dynamoClient}
+	*/
+
+	// Initialize the healtcheck service
+	HealthCheckAPIService := service.NewHealthCheckAPIService()
 
 	// Initialize services with injected dependencies
-	APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
-	BranchesAPIService := service.NewBranchesAPIService(branchDBClient, promptDBClient)
-	CommitsAPIService := service.NewCommitsAPIService(commitDBClient, branchDBClient)
-	HealthCheckAPIService := service.NewHealthCheckAPIService()
-	OrganizationsAPIService := service.NewOrganizationsAPIService(orgDBClient)
-	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, orgDBClient)
-	PromptsAPIService := service.NewPromptsAPIService(promptDBClient, projectDBClient)
-	TeamsAPIService := service.NewTeamsAPIService(teamDBClient, orgDBClient)
-	UsersAPIService := service.NewUsersAPIService(userDBClient)
+	/*
+		APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
+		BranchesAPIService := service.NewBranchesAPIService(branchDBClient, promptDBClient)
+		CommitsAPIService := service.NewCommitsAPIService(commitDBClient, branchDBClient)
+		OrganizationsAPIService := service.NewOrganizationsAPIService(orgDBClient)
+		ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, orgDBClient)
+		PromptsAPIService := service.NewPromptsAPIService(promptDBClient, projectDBClient)
+		TeamsAPIService := service.NewTeamsAPIService(teamDBClient, orgDBClient)
+		UsersAPIService := service.NewUsersAPIService(userDBClient)
+	*/
 
 	// Initialize controllers
-	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
-	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
-	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
-	OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
-	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
-	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
-	TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
-	UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
+	/*
+		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
+		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
+		CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
+		OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
+		ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
+		PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
+		TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
+		UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
+	*/
 
 	// Initialize router
 	router := openapi.NewRouter(
-		APIKeysAPIController,
-		BranchesAPIController,
-		CommitsAPIController,
 		HealthCheckAPIController,
-		OrganizationsAPIController,
-		ProjectsAPIController,
-		PromptsAPIController,
-		TeamsAPIController,
-		UsersAPIController,
+		/*
+			APIKeysAPIController,
+			BranchesAPIController,
+			CommitsAPIController,
+			OrganizationsAPIController,
+			ProjectsAPIController,
+			PromptsAPIController,
+			TeamsAPIController,
+			UsersAPIController,
+		*/
 	)
 
 	// Initialize server
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.BindAddress,
 		Handler: router,
 	}
 
@@ -205,16 +220,21 @@ func main() {
 			sugar.Fatalf("Listen: %s\n", err)
 		}
 	}()
-	sugar.Infof("Server started on :8080")
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 5 seconds.
+	sugar.Info("Server started",
+		zap.String("BIND_ADDRESS", cfg.BindAddress))
+
+	// Wait for interrupt signal to shut down
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
 	<-quit
 	sugar.Infof("Shutting down server...")
 
+	// Set a timeout of 5 seconds for graceful shutdown.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		sugar.Fatalf("Server forced to shutdown: %v", err)
 	}

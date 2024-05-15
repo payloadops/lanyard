@@ -18,7 +18,7 @@ type CommitsAPIService struct {
 
 // NewCommitsAPIService creates a default api service
 func NewCommitsAPIService() openapi.CommitsAPIServicer {
-	commitClient, err := dal.NewCommitDBClient()
+	/*commitClient, err := dal.NewCommitDBClient()
 	if err != nil {
 		panic(fmt.Sprintf("failed to create CommitDBClient: %v", err))
 	}
@@ -27,6 +27,8 @@ func NewCommitsAPIService() openapi.CommitsAPIServicer {
 		panic(fmt.Sprintf("failed to create BranchDBClient: %v", err))
 	}
 	return &CommitsAPIService{commitClient: commitClient, branchClient: branchClient}
+	*/
+	return nil
 }
 
 // CreateBranchCommit - Create a new commit for a branch
@@ -41,11 +43,11 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, promptId str
 	}
 
 	commit := dal.Commit{
-		ID:       commitInput.Id,
+		// ID:       commitInput.Id,
 		BranchID: branchId,
-		UserID:   commitInput.UserId,
-		Message:  commitInput.Message,
-		Content:  commitInput.Content,
+		// UserID:   commitInput.UserId,
+		Message: commitInput.Message,
+		Content: commitInput.Content,
 	}
 
 	err = s.commitClient.CreateCommit(ctx, commit)

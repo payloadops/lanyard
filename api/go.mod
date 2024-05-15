@@ -9,10 +9,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
 	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.38.1
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.32.1
-	github.com/aws/aws-sdk-go-v2/service/elasticache v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.2
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/segmentio/ksuid v1.0.4
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/mock v0.4.0
