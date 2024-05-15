@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/payloadops/plato/api/client"
 	"github.com/payloadops/plato/api/config"
 	"github.com/payloadops/plato/api/logging"
 	"github.com/payloadops/plato/api/openapi"
@@ -35,14 +39,19 @@ func main() {
 	// Flush buffered logs upon exiting
 	defer logger.Sync()
 
-	// Set global logger to use this implementation
+	// Set global logger to use this implementation (RISKY!!!)
 	// zap.ReplaceGlobals(logger)
 
 	// Load AWS/localstack config values
-	// awsConfig, err := client.LoadAWSConfig(cfg)
-	// if err != nil {
-	//	logger.Fatal("Failed to initialize aws config", zap.Error(err))
-	// }
+	awsConfig, err := client.LoadAWSConfig(cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize aws config", zap.Error(err))
+	}
+
+	// Create AWS clients
+	_ = dynamodb.NewFromConfig(awsConfig)
+	_ = s3.NewFromConfig(awsConfig)
+	_ = cloudwatch.NewFromConfig(awsConfig)
 
 	/*
 		// Create AWS clients
