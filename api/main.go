@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/api/client"
@@ -51,7 +50,6 @@ func main() {
 	// Create AWS clients
 	_ = dynamodb.NewFromConfig(awsConfig)
 	_ = s3.NewFromConfig(awsConfig)
-	_ = cloudwatch.NewFromConfig(awsConfig)
 
 	/*
 		// Create AWS clients
