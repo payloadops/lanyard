@@ -15,6 +15,8 @@ Plato API is a prompt management platform developed by PayloadOps. This API stre
     - [API Documentation](#api-documentation)
     - [Development](#development)
     - [Running Tests](#running-tests)
+        - [Running Unit Tests](#running-unit-tests)
+        - [Running e2e Tests](#running-e2e-tests)
 
 ## Prerequisites
 
@@ -56,7 +58,6 @@ export BIND_ADDRESS=:8080
 export ENVIRONMENT=local
 export DYNAMODB_ENDPOINT=http://localhost:4566
 export S3_ENDPOINT=http://localhost:4566
-export CLOUDWATCH_ENDPOINT=http://localhost:4566
 ```
 
 2. Run the application:
@@ -105,7 +106,9 @@ To contribute to this project, follow these steps:
 4. Push to the branch: `git push origin feature-branch-name`.
 5. Submit a pull request.
 
-### Running Tests
+## Running Tests
+
+### Running Unit Tests
 
 To run the unit tests, use the following command:
 
@@ -113,9 +116,13 @@ To run the unit tests, use the following command:
 go test ./...
 ```
 
-To run the e2e tests, use the following command:
+### Running e2e Tests
+
+To run the e2e tests, please make sure that the service is running in locally or in docker, and use the following command:
 
 ```sh
-go test -v ./e2e
+go test ./... --tags=e2e
 ```
 
+The following environment variables are available:
+- `BASE_URL`: The base URL to run tests against (default is `http://localhost:8080`).
