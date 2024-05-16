@@ -17,7 +17,6 @@ func TestE2E(t *testing.T) {
 			resp, err := http.Get(baseURL + "/v1/health")
 			assert.NoError(t, err)
 			assert.Equal(t, http.StatusOK, resp.StatusCode)
-
 			defer resp.Body.Close()
 
 			var healthResp map[string]interface{}
