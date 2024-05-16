@@ -7,7 +7,8 @@ import (
 	"testing"
 )
 
-// TODO: write unit tests, this is just a rough guideline of what they should look like.
+// TODO: write out standardized format for running e2e tests from list
+// TODO: get this value from an environment variable
 const baseURL = "http://localhost:8080"
 
 func TestE2E(t *testing.T) {
