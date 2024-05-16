@@ -116,6 +116,6 @@ go test ./...
 To run the e2e tests, use the following command:
 
 ```sh
-ginkgo e2e/
+go test -v ./e2e
 ```
 
