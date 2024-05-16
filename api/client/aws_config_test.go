@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/api/config"
@@ -15,12 +14,11 @@ func TestLoadAWSConfig_LocalEnvironment(t *testing.T) {
 	cfg := &config.Config{
 		Environment: config.Local,
 		AWS: config.AWSConfig{
-			Region:             "us-west-2",
-			AccessKeyID:        "dummyAccessKey",
-			SecretAccessKey:    "dummySecretKey",
-			DynamoDBEndpoint:   "http://localhost:4566",
-			S3Endpoint:         "http://localhost:4572",
-			CloudWatchEndpoint: "http://localhost:4582",
+			Region:           "us-west-2",
+			AccessKeyID:      "dummyAccessKey",
+			SecretAccessKey:  "dummySecretKey",
+			DynamoDBEndpoint: "http://localhost:4566",
+			S3Endpoint:       "http://localhost:4572",
 		},
 	}
 
@@ -37,10 +35,6 @@ func TestLoadAWSConfig_LocalEnvironment(t *testing.T) {
 	endpoint, err = endpointResolver.ResolveEndpoint(s3.ServiceID, "us-west-2")
 	assert.NoError(t, err)
 	assert.Equal(t, "http://localhost:4572", endpoint.URL)
-
-	endpoint, err = endpointResolver.ResolveEndpoint(cloudwatch.ServiceID, "us-west-2")
-	assert.NoError(t, err)
-	assert.Equal(t, "http://localhost:4582", endpoint.URL)
 }
 
 func TestLoadAWSConfig_ProductionEnvironment(t *testing.T) {

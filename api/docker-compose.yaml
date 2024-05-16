@@ -15,7 +15,6 @@ services:
       - ENVIRONMENT=local
       - DYNAMODB_ENDPOINT=http://localstack:4566
       - S3_ENDPOINT=http://localstack:4566
-      - CLOUDWATCH_ENDPOINT=http://localstack:4566
     depends_on:
       - localstack
     ports:
@@ -30,7 +29,7 @@ services:
     environment:
       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       - DEBUG=${DEBUG:-0}
-      - SERVICES=dynamodb,s3,cloudwatch
+      - SERVICES=dynamodb,s3
       - AWS_DEFAULT_REGION=us-east-1
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./.localstack}:/var/lib/localstack"

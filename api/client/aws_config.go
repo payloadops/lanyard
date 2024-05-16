@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/api/config"
@@ -28,8 +27,6 @@ func (r localEndpointResolver) ResolveEndpoint(service, region string, options .
 		return aws.Endpoint{URL: r.cfg.AWS.DynamoDBEndpoint}, nil
 	case s3.ServiceID:
 		return aws.Endpoint{URL: r.cfg.AWS.S3Endpoint}, nil
-	case cloudwatch.ServiceID:
-		return aws.Endpoint{URL: r.cfg.AWS.CloudWatchEndpoint}, nil
 	default:
 		return aws.Endpoint{}, &aws.EndpointNotFoundError{}
 	}

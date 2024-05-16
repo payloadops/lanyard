@@ -30,7 +30,6 @@ func TestLoadConfig(t *testing.T) {
 	setEnv("DYNAMODB_ENDPOINT", "http://localhost:8000")
 	setEnv("S3_ENDPOINT", "http://localhost:4566")
 	setEnv("ELASTICACHE_ENDPOINT", "http://localhost:6379")
-	setEnv("CLOUDWATCH_ENDPOINT", "http://localhost:4582")
 	setEnv("BIND_ADDRESS", ":8080")
 	setEnv("JWT_SECRET", "test-jwt-secret")
 
@@ -41,7 +40,6 @@ func TestLoadConfig(t *testing.T) {
 	defer unsetEnv("DYNAMODB_ENDPOINT")
 	defer unsetEnv("S3_ENDPOINT")
 	defer unsetEnv("ELASTICACHE_ENDPOINT")
-	defer unsetEnv("CLOUDWATCH_ENDPOINT")
 	defer unsetEnv("BIND_ADDRESS")
 	defer unsetEnv("JWT_SECRET")
 
@@ -56,7 +54,6 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "local", string(cfg.AWS.Environment))
 	assert.Equal(t, "http://localhost:8000", cfg.AWS.DynamoDBEndpoint)
 	assert.Equal(t, "http://localhost:4566", cfg.AWS.S3Endpoint)
-	assert.Equal(t, "http://localhost:4582", cfg.AWS.CloudWatchEndpoint)
 	assert.Equal(t, "local", string(cfg.Environment))
 	assert.Equal(t, ":8080", cfg.BindAddress)
 	assert.Equal(t, "test-jwt-secret", cfg.JWTSecret)
@@ -71,7 +68,6 @@ func TestLoadConfigMissingEnvVars(t *testing.T) {
 	unsetEnv("DYNAMODB_ENDPOINT")
 	unsetEnv("S3_ENDPOINT")
 	unsetEnv("ELASTICACHE_ENDPOINT")
-	unsetEnv("CLOUDWATCH_ENDPOINT")
 	unsetEnv("BIND_ADDRESS")
 	unsetEnv("JWT_SECRET")
 

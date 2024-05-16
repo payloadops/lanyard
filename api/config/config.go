@@ -16,13 +16,12 @@ const (
 
 // AWSConfig holds AWS-specific configuration values.
 type AWSConfig struct {
-	Region             string          `envconfig:"AWS_DEFAULT_REGION"`
-	AccessKeyID        string          `envconfig:"AWS_ACCESS_KEY_ID"`
-	SecretAccessKey    string          `envconfig:"AWS_SECRET_ACCESS_KEY"`
-	Environment        EnvironmentType `envconfig:"ENVIRONMENT"`
-	DynamoDBEndpoint   string          `envconfig:"DYNAMODB_ENDPOINT"`
-	S3Endpoint         string          `envconfig:"S3_ENDPOINT"`
-	CloudWatchEndpoint string          `envconfig:"CLOUDWATCH_ENDPOINT"`
+	Region           string          `envconfig:"AWS_DEFAULT_REGION"`
+	AccessKeyID      string          `envconfig:"AWS_ACCESS_KEY_ID"`
+	SecretAccessKey  string          `envconfig:"AWS_SECRET_ACCESS_KEY"`
+	Environment      EnvironmentType `envconfig:"ENVIRONMENT"`
+	DynamoDBEndpoint string          `envconfig:"DYNAMODB_ENDPOINT"`
+	S3Endpoint       string          `envconfig:"S3_ENDPOINT"`
 }
 
 // Config holds the entire configuration for the application.
