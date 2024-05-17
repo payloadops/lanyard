@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/api/client"
 	"github.com/payloadops/plato/api/config"
+	"github.com/payloadops/plato/api/dal"
 	"github.com/payloadops/plato/api/logging"
 	"github.com/payloadops/plato/api/metrics"
 	"github.com/payloadops/plato/api/openapi"
@@ -74,7 +75,7 @@ func main() {
 	}
 
 	// Create AWS clients
-	_ = dynamodb.NewFromConfig(awsConfig)
+	dynamoClient := dynamodb.NewFromConfig(awsConfig)
 	_ = s3.NewFromConfig(awsConfig)
 
 	/*
@@ -94,6 +95,7 @@ func main() {
 	*/
 
 	// Initialize database clients
+	projectDBClient := dal.NewProjectDBClient(dynamoClient)
 	/*
 		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
@@ -107,6 +109,7 @@ func main() {
 
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService()
+	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient)
 
 	// Initialize services with injected dependencies
 	/*
@@ -122,6 +125,7 @@ func main() {
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
+	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
 	/*
 		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
@@ -136,6 +140,7 @@ func main() {
 	// Initialize router
 	router := openapi.NewRouter(
 		HealthCheckAPIController,
+		ProjectsAPIController,
 		/*
 			APIKeysAPIController,
 			BranchesAPIController,

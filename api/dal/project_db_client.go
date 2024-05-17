@@ -3,10 +3,10 @@ package dal
 import (
 	"context"
 	"fmt"
+	"github.com/payloadops/plato/api/utils"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -44,20 +44,21 @@ type ProjectDBClient struct {
 	service *dynamodb.Client
 }
 
-// NewProjectDBClient creates a new ProjectDBClient with AWS configuration.
-func NewProjectDBClient() (*ProjectDBClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config, %w", err)
-	}
-	svc := dynamodb.NewFromConfig(cfg)
+// NewProjectDBClient creates a new ProjectDBClient.
+func NewProjectDBClient(service *dynamodb.Client) *ProjectDBClient {
 	return &ProjectDBClient{
-		service: svc,
-	}, nil
+		service: service,
+	}
 }
 
 // CreateProject creates a new project in the DynamoDB table.
 func (d *ProjectDBClient) CreateProject(ctx context.Context, project Project) error {
+	ksuid, err := utils.GenerateKSUID()
+	if err != nil {
+		return fmt.Errorf("failed to create ksuid: %v", err)
+	}
+
+	project.ID = ksuid
 	now := time.Now().UTC().Format(time.RFC3339)
 	project.CreatedAt = now
 	project.UpdatedAt = now

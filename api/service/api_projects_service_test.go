@@ -54,7 +54,7 @@ func (m *MockProjectManager) ListProjectsByTeam(ctx context.Context, teamID stri
 func TestCreateProject(t *testing.T) {
 	mockProjectClient := new(MockProjectManager)
 	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{projectClient: mockProjectClient, orgClient: mockOrgClient}
+	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
 
 	projectInput := openapi.ProjectInput{
 		OrgId:       "org1",
@@ -84,7 +84,7 @@ func TestCreateProject(t *testing.T) {
 func TestDeleteProject(t *testing.T) {
 	mockProjectClient := new(MockProjectManager)
 	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{projectClient: mockProjectClient, orgClient: mockOrgClient}
+	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
 
 	projectId := "1"
 
@@ -109,7 +109,7 @@ func TestDeleteProject(t *testing.T) {
 func TestGetProject(t *testing.T) {
 	mockProjectClient := new(MockProjectManager)
 	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{projectClient: mockProjectClient, orgClient: mockOrgClient}
+	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
 
 	projectId := "1"
 	project := &dal.Project{
@@ -140,7 +140,7 @@ func TestGetProject(t *testing.T) {
 func TestListProjects(t *testing.T) {
 	mockProjectClient := new(MockProjectManager)
 	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{projectClient: mockProjectClient, orgClient: mockOrgClient}
+	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
 
 	projects := []dal.Project{
 		{ID: "1", OrgID: "org1", TeamID: "team1", Name: "Project1", Description: "Description1"},
@@ -158,7 +158,7 @@ func TestListProjects(t *testing.T) {
 func TestUpdateProject(t *testing.T) {
 	mockProjectClient := new(MockProjectManager)
 	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{projectClient: mockProjectClient, orgClient: mockOrgClient}
+	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
 
 	projectId := "1"
 	projectInput := openapi.ProjectInput{
