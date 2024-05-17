@@ -24,12 +24,19 @@ type AWSConfig struct {
 	S3Endpoint       string          `envconfig:"S3_ENDPOINT"`
 }
 
+// OpenTelemetryConfig holds OpenTelemetry-specific configuration values.
+type OpenTelemetryConfig struct {
+	ProviderEndpoint string `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	CACert           string `envconfig:"OTEL_EXPORTER_OTLP_CA_CERT"`
+}
+
 // Config holds the entire configuration for the application.
 type Config struct {
-	Environment EnvironmentType `envconfig:"ENVIRONMENT"`
-	BindAddress string          `envconfig:"BIND_ADDRESS" default:":8080"`
-	JWTSecret   string          `envconfig:"JWT_SECRET" required:"true"`
-	AWS         AWSConfig
+	Environment   EnvironmentType `envconfig:"ENVIRONMENT"`
+	BindAddress   string          `envconfig:"BIND_ADDRESS" default:":8080"`
+	JWTSecret     string          `envconfig:"JWT_SECRET" required:"true"`
+	AWS           AWSConfig
+	OpenTelemetry OpenTelemetryConfig
 }
 
 // LoadConfig loads the configuration from environment variables into the Config struct.

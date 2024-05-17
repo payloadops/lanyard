@@ -29,7 +29,8 @@ func TestLoadConfig(t *testing.T) {
 	setEnv("ENVIRONMENT", "local")
 	setEnv("DYNAMODB_ENDPOINT", "http://localhost:8000")
 	setEnv("S3_ENDPOINT", "http://localhost:4566")
-	setEnv("ELASTICACHE_ENDPOINT", "http://localhost:6379")
+	setEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+	setEnv("OTEL_EXPORTER_OTLP_CA_CERT", "test-ca-cert")
 	setEnv("BIND_ADDRESS", ":8080")
 	setEnv("JWT_SECRET", "test-jwt-secret")
 
@@ -39,7 +40,8 @@ func TestLoadConfig(t *testing.T) {
 	defer unsetEnv("ENVIRONMENT")
 	defer unsetEnv("DYNAMODB_ENDPOINT")
 	defer unsetEnv("S3_ENDPOINT")
-	defer unsetEnv("ELASTICACHE_ENDPOINT")
+	defer unsetEnv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	defer unsetEnv("OTEL_EXPORTER_OTLP_CA_CERT")
 	defer unsetEnv("BIND_ADDRESS")
 	defer unsetEnv("JWT_SECRET")
 
@@ -57,6 +59,8 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "local", string(cfg.Environment))
 	assert.Equal(t, ":8080", cfg.BindAddress)
 	assert.Equal(t, "test-jwt-secret", cfg.JWTSecret)
+	assert.Equal(t, "http://localhost:4317", cfg.OpenTelemetry.ProviderEndpoint)
+	assert.Equal(t, "test-ca-cert", cfg.OpenTelemetry.CACert)
 }
 
 func TestLoadConfigMissingEnvVars(t *testing.T) {
@@ -67,7 +71,8 @@ func TestLoadConfigMissingEnvVars(t *testing.T) {
 	unsetEnv("ENVIRONMENT")
 	unsetEnv("DYNAMODB_ENDPOINT")
 	unsetEnv("S3_ENDPOINT")
-	unsetEnv("ELASTICACHE_ENDPOINT")
+	unsetEnv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	unsetEnv("OTEL_EXPORTER_OTLP_CA_CERT")
 	unsetEnv("BIND_ADDRESS")
 	unsetEnv("JWT_SECRET")
 
@@ -82,7 +87,7 @@ func TestLoadConfigDefaultValues(t *testing.T) {
 	setEnv("AWS_DEFAULT_REGION", "us-west-2")
 	setEnv("AWS_ACCESS_KEY_ID", "test-access-key-id")
 	setEnv("AWS_SECRET_ACCESS_KEY", "test-secret-access-key")
-	setEnv("JWT_SECRET", "foo")
+	setEnv("JWT_SECRET", "test-jwt-secret")
 
 	defer unsetEnv("AWS_DEFAULT_REGION")
 	defer unsetEnv("AWS_ACCESS_KEY_ID")
@@ -96,5 +101,7 @@ func TestLoadConfigDefaultValues(t *testing.T) {
 	assert.Equal(t, "us-west-2", cfg.AWS.Region)
 	assert.Equal(t, "test-access-key-id", cfg.AWS.AccessKeyID)
 	assert.Equal(t, "test-secret-access-key", cfg.AWS.SecretAccessKey)
-	assert.Equal(t, ":8080", cfg.BindAddress) // default value
+	assert.Equal(t, ":8080", cfg.BindAddress)               // default value
+	assert.Equal(t, "", cfg.OpenTelemetry.ProviderEndpoint) // default value when not set
+	assert.Equal(t, "", cfg.OpenTelemetry.CACert)
 }

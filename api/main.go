@@ -8,8 +8,10 @@ import (
 	"github.com/payloadops/plato/api/client"
 	"github.com/payloadops/plato/api/config"
 	"github.com/payloadops/plato/api/logging"
+	"github.com/payloadops/plato/api/metrics"
 	"github.com/payloadops/plato/api/openapi"
 	"github.com/payloadops/plato/api/service"
+	"github.com/payloadops/plato/api/tracing"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -36,10 +38,34 @@ func main() {
 	}
 
 	// Flush buffered logs upon exiting
-	defer logger.Sync()
+	defer func() {
+		_ = logger.Sync()
+	}()
 
 	// Set global logger to use this implementation (RISKY!!!)
 	// zap.ReplaceGlobals(logger)
+
+	// Set up OpenTelemetry tracing
+	tp, err := tracing.NewTracer(context.Background(), cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize tracer", zap.Error(err))
+	}
+
+	// Shut down tracing upon exiting
+	defer func() {
+		_ = tp.Shutdown(context.Background())
+	}()
+
+	// Set up OpenTelemetry tracing
+	mp, err := metrics.NewMeter(context.Background(), cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize meter", zap.Error(err))
+	}
+
+	// Shut down meter upon exiting
+	defer func() {
+		_ = mp.Shutdown(context.Background())
+	}()
 
 	// Load AWS/localstack config values
 	awsConfig, err := client.LoadAWSConfig(cfg)

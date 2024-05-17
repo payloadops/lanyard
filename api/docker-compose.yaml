@@ -15,8 +15,10 @@ services:
       - ENVIRONMENT=local
       - DYNAMODB_ENDPOINT=http://localstack:4566
       - S3_ENDPOINT=http://localstack:4566
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
     depends_on:
       - localstack
+      - otel-collector
     ports:
       - "8080:8080"
 
@@ -34,3 +36,14 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./.localstack}:/var/lib/localstack"
       - /var/run/docker.sock:/var/run/docker.sock
+
+  otel-collector:
+    container_name: "otel-collector"
+    image: public.ecr.aws/aws-observability/aws-otel-collector:latest
+    ports:
+      - "4317:4317"  # OTLP gRPC receiver
+    volumes:
+      - type: bind
+        source: ./otlp-config.yaml
+        target: /etc/otlp-config.yaml
+    command: [ "--config=/etc/otlp-config.yaml" ]
