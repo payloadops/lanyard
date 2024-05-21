@@ -121,10 +121,10 @@ type APIKeysAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type BranchesAPIServicer interface { 
-	CreatePromptBranch(context.Context, string, BranchInput) (ImplResponse, error)
-	DeleteBranch(context.Context, string, string) (ImplResponse, error)
-	GetBranch(context.Context, string, string) (ImplResponse, error)
-	ListPromptBranches(context.Context, string) (ImplResponse, error)
+	CreatePromptBranch(context.Context, string, string, BranchInput) (ImplResponse, error)
+	DeleteBranch(context.Context, string, string, string) (ImplResponse, error)
+	GetBranch(context.Context, string, string, string) (ImplResponse, error)
+	ListPromptBranches(context.Context, string, string) (ImplResponse, error)
 }
 
 
@@ -133,9 +133,9 @@ type BranchesAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type CommitsAPIServicer interface { 
-	CreateBranchCommit(context.Context, string, string, CommitInput) (ImplResponse, error)
-	GetBranchCommit(context.Context, string, string, string) (ImplResponse, error)
-	ListBranchCommits(context.Context, string, string) (ImplResponse, error)
+	CreateBranchCommit(context.Context, string, string, string, CommitInput) (ImplResponse, error)
+	GetBranchCommit(context.Context, string, string, string, string) (ImplResponse, error)
+	ListBranchCommits(context.Context, string, string, string) (ImplResponse, error)
 }
 
 

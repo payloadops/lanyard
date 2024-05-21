@@ -6,20 +6,19 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/payloadops/plato/api/utils"
 )
 
 //go:generate mockgen -package=mocks -destination=mocks/mock_branch_db_client.go "github.com/payloadops/plato/api/dal" BranchManager
 
 // BranchManager defines the operations available for managing branches.
 type BranchManager interface {
-	CreateBranch(ctx context.Context, branch Branch) error
-	GetBranch(ctx context.Context, id string) (*Branch, error)
-	DeleteBranch(ctx context.Context, id string) error
-	ListBranches(ctx context.Context) ([]Branch, error)
+	CreateBranch(ctx context.Context, branch *Branch) error
+	GetBranch(ctx context.Context, promptID, branchID string) (*Branch, error)
+	DeleteBranch(ctx context.Context, promptID, branchID string) error
 	ListBranchesByPrompt(ctx context.Context, promptID string) ([]Branch, error)
 }
 
@@ -28,8 +27,9 @@ var _ BranchManager = &BranchDBClient{}
 
 // Branch represents a branch in the system.
 type Branch struct {
-	ID        string `json:"id"`
 	PromptID  string `json:"promptId"`
+	BranchID  string `json:"branchId"`
+	Deleted   bool   `json:"deleted"`
 	CreatedAt string `json:"createdAt"`
 }
 
@@ -38,20 +38,28 @@ type BranchDBClient struct {
 	service *dynamodb.Client
 }
 
-// NewBranchDBClient creates a new BranchDBClient with the AWS configuration.
-func NewBranchDBClient() (*BranchDBClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-	svc := dynamodb.NewFromConfig(cfg)
+// NewBranchDBClient creates a new BranchDBClient.
+func NewBranchDBClient(service *dynamodb.Client) *BranchDBClient {
 	return &BranchDBClient{
-		service: svc,
-	}, nil
+		service: service,
+	}
+}
+
+// createBranchCompositeKeys generates the partition key (PK) and sort key (SK) for a branch.
+func createBranchCompositeKeys(promptID, branchID string) (string, string) {
+	return "Prompt#" + promptID, "Branch#" + branchID
 }
 
 // CreateBranch creates a new branch in the DynamoDB table.
-func (d *BranchDBClient) CreateBranch(ctx context.Context, branch Branch) error {
+func (d *BranchDBClient) CreateBranch(ctx context.Context, branch *Branch) error {
+	ksuid, err := utils.GenerateKSUID()
+	if err != nil {
+		return fmt.Errorf("failed to create ksuid: %v", err)
+	}
+
+	branch.BranchID = ksuid
+	pk, sk := createBranchCompositeKeys(branch.PromptID, branch.BranchID)
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	branch.CreatedAt = now
 
@@ -60,9 +68,17 @@ func (d *BranchDBClient) CreateBranch(ctx context.Context, branch Branch) error 
 		return fmt.Errorf("failed to marshal branch: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("Branches"),
-		Item:      av,
+		Item:      item,
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -73,12 +89,15 @@ func (d *BranchDBClient) CreateBranch(ctx context.Context, branch Branch) error 
 	return nil
 }
 
-// GetBranch retrieves a branch by ID from the DynamoDB table.
-func (d *BranchDBClient) GetBranch(ctx context.Context, id string) (*Branch, error) {
+// GetBranch retrieves a branch by prompt ID and branch ID from the DynamoDB table.
+func (d *BranchDBClient) GetBranch(ctx context.Context, promptID, branchID string) (*Branch, error) {
+	pk, sk := createBranchCompositeKeys(promptID, branchID)
+
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Branches"),
 		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -100,56 +119,50 @@ func (d *BranchDBClient) GetBranch(ctx context.Context, id string) (*Branch, err
 	return &branch, nil
 }
 
-// DeleteBranch deletes a branch by ID from the DynamoDB table.
-func (d *BranchDBClient) DeleteBranch(ctx context.Context, id string) error {
-	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String("Branches"),
-		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+// DeleteBranch marks a branch as deleted by prompt ID and branch ID in the DynamoDB table.
+func (d *BranchDBClient) DeleteBranch(ctx context.Context, promptID, branchID string) error {
+	pk, sk := createBranchCompositeKeys(promptID, branchID)
+	update := map[string]types.AttributeValueUpdate{
+		"Deleted": {
+			Value:  &types.AttributeValueMemberBOOL{Value: true},
+			Action: types.AttributeActionPut,
 		},
 	}
 
-	_, err := d.service.DeleteItem(ctx, input)
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("Branches"),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		AttributeUpdates:    update,
+		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
-		return fmt.Errorf("failed to delete item from DynamoDB: %v", err)
+		return fmt.Errorf("failed to delete item in DynamoDB: %v", err)
 	}
 
 	return nil
 }
 
-// ListBranches retrieves all branches from the DynamoDB table.
-func (d *BranchDBClient) ListBranches(ctx context.Context) ([]Branch, error) {
-	input := &dynamodb.ScanInput{
-		TableName: aws.String("Branches"),
-	}
-
-	result, err := d.service.Scan(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
-	}
-
-	var branches []Branch
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &branches)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
-	}
-
-	return branches, nil
-}
-
 // ListBranchesByPrompt retrieves all branches belonging to a specific prompt from the DynamoDB table.
 func (d *BranchDBClient) ListBranchesByPrompt(ctx context.Context, promptID string) ([]Branch, error) {
-	input := &dynamodb.ScanInput{
-		TableName:        aws.String("Branches"),
-		FilterExpression: aws.String("promptId = :promptId"),
+	pk, _ := createBranchCompositeKeys(promptID, "")
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("Branches"),
+		KeyConditionExpression: aws.String("PK = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":promptId": &types.AttributeValueMemberS{Value: promptID},
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
 		},
 	}
 
-	result, err := d.service.Scan(ctx, input)
+	result, err := d.service.Query(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
 	var branches []Branch

@@ -20,7 +20,7 @@ import (
 
 type Project struct {
 
-	// Unique identifier for the project
+	// A K-sortable unique identifier (KSUID)
 	Id string `json:"id,omitempty"`
 
 	// Name of the project
@@ -29,10 +29,10 @@ type Project struct {
 	// A brief description of the project
 	Description string `json:"description,omitempty"`
 
-	// Identifier for the organization to which the project belongs
+	// A K-sortable unique identifier (KSUID)
 	OrgId string `json:"orgId,omitempty"`
 
-	// Identifier for the team to which the project belongs
+	// A K-sortable unique identifier (KSUID)
 	TeamId string `json:"teamId,omitempty"`
 
 	// Timestamp when the project was created

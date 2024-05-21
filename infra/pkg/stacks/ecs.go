@@ -27,7 +27,7 @@ func CreateEcsFargateAPI(scope constructs.Construct, vpc awsec2.IVpc, stage stri
 
 	taskRole.AddToPolicy(awsiam.NewPolicyStatement(&awsiam.PolicyStatementProps{
 		Actions:   &[]*string{jsii.String("s3:*"), jsii.String("dynamodb:*")},
-		Resources: &[]*string{jsii.String("arn:aws:s3:::*/*"), jsii.String("arn:aws:dynamodb:::*/*")},
+		Resources: &[]*string{jsii.String("arn:client:s3:::*/*"), jsii.String("arn:client:dynamodb:::*/*")},
 	}))
 
 	repository := awsecr.NewRepository(stack, jsii.String("MyRepository"), &awsecr.RepositoryProps{

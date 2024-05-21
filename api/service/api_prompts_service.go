@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/payloadops/plato/api/utils"
 	"net/http"
 
 	"github.com/payloadops/plato/api/dal"
@@ -13,27 +12,24 @@ import (
 // PromptsAPIService is a service that implements the logic for the PromptsAPIServicer
 // This service should implement the business logic for every endpoint for the PromptsAPI API.
 type PromptsAPIService struct {
-	promptClient  dal.PromptManager
 	projectClient dal.ProjectManager
+	promptClient  dal.PromptManager
 }
 
 // NewPromptsAPIService creates a default api service
-func NewPromptsAPIService() openapi.PromptsAPIServicer {
-	promptClient, err := dal.NewPromptDBClient()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create PromptDBClient: %v", err))
-	}
-	projectClient, err := dal.NewProjectDBClient()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create ProjectDBClient: %v", err))
-	}
-	return &PromptsAPIService{promptClient: promptClient, projectClient: projectClient}
+func NewPromptsAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager) openapi.PromptsAPIServicer {
+	return &PromptsAPIService{projectClient: projectClient, promptClient: promptClient}
 }
 
 // CreatePrompt - Create a new prompt in a project
 func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -41,13 +37,7 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, 
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
 	}
 
-	ksuid, err := utils.GenerateKSUID()
-	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
-	}
-
-	prompt := dal.Prompt{
-		ID:          ksuid,
+	prompt := &dal.Prompt{
 		ProjectID:   projectId,
 		Name:        promptInput.Name,
 		Description: promptInput.Description,
@@ -63,8 +53,13 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectId string, 
 
 // DeletePrompt - Delete a specific prompt from a project
 func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, promptId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -73,7 +68,7 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, 
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -81,7 +76,7 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, 
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
 	}
 
-	err = s.promptClient.DeletePrompt(ctx, promptId)
+	err = s.promptClient.DeletePrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -91,8 +86,13 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectId string, 
 
 // GetPrompt - Retrieve a specific prompt within a project
 func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, promptId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -100,7 +100,7 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, pro
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
 	}
 
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -113,8 +113,13 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectId string, pro
 
 // ListPrompts - List all prompts in a project
 func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -132,8 +137,13 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectId string) (
 
 // UpdatePrompt - Update a specific prompt in a project
 func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, promptId string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -142,7 +152,7 @@ func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, 
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -153,9 +163,8 @@ func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectId string, 
 	// Update the prompt with the new values
 	prompt.Name = promptInput.Name
 	prompt.Description = promptInput.Description
-	prompt.ProjectID = projectId
 
-	err = s.promptClient.UpdatePrompt(ctx, *prompt)
+	err = s.promptClient.UpdatePrompt(ctx, prompt)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}

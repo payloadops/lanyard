@@ -41,7 +41,7 @@ func (m *MockPromptManager) EXPECT() *MockPromptManagerMockRecorder {
 }
 
 // CreatePrompt mocks base method.
-func (m *MockPromptManager) CreatePrompt(arg0 context.Context, arg1 dal.Prompt) error {
+func (m *MockPromptManager) CreatePrompt(arg0 context.Context, arg1 *dal.Prompt) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreatePrompt", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -55,47 +55,32 @@ func (mr *MockPromptManagerMockRecorder) CreatePrompt(arg0, arg1 any) *gomock.Ca
 }
 
 // DeletePrompt mocks base method.
-func (m *MockPromptManager) DeletePrompt(arg0 context.Context, arg1 string) error {
+func (m *MockPromptManager) DeletePrompt(arg0 context.Context, arg1, arg2 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePrompt", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeletePrompt", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeletePrompt indicates an expected call of DeletePrompt.
-func (mr *MockPromptManagerMockRecorder) DeletePrompt(arg0, arg1 any) *gomock.Call {
+func (mr *MockPromptManagerMockRecorder) DeletePrompt(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePrompt", reflect.TypeOf((*MockPromptManager)(nil).DeletePrompt), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePrompt", reflect.TypeOf((*MockPromptManager)(nil).DeletePrompt), arg0, arg1, arg2)
 }
 
 // GetPrompt mocks base method.
-func (m *MockPromptManager) GetPrompt(arg0 context.Context, arg1 string) (*dal.Prompt, error) {
+func (m *MockPromptManager) GetPrompt(arg0 context.Context, arg1, arg2 string) (*dal.Prompt, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPrompt", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetPrompt", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*dal.Prompt)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPrompt indicates an expected call of GetPrompt.
-func (mr *MockPromptManagerMockRecorder) GetPrompt(arg0, arg1 any) *gomock.Call {
+func (mr *MockPromptManagerMockRecorder) GetPrompt(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrompt", reflect.TypeOf((*MockPromptManager)(nil).GetPrompt), arg0, arg1)
-}
-
-// ListPrompts mocks base method.
-func (m *MockPromptManager) ListPrompts(arg0 context.Context) ([]dal.Prompt, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListPrompts", arg0)
-	ret0, _ := ret[0].([]dal.Prompt)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListPrompts indicates an expected call of ListPrompts.
-func (mr *MockPromptManagerMockRecorder) ListPrompts(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListPrompts", reflect.TypeOf((*MockPromptManager)(nil).ListPrompts), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrompt", reflect.TypeOf((*MockPromptManager)(nil).GetPrompt), arg0, arg1, arg2)
 }
 
 // ListPromptsByProject mocks base method.
@@ -114,7 +99,7 @@ func (mr *MockPromptManagerMockRecorder) ListPromptsByProject(arg0, arg1 any) *g
 }
 
 // UpdatePrompt mocks base method.
-func (m *MockPromptManager) UpdatePrompt(arg0 context.Context, arg1 dal.Prompt) error {
+func (m *MockPromptManager) UpdatePrompt(arg0 context.Context, arg1 *dal.Prompt) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePrompt", arg0, arg1)
 	ret0, _ := ret[0].(error)

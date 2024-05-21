@@ -59,12 +59,12 @@ func (c *PromptsAPIController) Routes() Routes {
 		},
 		"DeletePrompt": Route{
 			strings.ToUpper("Delete"),
-			"/v1/prompts/{promptId}",
+			"/v1/projects/{projectId}/prompts/{promptId}",
 			c.DeletePrompt,
 		},
 		"GetPrompt": Route{
 			strings.ToUpper("Get"),
-			"/v1/prompts/{promptId}",
+			"/v1/projects/{projectId}/prompts/{promptId}",
 			c.GetPrompt,
 		},
 		"ListPrompts": Route{
@@ -74,7 +74,7 @@ func (c *PromptsAPIController) Routes() Routes {
 		},
 		"UpdatePrompt": Route{
 			strings.ToUpper("Put"),
-			"/v1/prompts/{promptId}",
+			"/v1/projects/{projectId}/prompts/{promptId}",
 			c.UpdatePrompt,
 		},
 	}

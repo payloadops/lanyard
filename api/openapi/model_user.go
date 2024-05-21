@@ -20,7 +20,7 @@ import (
 
 type User struct {
 
-	// Unique identifier for the user
+	// A K-sortable unique identifier (KSUID)
 	Id string `json:"id,omitempty"`
 
 	// User's full name (optional)
@@ -32,7 +32,7 @@ type User struct {
 	// Timestamp of user creation
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 
-	UpdatedAt string `json:"updatedAt,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
 // AssertUserRequired checks if the required fields are not zero-ed

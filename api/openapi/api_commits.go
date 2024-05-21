@@ -54,17 +54,17 @@ func (c *CommitsAPIController) Routes() Routes {
 	return Routes{
 		"CreateBranchCommit": Route{
 			strings.ToUpper("Post"),
-			"/v1/prompts/{promptId}/branches/{branchId}/commits",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits",
 			c.CreateBranchCommit,
 		},
 		"GetBranchCommit": Route{
 			strings.ToUpper("Get"),
-			"/v1/prompts/{promptId}/branches/{branchId}/commits/{commitId}",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}",
 			c.GetBranchCommit,
 		},
 		"ListBranchCommits": Route{
 			strings.ToUpper("Get"),
-			"/v1/prompts/{promptId}/branches/{branchId}/commits",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits",
 			c.ListBranchCommits,
 		},
 	}
@@ -72,14 +72,19 @@ func (c *CommitsAPIController) Routes() Routes {
 
 // CreateBranchCommit - Create a new commit for a branch
 func (c *CommitsAPIController) CreateBranchCommit(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	branchIdParam := chi.URLParam(r, "branchId")
-	if branchIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"branchId"}, nil)
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
 		return
 	}
 	commitInputParam := CommitInput{}
@@ -97,7 +102,7 @@ func (c *CommitsAPIController) CreateBranchCommit(w http.ResponseWriter, r *http
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateBranchCommit(r.Context(), promptIdParam, branchIdParam, commitInputParam)
+	result, err := c.service.CreateBranchCommit(r.Context(), projectIdParam, promptIdParam, branchNameParam, commitInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -109,14 +114,19 @@ func (c *CommitsAPIController) CreateBranchCommit(w http.ResponseWriter, r *http
 
 // GetBranchCommit - Retrieve a specific commit or the latest commit of a branch
 func (c *CommitsAPIController) GetBranchCommit(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	branchIdParam := chi.URLParam(r, "branchId")
-	if branchIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"branchId"}, nil)
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
 		return
 	}
 	commitIdParam := chi.URLParam(r, "commitId")
@@ -124,7 +134,7 @@ func (c *CommitsAPIController) GetBranchCommit(w http.ResponseWriter, r *http.Re
 		c.errorHandler(w, r, &RequiredError{"commitId"}, nil)
 		return
 	}
-	result, err := c.service.GetBranchCommit(r.Context(), promptIdParam, branchIdParam, commitIdParam)
+	result, err := c.service.GetBranchCommit(r.Context(), projectIdParam, promptIdParam, branchNameParam, commitIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -136,17 +146,22 @@ func (c *CommitsAPIController) GetBranchCommit(w http.ResponseWriter, r *http.Re
 
 // ListBranchCommits - List all commits of a specific branch
 func (c *CommitsAPIController) ListBranchCommits(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	branchIdParam := chi.URLParam(r, "branchId")
-	if branchIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"branchId"}, nil)
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
 		return
 	}
-	result, err := c.service.ListBranchCommits(r.Context(), promptIdParam, branchIdParam)
+	result, err := c.service.ListBranchCommits(r.Context(), projectIdParam, promptIdParam, branchNameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

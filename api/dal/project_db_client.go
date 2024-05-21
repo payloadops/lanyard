@@ -16,13 +16,11 @@ import (
 
 // ProjectManager defines the operations available for managing projects.
 type ProjectManager interface {
-	CreateProject(ctx context.Context, project Project) error
-	GetProject(ctx context.Context, id string) (*Project, error)
-	UpdateProject(ctx context.Context, project Project) error
-	DeleteProject(ctx context.Context, id string) error
-	ListProjects(ctx context.Context) ([]Project, error)
-	ListProjectsByOrganization(ctx context.Context, organizationID string) ([]Project, error)
-	ListProjectsByTeam(ctx context.Context, teamID string) ([]Project, error)
+	CreateProject(ctx context.Context, project *Project) error
+	GetProject(ctx context.Context, orgID string, projectID string) (*Project, error)
+	UpdateProject(ctx context.Context, project *Project) error
+	DeleteProject(ctx context.Context, orgID string, projectID string) error
+	ListProjectsByOrganization(ctx context.Context, orgID string) ([]Project, error)
 }
 
 // Ensure ProjectDBClient implements the ProjectManager interface
@@ -30,11 +28,11 @@ var _ ProjectManager = &ProjectDBClient{}
 
 // Project represents a project in the system.
 type Project struct {
-	ID          string `json:"id"`
-	OrgID       string `json:"orgId,omitempty"`
-	TeamID      string `json:"teamId,omitempty"`
+	OrgID       string `json:"orgId"`
+	ProjectID   string `json:"projectId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Deleted     bool   `json:"deleted"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
 }
@@ -51,14 +49,21 @@ func NewProjectDBClient(service *dynamodb.Client) *ProjectDBClient {
 	}
 }
 
+// createProjectCompositeKeys generates the partition key (PK) and sort key (SK) for a project.
+func createProjectCompositeKeys(orgID, projectID string) (string, string) {
+	return "Org#" + orgID, "Project#" + projectID
+}
+
 // CreateProject creates a new project in the DynamoDB table.
-func (d *ProjectDBClient) CreateProject(ctx context.Context, project Project) error {
+func (d *ProjectDBClient) CreateProject(ctx context.Context, project *Project) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
-	project.ID = ksuid
+	project.ProjectID = ksuid
+	pk, sk := createProjectCompositeKeys(project.OrgID, project.ProjectID)
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	project.CreatedAt = now
 	project.UpdatedAt = now
@@ -68,9 +73,17 @@ func (d *ProjectDBClient) CreateProject(ctx context.Context, project Project) er
 		return fmt.Errorf("failed to marshal project: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("Projects"),
-		Item:      av,
+		Item:      item,
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -81,12 +94,14 @@ func (d *ProjectDBClient) CreateProject(ctx context.Context, project Project) er
 	return nil
 }
 
-// GetProject retrieves a project by ID from the DynamoDB table.
-func (d *ProjectDBClient) GetProject(ctx context.Context, id string) (*Project, error) {
+// GetProject retrieves a project by organization ID and project ID from the DynamoDB table.
+func (d *ProjectDBClient) GetProject(ctx context.Context, orgID, projectID string) (*Project, error) {
+	pk, sk := createProjectCompositeKeys(orgID, projectID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Projects"),
 		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -105,11 +120,16 @@ func (d *ProjectDBClient) GetProject(ctx context.Context, id string) (*Project, 
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
+	if project.Deleted {
+		return nil, nil
+	}
+
 	return &project, nil
 }
 
 // UpdateProject updates an existing project in the DynamoDB table.
-func (d *ProjectDBClient) UpdateProject(ctx context.Context, project Project) error {
+func (d *ProjectDBClient) UpdateProject(ctx context.Context, project *Project) error {
+	pk, sk := createProjectCompositeKeys(project.OrgID, project.ProjectID)
 	project.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(project)
@@ -117,9 +137,18 @@ func (d *ProjectDBClient) UpdateProject(ctx context.Context, project Project) er
 		return fmt.Errorf("failed to marshal project: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String("Projects"),
-		Item:      av,
+		TableName:           aws.String("Projects"),
+		Item:                item,
+		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -130,80 +159,56 @@ func (d *ProjectDBClient) UpdateProject(ctx context.Context, project Project) er
 	return nil
 }
 
-// DeleteProject deletes a project by ID from the DynamoDB table.
-func (d *ProjectDBClient) DeleteProject(ctx context.Context, id string) error {
-	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String("Projects"),
-		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+// DeleteProject marks a project as deleted by organization ID and project ID in the DynamoDB table.
+func (d *ProjectDBClient) DeleteProject(ctx context.Context, orgID, projectID string) error {
+	pk, sk := createProjectCompositeKeys(orgID, projectID)
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	update := map[string]types.AttributeValueUpdate{
+		"Deleted": {
+			Value:  &types.AttributeValueMemberBOOL{Value: true},
+			Action: types.AttributeActionPut,
+		},
+		"UpdatedAt": {
+			Value:  &types.AttributeValueMemberS{Value: now},
+			Action: types.AttributeActionPut,
 		},
 	}
 
-	_, err := d.service.DeleteItem(ctx, input)
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("Projects"),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		AttributeUpdates:    update,
+		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
-		return fmt.Errorf("failed to delete item from DynamoDB: %v", err)
+		return fmt.Errorf("failed to delete item in DynamoDB: %v", err)
 	}
 
 	return nil
 }
 
-// ListProjects retrieves all projects from the DynamoDB table.
-func (d *ProjectDBClient) ListProjects(ctx context.Context) ([]Project, error) {
-	input := &dynamodb.ScanInput{
-		TableName: aws.String("Projects"),
-	}
-
-	result, err := d.service.Scan(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
-	}
-
-	var projects []Project
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &projects)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
-	}
-
-	return projects, nil
-}
-
 // ListProjectsByOrganization retrieves all projects for a specific organization from the DynamoDB table.
-func (d *ProjectDBClient) ListProjectsByOrganization(ctx context.Context, organizationID string) ([]Project, error) {
-	input := &dynamodb.ScanInput{
-		TableName:        aws.String("Projects"),
-		FilterExpression: aws.String("orgId = :orgId"),
+func (d *ProjectDBClient) ListProjectsByOrganization(ctx context.Context, orgID string) ([]Project, error) {
+	pk, _ := createProjectCompositeKeys(orgID, "")
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("Projects"),
+		KeyConditionExpression: aws.String("PK = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":orgId": &types.AttributeValueMemberS{Value: organizationID},
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
 		},
 	}
 
-	result, err := d.service.Scan(ctx, input)
+	result, err := d.service.Query(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
-	}
-
-	var projects []Project
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &projects)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
-	}
-
-	return projects, nil
-}
-
-// ListProjectsByTeam retrieves all projects for a specific team from the DynamoDB table.
-func (d *ProjectDBClient) ListProjectsByTeam(ctx context.Context, teamID string) ([]Project, error) {
-	input := &dynamodb.ScanInput{
-		TableName:        aws.String("Projects"),
-		FilterExpression: aws.String("teamId = :teamId"),
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":teamId": &types.AttributeValueMemberS{Value: teamID},
-		},
-	}
-
-	result, err := d.service.Scan(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
 	var projects []Project

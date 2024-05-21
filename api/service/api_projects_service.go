@@ -21,9 +21,13 @@ func NewProjectsAPIService(client dal.ProjectManager) openapi.ProjectsAPIService
 
 // CreateProject - Create a new project
 func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
-	project := dal.Project{
-		OrgID:       projectInput.OrgId,
-		TeamID:      projectInput.TeamId,
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	project := &dal.Project{
+		OrgID:       orgId,
 		Name:        projectInput.Name,
 		Description: projectInput.Description,
 	}
@@ -38,8 +42,13 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ope
 
 // DeleteProject - Delete a project
 func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.client.GetProject(ctx, projectId)
+	project, err := s.client.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -47,7 +56,7 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectId string
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
 	}
 
-	err = s.client.DeleteProject(ctx, projectId)
+	err = s.client.DeleteProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -57,7 +66,12 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectId string
 
 // GetProject - Retrieve a project by ID
 func (s *ProjectsAPIService) GetProject(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
-	project, err := s.client.GetProject(ctx, projectId)
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	project, err := s.client.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -70,7 +84,12 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectId string) (
 
 // ListProjects - List all projects
 func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResponse, error) {
-	projects, err := s.client.ListProjects(ctx)
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	projects, err := s.client.ListProjectsByOrganization(ctx, orgId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -80,8 +99,13 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResp
 
 // UpdateProject - Update a project
 func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectId string, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
 	// Check if the project exists
-	project, err := s.client.GetProject(ctx, projectId)
+	project, err := s.client.GetProject(ctx, orgId, projectId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -92,10 +116,8 @@ func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectId string
 	// Update the project with the new values
 	project.Name = projectInput.Name
 	project.Description = projectInput.Description
-	project.OrgID = projectInput.OrgId
-	project.TeamID = projectInput.TeamId
 
-	err = s.client.UpdateProject(ctx, *project)
+	err = s.client.UpdateProject(ctx, project)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
