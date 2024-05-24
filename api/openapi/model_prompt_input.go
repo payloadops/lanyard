@@ -21,6 +21,9 @@ type PromptInput struct {
 
 	// A brief description of the project
 	Description string `json:"description,omitempty"`
+
+	// Contents of the prompt
+	Prompt string `json:"prompt,omitempty"`
 }
 
 // AssertPromptInputRequired checks if the required fields are not zero-ed

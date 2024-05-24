@@ -12,27 +12,38 @@ import (
 // BranchesAPIService is a service that implements the logic for the BranchesAPIServicer
 // This service should implement the business logic for every endpoint for the BranchesAPI API.
 type BranchesAPIService struct {
-	branchClient dal.BranchManager
-	promptClient dal.PromptManager
+	projectClient dal.ProjectManager
+	promptClient  dal.PromptManager
+	branchClient  dal.BranchManager
 }
 
 // NewBranchesAPIService creates a default api service
-func NewBranchesAPIService() openapi.BranchesAPIServicer {
-	branchClient, err := dal.NewBranchDBClient()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create BranchDBClient: %v", err))
+func NewBranchesAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager, branchClient dal.BranchManager) openapi.BranchesAPIServicer {
+	return &BranchesAPIService{
+		projectClient: projectClient,
+		promptClient:  promptClient,
+		branchClient:  branchClient,
 	}
-	promptClient, err := dal.NewPromptDBClient()
-	if err != nil {
-		panic(fmt.Sprintf("failed to create PromptDBClient: %v", err))
-	}
-	return &BranchesAPIService{branchClient: branchClient, promptClient: promptClient}
 }
 
 // CreatePromptBranch - Create a new branch for a prompt
-func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId string, branchInput openapi.BranchInput) (openapi.ImplResponse, error) {
+func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, projectId string, promptId string, branchInput openapi.BranchInput) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	// Check if the project exists
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if project == nil {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+	}
+
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -40,8 +51,7 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId st
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
 	}
 
-	branch := dal.Branch{
-		ID:       branchInput.Id,
+	branch := &dal.Branch{
 		PromptID: promptId,
 	}
 
@@ -54,9 +64,23 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, promptId st
 }
 
 // DeleteBranch - Delete a specific branch
-func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, branchId string) (openapi.ImplResponse, error) {
+func (s *BranchesAPIService) DeleteBranch(ctx context.Context, projectId string, promptId string, branchId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	// Check if the project exists
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if project == nil {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+	}
+
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -65,7 +89,7 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, 
 	}
 
 	// Check if the branch exists and belongs to the specified prompt
-	branch, err := s.branchClient.GetBranch(ctx, branchId)
+	branch, err := s.branchClient.GetBranch(ctx, promptId, branchId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -73,7 +97,7 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, 
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	err = s.branchClient.DeleteBranch(ctx, branchId)
+	err = s.branchClient.DeleteBranch(ctx, promptId, branchId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -82,9 +106,23 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, promptId string, 
 }
 
 // GetBranch - Retrieve a specific branch
-func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, branchId string) (openapi.ImplResponse, error) {
+func (s *BranchesAPIService) GetBranch(ctx context.Context, projectId string, promptId string, branchId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	// Check if the project exists
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if project == nil {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+	}
+
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -92,7 +130,7 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, bra
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
 	}
 
-	branch, err := s.branchClient.GetBranch(ctx, branchId)
+	branch, err := s.branchClient.GetBranch(ctx, promptId, branchId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -104,9 +142,23 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, promptId string, bra
 }
 
 // ListPromptBranches - List all branches of a specific prompt
-func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, promptId string) (openapi.ImplResponse, error) {
+func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, projectId string, promptId string) (openapi.ImplResponse, error) {
+	orgId, ok := ctx.Value("orgId").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+	}
+
+	// Check if the project exists
+	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if project == nil {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+	}
+
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}

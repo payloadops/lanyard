@@ -1,4 +1,3 @@
-README.md
 api/openapi.yaml
 openapi/api.go
 openapi/api_api_keys.go
@@ -29,8 +28,8 @@ openapi/model_project.go
 openapi/model_project_input.go
 openapi/model_prompt.go
 openapi/model_prompt_input.go
+openapi/model_prompt_stub.go
 openapi/model_team.go
 openapi/model_team_input.go
 openapi/model_user.go
 openapi/model_user_input.go
-openapi/routers.go

@@ -20,8 +20,8 @@ import (
 
 type Branch struct {
 
-	// Unique identifier for the branch of the prompt
-	Id string `json:"id,omitempty"`
+	// Branch name unique to the prompt
+	Name string `json:"name,omitempty"`
 
 	// Timestamp when this branch was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`

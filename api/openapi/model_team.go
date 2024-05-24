@@ -20,7 +20,7 @@ import (
 
 type Team struct {
 
-	// Unique identifier for the team
+	// A K-sortable unique identifier (KSUID)
 	Id string `json:"id,omitempty"`
 
 	// Name of the team
@@ -29,7 +29,7 @@ type Team struct {
 	// A brief description of the team
 	Description string `json:"description,omitempty"`
 
-	// The organization to which the team belongs
+	// A K-sortable unique identifier (KSUID)
 	OrgId string `json:"orgId,omitempty"`
 
 	// Timestamp of team creation

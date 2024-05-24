@@ -41,7 +41,7 @@ func (m *MockProjectManager) EXPECT() *MockProjectManagerMockRecorder {
 }
 
 // CreateProject mocks base method.
-func (m *MockProjectManager) CreateProject(arg0 context.Context, arg1 dal.Project) error {
+func (m *MockProjectManager) CreateProject(arg0 context.Context, arg1 *dal.Project) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProject", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -55,47 +55,32 @@ func (mr *MockProjectManagerMockRecorder) CreateProject(arg0, arg1 any) *gomock.
 }
 
 // DeleteProject mocks base method.
-func (m *MockProjectManager) DeleteProject(arg0 context.Context, arg1 string) error {
+func (m *MockProjectManager) DeleteProject(arg0 context.Context, arg1, arg2 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteProject", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteProject", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteProject indicates an expected call of DeleteProject.
-func (mr *MockProjectManagerMockRecorder) DeleteProject(arg0, arg1 any) *gomock.Call {
+func (mr *MockProjectManagerMockRecorder) DeleteProject(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProject", reflect.TypeOf((*MockProjectManager)(nil).DeleteProject), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProject", reflect.TypeOf((*MockProjectManager)(nil).DeleteProject), arg0, arg1, arg2)
 }
 
 // GetProject mocks base method.
-func (m *MockProjectManager) GetProject(arg0 context.Context, arg1 string) (*dal.Project, error) {
+func (m *MockProjectManager) GetProject(arg0 context.Context, arg1, arg2 string) (*dal.Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProject", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetProject", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*dal.Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetProject indicates an expected call of GetProject.
-func (mr *MockProjectManagerMockRecorder) GetProject(arg0, arg1 any) *gomock.Call {
+func (mr *MockProjectManagerMockRecorder) GetProject(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockProjectManager)(nil).GetProject), arg0, arg1)
-}
-
-// ListProjects mocks base method.
-func (m *MockProjectManager) ListProjects(arg0 context.Context) ([]dal.Project, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListProjects", arg0)
-	ret0, _ := ret[0].([]dal.Project)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListProjects indicates an expected call of ListProjects.
-func (mr *MockProjectManagerMockRecorder) ListProjects(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProjects", reflect.TypeOf((*MockProjectManager)(nil).ListProjects), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockProjectManager)(nil).GetProject), arg0, arg1, arg2)
 }
 
 // ListProjectsByOrganization mocks base method.
@@ -113,23 +98,8 @@ func (mr *MockProjectManagerMockRecorder) ListProjectsByOrganization(arg0, arg1 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProjectsByOrganization", reflect.TypeOf((*MockProjectManager)(nil).ListProjectsByOrganization), arg0, arg1)
 }
 
-// ListProjectsByTeam mocks base method.
-func (m *MockProjectManager) ListProjectsByTeam(arg0 context.Context, arg1 string) ([]dal.Project, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListProjectsByTeam", arg0, arg1)
-	ret0, _ := ret[0].([]dal.Project)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListProjectsByTeam indicates an expected call of ListProjectsByTeam.
-func (mr *MockProjectManagerMockRecorder) ListProjectsByTeam(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListProjectsByTeam", reflect.TypeOf((*MockProjectManager)(nil).ListProjectsByTeam), arg0, arg1)
-}
-
 // UpdateProject mocks base method.
-func (m *MockProjectManager) UpdateProject(arg0 context.Context, arg1 dal.Project) error {
+func (m *MockProjectManager) UpdateProject(arg0 context.Context, arg1 *dal.Project) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProject", arg0, arg1)
 	ret0, _ := ret[0].(error)

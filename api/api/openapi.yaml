@@ -1125,7 +1125,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Prompt'
+                  $ref: '#/components/schemas/PromptStub'
                 type: array
           description: Successfully retrieved a list of all prompts in the specified
             project.
@@ -1187,7 +1187,7 @@ paths:
       summary: Create a new prompt in a project
       tags:
       - Prompts
-  /prompts/{promptId}:
+  /projects/{projectId}/prompts/{promptId}:
     delete:
       description: |
         Deletes a specific prompt from a project, removing it permanently from the system. This operation is used when a prompt is no longer needed or relevant, or as part of content cleanup and management strategies.
@@ -1197,7 +1197,7 @@ paths:
         - Complying with data retention policies by deleting prompts that are no longer necessary.
       operationId: deletePrompt
       parameters:
-      - description: The identifier of the project from which the prompt will be deleted.
+      - description: The unique identifier of the project.
         explode: false
         in: path
         name: projectId
@@ -1232,7 +1232,7 @@ paths:
         - Fetching prompt data for integration with other tools or services.
       operationId: getPrompt
       parameters:
-      - description: The identifier of the project to which the prompt belongs.
+      - description: The unique identifier of the project.
         explode: false
         in: path
         name: projectId
@@ -1271,7 +1271,7 @@ paths:
         - Updating prompt settings or configurations based on new inputs or feedback.
       operationId: updatePrompt
       parameters:
-      - description: The identifier of the project that contains the prompt.
+      - description: The unique identifier of the project.
         explode: false
         in: path
         name: projectId
@@ -1311,7 +1311,7 @@ paths:
       summary: Update a specific prompt in a project
       tags:
       - Prompts
-  /prompts/{promptId}/branches:
+  /projects/{projectId}/prompts/{promptId}/branches:
     get:
       description: |
         Retrieves a list of all branches associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
@@ -1322,6 +1322,14 @@ paths:
         - Supports collaborative review by providing access to various branch submissions.
       operationId: listPromptBranches
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt for which branches are being
           listed.
         explode: false
@@ -1362,6 +1370,14 @@ paths:
         - Appropriate permissions are required to create branches, typically restricted to content creators or project managers.
       operationId: createPromptBranch
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt for which a new branch is
           being created.
         explode: false
@@ -1399,7 +1415,7 @@ paths:
       summary: Create a new branch for a prompt
       tags:
       - Branches
-  /prompts/{promptId}/branches/{branchId}:
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}:
     delete:
       description: "Deletes a specific branch of a prompt. This endpoint allows users\
         \ to remove an entire branch and its associated commit history from a prompt.\
@@ -1411,10 +1427,18 @@ paths:
         \ managers removing experimental branches that didn't proceed to production.\n\
         - Automated systems enforcing branch retention policies by deleting branches\
         \ past their retention period.\n\n**Key Parameters**:\n- `promptId`: Identifies\
-        \ the prompt whose branch is being deleted.\n- `branchId`: Specifies the unique\
-        \ identifier of the branch to delete.\n"
+        \ the prompt whose branch is being deleted.\n- `branchName`: Specifies the\
+        \ name of the branch to delete.\n"
       operationId: deleteBranch
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt whose branch is being deleted.
         explode: false
         in: path
@@ -1423,10 +1447,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the branch to be deleted.
+      - description: The name of the branch to be deleted.
         explode: false
         in: path
-        name: branchId
+        name: branchName
         required: true
         schema:
           type: string
@@ -1453,10 +1477,18 @@ paths:
         \ Content managers assessing different branches to decide on merging or further\
         \ development.\n- Integrating branch data into other systems for enhanced\
         \ content lifecycle management.\n\n**Key Parameters**:\n- `promptId`: Identifies\
-        \ the prompt to which the branch belongs.\n- `branchId`: Specifies the unique\
-        \ identifier of the branch to retrieve.\n"
+        \ the prompt to which the branch belongs.\n- `branchName`: Specifies the name\
+        \ of the branch to retrieve.\n"
       operationId: getBranch
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt.
         explode: false
         in: path
@@ -1465,10 +1497,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the branch to retrieve.
+      - description: The name of the branch to retrieve.
         explode: false
         in: path
-        name: branchId
+        name: branchName
         required: true
         schema:
           type: string
@@ -1488,7 +1520,7 @@ paths:
       summary: Retrieve a specific branch
       tags:
       - Branches
-  /prompts/{promptId}/branches/{branchId}/commits:
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits:
     get:
       description: |
         Retrieves a list of all commit histories associated with a specific branch of a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
@@ -1504,6 +1536,14 @@ paths:
         - Compliance officers auditing changes for regulatory adherence.
       operationId: listBranchCommits
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt whose branch commits are
           being listed.
         explode: false
@@ -1513,10 +1553,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the branch whose commits are being listed.
+      - description: The name of the branch whose commits are being listed.
         explode: false
         in: path
-        name: branchId
+        name: branchName
         required: true
         schema:
           type: string
@@ -1554,6 +1594,14 @@ paths:
         - Teams collaborating on a project and needing a clear record of each member's contributions.
       operationId: createBranchCommit
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt whose branch is being committed
           to.
         explode: false
@@ -1563,11 +1611,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the branch for which a new commit is
-          being created.
+      - description: The name of the branch for which a new commit is being created.
         explode: false
         in: path
-        name: branchId
+        name: branchName
         required: true
         schema:
           type: string
@@ -1599,7 +1646,7 @@ paths:
       summary: Create a new commit for a branch
       tags:
       - Commits
-  /prompts/{promptId}/branches/{branchId}/commits/{commitId}:
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}:
     get:
       description: |
         Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
@@ -1615,6 +1662,14 @@ paths:
         - Integrating commit data into other systems for enhanced content lifecycle management.
       operationId: getBranchCommit
       parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The unique identifier of the prompt.
         explode: false
         in: path
@@ -1623,10 +1678,10 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the branch.
+      - description: The name of the branch.
         explode: false
         in: path
-        name: branchId
+        name: branchName
         required: true
         schema:
           type: string
@@ -1659,6 +1714,12 @@ paths:
       - Commits
 components:
   schemas:
+    KSUID:
+      description: A K-sortable unique identifier (KSUID)
+      maxLength: 27
+      minLength: 27
+      pattern: "^[A-Za-z0-9]{27}$"
+      type: string
     Organization:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
@@ -1668,13 +1729,20 @@ components:
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the organization
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         name:
           description: Name of the organization
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: Description for the organization
+          maxLength: 180
+          minLength: 1
           type: string
         createdAt:
           description: Timestamp of organization creation
@@ -1692,6 +1760,8 @@ components:
       properties:
         name:
           description: Name of the organization
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: Description for the organization
@@ -1709,16 +1779,26 @@ components:
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the team
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         name:
           description: Name of the team
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the team
+          maxLength: 180
+          minLength: 1
           type: string
         orgId:
-          description: The organization to which the team belongs
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp of team creation
@@ -1736,9 +1816,13 @@ components:
       properties:
         name:
           description: Name of the team
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the team
+          maxLength: 180
+          minLength: 1
           type: string
       required:
       - name
@@ -1749,22 +1833,29 @@ components:
         name: name
         id: id
         email: email
-        updatedAt: updatedAt
+        updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the user
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         name:
           description: User's full name (optional)
+          maxLength: 30
+          minLength: 1
           type: string
         email:
           description: User's email address
+          format: email
           type: string
         createdAt:
           description: Timestamp of user creation
           format: date-time
           type: string
         updatedAt:
+          format: date-time
           type: string
       type: object
     UserInput:
@@ -1774,9 +1865,12 @@ components:
       properties:
         name:
           description: User's full name (optional)
+          maxLength: 30
+          minLength: 1
           type: string
         email:
           description: User's email address
+          format: email
           type: string
       required:
       - email
@@ -1792,19 +1886,32 @@ components:
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the project
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         name:
           description: Name of the project
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the project
+          maxLength: 180
+          minLength: 1
           type: string
         orgId:
-          description: Identifier for the organization to which the project belongs
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         teamId:
-          description: Identifier for the team to which the project belongs
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when the project was created
@@ -1824,15 +1931,25 @@ components:
       properties:
         name:
           description: Name of the project
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the project
+          maxLength: 180
+          minLength: 1
           type: string
         orgId:
-          description: Identifier for the organization to which the project belongs
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         teamId:
-          description: Identifier for the team to which the project belongs
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
       required:
       - name
@@ -1849,10 +1966,15 @@ components:
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the API key
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         key:
           description: The API key token
+          maxLength: 180
+          minLength: 1
           type: string
         scopes:
           description: List of scopes or permissions granted by this API key
@@ -1860,7 +1982,10 @@ components:
             type: string
           type: array
         projectId:
-          description: The project ID this API key belongs to
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when the API key was created
@@ -1891,20 +2016,36 @@ components:
         name: name
         description: description
         id: id
+        prompt: prompt
         projectId: projectId
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: Unique identifier for the prompt
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         name:
           description: Name of the prompt
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the project
+          maxLength: 180
+          minLength: 1
+          type: string
+        prompt:
+          description: Contents of the prompt
+          maxLength: 50000
+          minLength: 1
           type: string
         projectId:
-          description: Identifier of the project this prompt belongs to
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when the prompt was created
@@ -1919,23 +2060,81 @@ components:
       example:
         name: name
         description: description
+        prompt: prompt
       properties:
         name:
           description: Name of the prompt
+          maxLength: 30
+          minLength: 1
           type: string
         description:
           description: A brief description of the project
+          maxLength: 180
+          minLength: 1
+          type: string
+        prompt:
+          description: Contents of the prompt
+          maxLength: 50000
+          minLength: 1
           type: string
       required:
       - name
       type: object
+    PromptStub:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        name: name
+        stub: stub
+        description: description
+        id: id
+        projectId: projectId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
+          type: string
+        name:
+          description: Name of the prompt
+          maxLength: 30
+          minLength: 1
+          type: string
+        description:
+          description: A brief description of the project
+          maxLength: 180
+          minLength: 1
+          type: string
+        stub:
+          description: A 180 character preview of the prompt
+          maxLength: 180
+          minLength: 1
+          type: string
+        projectId:
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
+          type: string
+        createdAt:
+          description: Timestamp when the prompt was created
+          format: date-time
+          type: string
+        updatedAt:
+          description: Timestamp when the prompt was last updated
+          format: date-time
+          type: string
+      type: object
     Branch:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        id: id
+        name: name
       properties:
-        id:
-          description: Unique identifier for the branch of the prompt
+        name:
+          description: Branch name unique to the prompt
+          maxLength: 30
+          minLength: 1
           type: string
         createdAt:
           description: Timestamp when this branch was created
@@ -1944,10 +2143,12 @@ components:
       type: object
     BranchInput:
       example:
-        id: id
+        name: name
       properties:
-        id:
-          description: Unique identifier for the branch of the prompt
+        name:
+          description: Branch name unique to the prompt
+          maxLength: 30
+          minLength: 1
           type: string
       required:
       - id
@@ -1962,19 +2163,28 @@ components:
         content: content
       properties:
         id:
-          description: Unique identifier for the commit of the branch
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         content:
           description: Content of the prompt in this commit
+          minLength: 1
           type: string
         message:
           description: Message describing the changes in this commit
+          maxLength: 180
+          minLength: 1
           type: string
         checksum:
           description: SHA-256 checksum of the content in this commit
           type: string
         userId:
-          description: Identifier of the user that created this commit
+          description: A K-sortable unique identifier (KSUID)
+          maxLength: 27
+          minLength: 27
+          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when this commit was created
@@ -1988,9 +2198,12 @@ components:
       properties:
         content:
           description: Content of the prompt in this commit
+          minLength: 1
           type: string
         message:
           description: Message describing the changes in this commit
+          maxLength: 180
+          minLength: 1
           type: string
       required:
       - content

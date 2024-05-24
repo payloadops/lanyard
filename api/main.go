@@ -96,6 +96,8 @@ func main() {
 
 	// Initialize database clients
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
+	promptDBClient := dal.NewPromptDBClient(dynamoClient)
+	branchDBClient := dal.NewBranchDBClient(dynamoClient)
 	/*
 		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
@@ -110,6 +112,12 @@ func main() {
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService()
 	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient)
+	PromptsAPIService := service.NewPromptsAPIService(projectDBClient, promptDBClient)
+	BranchesAPIService := service.NewBranchesAPIService(
+		projectDBClient,
+		promptDBClient,
+		branchDBClient,
+	)
 
 	// Initialize services with injected dependencies
 	/*
@@ -126,6 +134,8 @@ func main() {
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
 	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
+	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
+	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
 	/*
 		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
@@ -141,6 +151,8 @@ func main() {
 	router := openapi.NewRouter(
 		HealthCheckAPIController,
 		ProjectsAPIController,
+		PromptsAPIController,
+		BranchesAPIController,
 		/*
 			APIKeysAPIController,
 			BranchesAPIController,

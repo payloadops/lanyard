@@ -20,7 +20,7 @@ import (
 
 type Commit struct {
 
-	// Unique identifier for the commit of the branch
+	// A K-sortable unique identifier (KSUID)
 	Id string `json:"id,omitempty"`
 
 	// Content of the prompt in this commit
@@ -32,7 +32,7 @@ type Commit struct {
 	// SHA-256 checksum of the content in this commit
 	Checksum string `json:"checksum,omitempty"`
 
-	// Identifier of the user that created this commit
+	// A K-sortable unique identifier (KSUID)
 	UserId string `json:"userId,omitempty"`
 
 	// Timestamp when this commit was created

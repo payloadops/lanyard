@@ -16,21 +16,12 @@ package openapi
 
 type BranchInput struct {
 
-	// Unique identifier for the branch of the prompt
-	Id string `json:"id"`
+	// Branch name unique to the prompt
+	Name string `json:"name,omitempty"`
 }
 
 // AssertBranchInputRequired checks if the required fields are not zero-ed
 func AssertBranchInputRequired(obj BranchInput) error {
-	elements := map[string]interface{}{
-		"id": obj.Id,
-	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
-		}
-	}
-
 	return nil
 }
 

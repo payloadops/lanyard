@@ -18,33 +18,36 @@ import (
 
 
 
-type ApiKey struct {
+type PromptStub struct {
 
 	// A K-sortable unique identifier (KSUID)
 	Id string `json:"id,omitempty"`
 
-	// The API key token
-	Key string `json:"key,omitempty"`
+	// Name of the prompt
+	Name string `json:"name,omitempty"`
 
-	// List of scopes or permissions granted by this API key
-	Scopes []string `json:"scopes,omitempty"`
+	// A brief description of the project
+	Description string `json:"description,omitempty"`
+
+	// A 180 character preview of the prompt
+	Stub string `json:"stub,omitempty"`
 
 	// A K-sortable unique identifier (KSUID)
 	ProjectId string `json:"projectId,omitempty"`
 
-	// Timestamp when the API key was created
+	// Timestamp when the prompt was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 
-	// Timestamp when the API key was last updated
+	// Timestamp when the prompt was last updated
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }
 
-// AssertApiKeyRequired checks if the required fields are not zero-ed
-func AssertApiKeyRequired(obj ApiKey) error {
+// AssertPromptStubRequired checks if the required fields are not zero-ed
+func AssertPromptStubRequired(obj PromptStub) error {
 	return nil
 }
 
-// AssertApiKeyConstraints checks if the values respects the defined constraints
-func AssertApiKeyConstraints(obj ApiKey) error {
+// AssertPromptStubConstraints checks if the values respects the defined constraints
+func AssertPromptStubConstraints(obj PromptStub) error {
 	return nil
 }

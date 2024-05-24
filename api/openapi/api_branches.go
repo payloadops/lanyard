@@ -54,22 +54,22 @@ func (c *BranchesAPIController) Routes() Routes {
 	return Routes{
 		"CreatePromptBranch": Route{
 			strings.ToUpper("Post"),
-			"/v1/prompts/{promptId}/branches",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches",
 			c.CreatePromptBranch,
 		},
 		"DeleteBranch": Route{
 			strings.ToUpper("Delete"),
-			"/v1/prompts/{promptId}/branches/{branchId}",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}",
 			c.DeleteBranch,
 		},
 		"GetBranch": Route{
 			strings.ToUpper("Get"),
-			"/v1/prompts/{promptId}/branches/{branchId}",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}",
 			c.GetBranch,
 		},
 		"ListPromptBranches": Route{
 			strings.ToUpper("Get"),
-			"/v1/prompts/{promptId}/branches",
+			"/v1/projects/{projectId}/prompts/{promptId}/branches",
 			c.ListPromptBranches,
 		},
 	}
@@ -77,6 +77,11 @@ func (c *BranchesAPIController) Routes() Routes {
 
 // CreatePromptBranch - Create a new branch for a prompt
 func (c *BranchesAPIController) CreatePromptBranch(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
@@ -97,7 +102,7 @@ func (c *BranchesAPIController) CreatePromptBranch(w http.ResponseWriter, r *htt
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreatePromptBranch(r.Context(), promptIdParam, branchInputParam)
+	result, err := c.service.CreatePromptBranch(r.Context(), projectIdParam, promptIdParam, branchInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -109,17 +114,22 @@ func (c *BranchesAPIController) CreatePromptBranch(w http.ResponseWriter, r *htt
 
 // DeleteBranch - Delete a specific branch
 func (c *BranchesAPIController) DeleteBranch(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	branchIdParam := chi.URLParam(r, "branchId")
-	if branchIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"branchId"}, nil)
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
 		return
 	}
-	result, err := c.service.DeleteBranch(r.Context(), promptIdParam, branchIdParam)
+	result, err := c.service.DeleteBranch(r.Context(), projectIdParam, promptIdParam, branchNameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -131,17 +141,22 @@ func (c *BranchesAPIController) DeleteBranch(w http.ResponseWriter, r *http.Requ
 
 // GetBranch - Retrieve a specific branch
 func (c *BranchesAPIController) GetBranch(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	branchIdParam := chi.URLParam(r, "branchId")
-	if branchIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"branchId"}, nil)
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
 		return
 	}
-	result, err := c.service.GetBranch(r.Context(), promptIdParam, branchIdParam)
+	result, err := c.service.GetBranch(r.Context(), projectIdParam, promptIdParam, branchNameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -153,12 +168,17 @@ func (c *BranchesAPIController) GetBranch(w http.ResponseWriter, r *http.Request
 
 // ListPromptBranches - List all branches of a specific prompt
 func (c *BranchesAPIController) ListPromptBranches(w http.ResponseWriter, r *http.Request) {
+	projectIdParam := chi.URLParam(r, "projectId")
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
 	promptIdParam := chi.URLParam(r, "promptId")
 	if promptIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
 		return
 	}
-	result, err := c.service.ListPromptBranches(r.Context(), promptIdParam)
+	result, err := c.service.ListPromptBranches(r.Context(), projectIdParam, promptIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
