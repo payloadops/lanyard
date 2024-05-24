@@ -113,7 +113,11 @@ func main() {
 	HealthCheckAPIService := service.NewHealthCheckAPIService()
 	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient)
 	PromptsAPIService := service.NewPromptsAPIService(projectDBClient, promptDBClient)
-	BranchesAPIService := service.NewBranchesAPIService(branchDBClient, promptDBClient)
+	BranchesAPIService := service.NewBranchesAPIService(
+		projectDBClient,
+		promptDBClient,
+		branchDBClient,
+	)
 
 	// Initialize services with injected dependencies
 	/*
