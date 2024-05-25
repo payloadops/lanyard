@@ -1,4 +1,4 @@
-enum Region {
+enum Regions {
     // US Regions
     US_EAST_1 = "us-east-1",
     US_EAST_2 = "us-east-2",
@@ -32,4 +32,4 @@ enum Region {
     AF_SOUTH_1 = "af-south-1"
 }
 
-export default Region;
+export default Regions;

@@ -6,7 +6,7 @@ import { disambiguator } from './util/disambiguator';
 const REPLICATIONS_REGIONS: string[] = [];
 
 export class DynamoStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, stage: string, props?: cdk.StackProps) {
     super(scope, id, props);
     new dynamodb.Table(this, 'ProjectsTable', {
         tableName: "projects",
