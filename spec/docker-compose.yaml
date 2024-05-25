@@ -1,0 +1,23 @@
+version: "3.3"
+
+services:
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - "8080:8080"
+    restart: always
+    volumes:
+      - ./spec:/tmp
+    environment:
+      SWAGGER_JSON: /tmp/spec.v1.yaml
+
+  mockserver:
+    image: stoplight/prism:4.1.2
+    container_name: "mockserver"
+    command: mock -h 0.0.0.0 /prism/spec.v1.yaml -d
+    ports:
+      - "4010:4010"
+    restart: always
+    volumes:
+      - ./spec:/prism
