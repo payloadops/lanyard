@@ -10,6 +10,7 @@ import { aws_logs } from 'aws-cdk-lib';
 import { VpcStack } from './vpc-stack';
 import { disambiguator } from './util/disambiguator';
 import Stages from './constants/stages';
+import Regions from './constants/regions';
 
 
 export class EcsStack extends cdk.Stack {
@@ -23,7 +24,7 @@ export class EcsStack extends cdk.Stack {
       vpc: vpc
     });
 
-    const repository = new ecr.Repository(this, disambiguator('Repository', stage, region));
+    const repository = region === Regions.US_EAST_1 ? new ecr.Repository(this, `Repository-${stage}`, {repositoryName: "app"}) : ecr.Repository.fromRepositoryArn(scope, `Repository-${stage}`, `arn:aws:ecr:us-east-1:${props?.env?.account}:repository/app`);
 
     const securityGroup = new ec2.SecurityGroup(this, disambiguator('ServiceSecurityGroup', stage, region), { vpc });
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic');
