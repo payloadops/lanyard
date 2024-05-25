@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-import { disambiguator } from './util/disambiguator';
+import Stages from './constants/stages';
 
 const REPLICATIONS_REGIONS: string[] = [];
 
@@ -12,7 +12,7 @@ export class DynamoStack extends cdk.Stack {
         tableName: "projects",
         partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
         sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-        replicationRegions: REPLICATIONS_REGIONS,
+        replicationRegions: stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableClass: dynamodb.TableClass.STANDARD
       })
