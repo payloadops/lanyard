@@ -5,7 +5,7 @@ import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelin
 import { Stage } from './stage';
 
 // import { ElasticacheStack } from '../lib/elasticache-stack';
-
+const REPO = "payload/plato"
 const app = new cdk.App();
 
 const stages = [
@@ -15,9 +15,9 @@ const stages = [
 ]
 
 const pipeline = new CodePipeline(app, 'Pipeline', {
-  pipelineName: 'MyPipeline',
+  pipelineName: 'Pipeline',
   synth: new ShellStep('Synth', {
-    input: CodePipelineSource.gitHub('OWNER/REPO', 'main'),
+    input: CodePipelineSource.gitHub(REPO, 'main'),
     commands: ['npm ci', 'npm run build', 'npx cdk synth']
   })
 });

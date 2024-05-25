@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
+import { disambiguator } from './util/disambiguator';
 
 const REPLICATIONS_REGIONS: string[] = [];
 
