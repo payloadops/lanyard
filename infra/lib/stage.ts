@@ -12,7 +12,7 @@ export class Stage extends cdk.Stage {
     constructor(scope: Construct, id: string, stage: string, props?: cdk.StageProps) {
       super(scope, id, props);
       const region = props?.env?.region!;
-      const vpcStack = new VpcStack(scope, disambiguator('PlatoVpcStack', stage, region), stage, {
+      const vpcStack = new VpcStack(this, disambiguator('PlatoVpcStack', stage, region), stage, {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
       
@@ -20,12 +20,12 @@ export class Stage extends cdk.Stage {
     //     env: { account: props?.env?.account, region: props?.env?.region },
     //   });
       
-      new EcsStack(scope, disambiguator('EcsStack', stage, region), vpcStack, stage, {
+      new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
       
       if (props?.env?.region === Regions.US_EAST_1) {
-        new DynamoStack(scope, disambiguator('DynamoStack', stage, region), stage, {
+        new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
             env: { account: props?.env?.account, region: props?.env?.region },
           })
       }
