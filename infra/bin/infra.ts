@@ -7,8 +7,9 @@ import Stages from '../lib/constants/stages';
 import Accounts from '../lib/constants/accounts';
 import Regions from '../lib/constants/regions';
 import { Stage } from '../lib/stage';
+import { PipelineStack } from '../lib/pipeline-stack';
 
-const REPO = "payload/plato"
+
 const app = new cdk.App();
 
 const stages = [
@@ -17,19 +18,9 @@ const stages = [
   })
 ]
 
-const pipeline = new CodePipeline(app, 'Pipeline', {
-  pipelineName: 'Pipeline',
-  selfMutation: true,
-  synth: new ShellStep('Synth', {
-    input: CodePipelineSource.gitHub(REPO, 'main'),
-    commands: [
-        'cd infra',
-        'npm ci',
-        'npm run build',
-        'npx cdk synth'
-      ],
-    primaryOutputDirectory: 'infra/cdk.out',
-  })
-});
-
-stages.forEach(stage => pipeline.addStage(stage))
+new PipelineStack(app, 'PipelineStack', stages, {
+  env: {
+    region: Regions.US_WEST_2,
+    account: Accounts.STAGING
+  }
+})
