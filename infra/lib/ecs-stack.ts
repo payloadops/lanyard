@@ -35,6 +35,10 @@ export class EcsStack extends cdk.Stack {
       cpu: 256, // Default is 256
       desiredCount: 1, // Default is 1
       taskImageOptions: { 
+        environment: {
+          "region": region,
+          "stage": stage,
+        },
         image: ecs.ContainerImage.fromEcrRepository(repository),
         containerPort: 8080,
         // logDriver: ecs.LogDrivers.awsLogs({
