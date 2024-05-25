@@ -1,0 +1,2055 @@
+openapi: 3.0.0
+
+info:
+  title: Payload Ops API
+  description: The Payload Ops API streamlines management of AI prompts, projects, organizations, teams, and users through conventional HTTP requests. This platform enables efficient automation and control of resources, providing robust tools for developers to manage settings, memberships, and activities seamlessly.
+  version: "1.0"
+  contact:
+    name: Payload Ops Team
+    email: info@payloadops.com
+
+servers:
+  - url: https://api.payloadops.com/v1
+    description: Production server (uses live data)
+  - url: https://sandbox-api.payloadops.com/v1
+    description: Sandbox server (uses test data)
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check Endpoint
+      description: |
+        This endpoint performs a health check of the API, quickly assessing and returning the operational status. It is designed to monitor critical system metrics and infrastructure components, such as database connections and system uptime, ensuring that the API is functioning properly. This endpoint is vital for operational monitoring, particularly in production environments where reliability is crucial.
+
+        **Key Features**:
+        - **Immediate Health Status**: Quickly assesses the overall health of the API by checking essential components and dependencies, such as database connectivity and server uptime.
+        - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
+
+        **Use Cases**:
+        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
+        - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
+
+        **Response Details**:
+        - A successful response indicates that all checked components are operational.
+        - An unsuccessful response identifies which components are experiencing issues, aiding in quick diagnostics and resolution.
+
+      operationId: healthCheck
+      tags:
+        - Health Check
+      responses:
+        '200':
+          description: API is healthy and fully operational, with all necessary components (like databases) connected and functioning.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+        '500':
+          description: API is experiencing issues, indicating that one or more components are not functioning correctly.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "unhealthy"
+                  error:
+                    type: string
+                    example: "Database connection failed"
+
+  /organizations:
+    get:
+      summary: List all organizations
+      description: |
+        Retrieves a comprehensive list of all organizations registered in the system. This operation is essential for stakeholders, administrators, or system integrators who need to manage or interact with multiple organizations. It provides a broad overview of each organization, including essential details like organization ID, name, and contact information.
+
+        **Key Features**:
+        - **Broad Overview**: Offers a snapshot of all organizations, facilitating management decisions and oversight.
+        - **Strategic Planning**: Supports strategic analysis and planning by providing access to a list of potential partners, clients, or entities within the system.
+
+        **Use Cases**:
+        - System administrators conducting audits or reviews of organizational entities.
+        - Third-party service providers integrating or offering services across multiple organizations.
+
+      operationId: listOrganizations
+      tags:
+        - Organizations
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Successfully retrieved a list of all organizations, each presented with key details for easy reference.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Organization'
+        '500':
+          description: A server error occurred, preventing the listing of organizations.
+
+    post:
+      summary: Create a new organization
+      description: |
+        Creates a new organization based on the provided details. This endpoint allows users to add new organizational entities to the system, facilitating the expansion and diversification of business operations. It is crucial for dynamically growing environments where new organizations are frequently established.
+
+        **Key Features**:
+        - **Organization Creation**: Enables the setup of new organizational profiles, including specifying their structure, purpose, and operational details.
+        - **Customizable Setup**: Allows for detailed customization of organization parameters such as name, contact information, and operational settings.
+
+        **Use Cases**:
+        - Business administrators setting up new entities as part of corporate expansion or restructuring.
+        - Start-ups and new businesses registering their organization within industry platforms or networks.
+
+      operationId: createOrganization
+      tags:
+        - Organizations
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        description: Contains all necessary attributes for creating a new organization, such as the organization's name, description, and contact details.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+      responses:
+        '201':
+          description: The organization was created successfully, with detailed information about the new entity included in the response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '400':
+          description: Invalid input, typically due to missing required fields, non-conformity to expected formats, or improper data values.
+        '500':
+          description: A server error occurred, preventing the creation of the organization.
+
+  /organizations/{orgId}:
+    get:
+      summary: Get a specific organization
+      description: |
+        Retrieves detailed information about an organization identified by its unique ID. This operation is crucial for stakeholders and administrators who need to understand the structure, operational scope, and strategic data of the organization. It provides essential insights into the organization’s profile, operational units, and management hierarchies.
+
+        **Key Features**:
+        - **Comprehensive Overview**: Delivers a full profile of the organization, including its mission, operational scope, and key contacts.
+        - **Strategic Insight**: Facilitates strategic planning and decision-making by providing essential organizational data.
+
+        **Use Cases**:
+        - Executives and managers reviewing organizational details for reporting or strategic planning.
+        - External partners or regulatory bodies verifying organizational information for compliance or collaboration purposes.
+
+      operationId: getOrganization
+      tags:
+        - Organizations
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the organization to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '404':
+          description: No organization found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the retrieval of the organization.
+
+    put:
+      summary: Update a specific organization
+      description: |
+        Updates the detailed information of an organization based on the provided input. This endpoint allows for modifications to the organization's name, contact details, and structural data, ensuring that organizational records remain current and accurate.
+
+        **Key Features**:
+        - **Dynamic Update Capabilities**: Supports updates to various aspects of the organization's profile, helping to keep data relevant and up-to-date.
+        - **Adaptive Changes**: Facilitates organizational changes such as rebranding, leadership shifts, or operational adjustments.
+
+        **Use Cases**:
+        - Administrators updating organizational information following structural changes or policy updates.
+        - Compliance officers ensuring that organizational data meets regulatory standards.
+
+      operationId: updateOrganization
+      tags:
+        - Organizations
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the organization to update.
+      requestBody:
+        required: true
+        description: Contains the updated information for the organization.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+      responses:
+        '200':
+          description: Organization information updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '400':
+          description: Invalid input, such as missing required fields or unsupported format.
+        '404':
+          description: No organization found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the update of the organization.
+
+    delete:
+      summary: Delete a specific organization
+      description: |
+        Permanently deletes an organization from the system, including all related data. This operation is critical for managing organizational lifecycle, especially when an organization ceases operations or merges with another entity.
+
+        **Key Features**:
+        - **Complete Removal**: Ensures that all information pertaining to the organization is thoroughly removed from the system.
+        - **Compliance and Security**: Aids in compliance with legal and regulatory requirements by allowing for the secure deletion of sensitive data.
+
+        **Use Cases**:
+        - Removing organizational records to comply with data retention policies.
+        - Deleting entities that are no longer active to maintain system hygiene and security.
+
+      operationId: deleteOrganization
+      tags:
+        - Organizations
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the organization to be deleted.
+      responses:
+        '204':
+          description: Organization deleted successfully, with no remaining data stored.
+        '404':
+          description: No organization found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the deletion of the organization.
+
+  /organizations/{orgId}/teams:
+    get:
+      summary: List all teams in an organization
+      description: |
+        Retrieves a comprehensive list of all teams within a specified organization. This endpoint is essential for administrators and organizational leaders to view and manage team structures, understand team compositions, and plan resource allocation effectively.
+
+        **Key Features**:
+        - **Comprehensive Overview**: Provides detailed views of all teams, including their names, descriptions, and member counts.
+        - **Management and Planning**: Supports strategic planning and management by offering insights into team distributions and roles within the organization.
+
+        **Use Cases**:
+        - Executives and managers reviewing team structures for strategic planning.
+        - HR departments managing resource allocations and internal audits of team distributions.
+
+      operationId: listTeams
+      tags:
+        - Teams
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the organization whose teams are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of all teams within the organization, each entry containing details such as team ID, name, and member list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+        '500':
+          description: A server error occurred, preventing the retrieval of team information.
+
+    post:
+      summary: Create a new team for an organization
+      description: |
+        Creates a new team within an organization based on the provided details such as team name, description, and intended members. This operation facilitates the expansion and structuring of an organization's teams to meet evolving business needs and project demands.
+
+        **Key Features**:
+        - **Team Formation**: Enables the formation of new teams tailored to specific projects or organizational functions.
+        - **Customizable Setup**: Allows for detailed definition of team characteristics including leadership roles and member responsibilities.
+
+        **Use Cases**:
+        - Forming new project teams as part of business expansion or new project initiation.
+        - Restructuring existing departments to enhance efficiency or focus on new strategic areas.
+
+      operationId: createTeam
+      tags:
+        - Teams
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the organization where the new team will be created.
+      requestBody:
+        required: true
+        description: Contains the necessary attributes for creating a new team, including name, description, and initial members if applicable.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInput'
+      responses:
+        '201':
+          description: The team was created successfully and is now part of the organization, with detailed information about the new team provided.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Invalid input, typically due to missing required fields or improperly formatted data.
+        '500':
+          description: A server error occurred, preventing the creation of the new team.
+
+  /organizations/{orgId}/teams/{teamId}:
+    get:
+      summary: Get a specific team by ID
+      description: |
+        Retrieves detailed information about a specific team within an organization, using its unique team ID. This operation is crucial for administrators who need to manage team settings, understand team composition, and review team-specific roles and permissions.
+
+        **Key Features**:
+        - **Comprehensive Team Details**: Provides complete information about the team, including its members, roles, projects, and operational statistics.
+        - **Management and Oversight**: Essential for overseeing team configurations and ensuring that team setups align with organizational policies and goals.
+
+        **Use Cases**:
+        - Team leaders reviewing team composition and roles for project assignments.
+        - HR and management accessing team details for planning and resource allocation.
+
+      operationId: getTeam
+      tags:
+        - Teams
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the organization to which the team belongs.
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the team to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the team.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: The specified team or organization was not found.
+        '500':
+          description: A server error occurred, preventing the retrieval of the team.
+
+    put:
+      summary: Update a specific team
+      description: |
+        Updates the details of a specific team within an organization. This endpoint allows for the modification of team data such as name, description, and member roles. It supports dynamic team management and ensures that team information remains current and relevant to organizational needs.
+
+        **Key Features**:
+        - **Dynamic Team Management**: Enables changes to team structure, roles, and project assignments.
+        - **Adaptable to Changing Needs**: Facilitates quick updates to team details in response to project shifts or strategic realignments.
+
+        **Use Cases**:
+        - Administrators adjusting team roles and permissions to reflect new project requirements.
+        - Team leaders modifying team descriptions or details to better define the team’s purpose or objectives.
+
+      operationId: updateTeam
+      tags:
+        - Teams
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the organization where the team is registered.
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the team to be updated.
+      requestBody:
+        required: true
+        description: Contains the updated information for the team.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInput'
+      responses:
+        '200':
+          description: Team information updated successfully, reflecting new settings and configurations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '400':
+          description: Invalid input, such as missing required data or unsupported modifications.
+        '404':
+          description: Either the specified team or the organization was not found.
+        '500':
+          description: A server error occurred, preventing the update of the team.
+
+    delete:
+      summary: Delete a specific team
+      description: |
+        Deletes a specific team from an organization based on its team ID. This operation is critical for managing organizational structure, particularly when a team is dissolved or merged with another.
+
+        **Key Features**:
+        - **Streamlined Organizational Structure**: Helps maintain a clean and efficient organizational hierarchy by removing outdated or unnecessary teams.
+        - **Security and Compliance**: Ensures that all related data is securely handled and removed in compliance with data protection policies.
+
+        **Use Cases**:
+        - Removing teams that are no longer active or have been restructured.
+        - Ensuring that team data does not persist in the system unnecessarily, particularly in sensitive environments.
+
+      operationId: deleteTeam
+      tags:
+        - Teams
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the organization from which the team will be deleted.
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the team to be deleted.
+      responses:
+        '204':
+          description: Team deleted successfully, with no remaining data stored.
+        '404':
+          description: Either the specified team or the organization was not found.
+        '500':
+          description: A server error occurred, preventing the deletion of the team.
+
+  /users:
+    get:
+      summary: List all users
+      description: |
+        Retrieves a comprehensive list of all users registered in the system. This operation is essential for administrators and systems that need to manage user access, monitor user activity, or gather user data for reporting purposes.
+
+        **Key Features**:
+        - **Broad Overview**: Provides a detailed view of all user profiles, including their roles, status, and basic information.
+        - **User Management Support**: Facilitates the administration and oversight of user accounts, supporting tasks such as auditing, role assignment, and access reviews.
+
+        **Use Cases**:
+        - System administrators needing to monitor user activities or manage user permissions.
+        - Automated systems that integrate user data for analytics or marketing purposes.
+
+      operationId: listUsers
+      tags:
+        - Users
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Successfully retrieved a list of user profiles, each including essential details such as names, email addresses, and roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: A server error occurred, preventing the listing of users.
+
+    post:
+      summary: Create a new user
+      description: |
+        Creates a new user with specified details such as name, email, and role. This endpoint is crucial for adding new users to the system, facilitating controlled access to applications and services based on predefined roles and permissions.
+
+        **Key Features**:
+        - **Flexible User Creation**: Allows for the dynamic creation of user accounts with configurable roles and permissions.
+        - **Security and Compliance**: Adheres to security best practices by ensuring that all new users are created with appropriate access levels and data validation.
+
+        **Use Cases**:
+        - Onboarding new employees by creating user accounts as part of organizational access provisioning.
+        - Registering new customers or clients on platforms requiring user authentication and personalization.
+
+        **Requirements**:
+        - Input data must include essential user details such as name, email, and a predefined role. Additional data such as department or group might also be required based on system configuration.
+
+      operationId: createUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        description: Contains the necessary attributes for creating a new user, including name, email, role, and any additional relevant information.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: User created successfully, with the user's profile details returned including identifiers and status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input, typically due to missing required fields, non-conformity to data formats, or invalid values.
+        '500':
+          description: A server error occurred, preventing the creation of a new user.
+
+  /users/{userId}:
+    get:
+      summary: Get a specific user by ID
+      description: |
+        Retrieves detailed information about a user, identified by their unique ID. This operation is essential for system administrators and applications requiring user data validation, profile management, or access rights verification.
+
+        **Key Features**:
+        - **Detailed User Profiles**: Provides comprehensive details about the user, including contact information, roles, and permissions.
+        - **Security and Compliance**: Supports security processes by enabling identity verification and user management.
+
+        **Use Cases**:
+        - Administrators managing user access and permissions within a system.
+        - Services integrating user information for personalization or configuration.
+
+      operationId: getUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: No user found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the retrieval of user information.
+
+    put:
+      summary: Update a specific user
+      description: |
+        Updates the profile or settings of a user identified by their unique ID. This endpoint allows for the modification of user details such as names, contact information, or roles, supporting ongoing management of user data.
+
+        **Key Features**:
+        - **Profile Updates**: Enables changes to user profiles, supporting dynamic updates to contact details, preferences, and roles.
+        - **Access Control Adjustments**: Facilitates updates to user permissions and access controls, essential for maintaining security and operational integrity.
+
+        **Use Cases**:
+        - Administrators updating user roles or permissions in response to organizational changes.
+        - Users updating their own profiles as part of regular account maintenance.
+
+      operationId: updateUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to update.
+      requestBody:
+        required: true
+        description: Contains the updated data for the user's profile.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: User information updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input, such as malformed data or incomplete required fields.
+        '404':
+          description: No user found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the update of the user.
+
+    delete:
+      summary: Delete a specific user
+      description: |
+        Permanently deletes a user from the system based on their unique ID. This operation is crucial for managing user lifecycle, particularly in cases where users need to be removed due to security concerns or upon user request.
+
+        **Key Features**:
+        - **Secure User Management**: Ensures that user data can be permanently removed in compliance with data protection regulations.
+        - **Lifecycle Management**: Supports the management of user accounts by facilitating the complete removal of user profiles when necessary.
+
+        **Use Cases**:
+        - Administrators needing to remove user access permanently, either at the user's request or due to policy requirements.
+        - Managing user deactivation and data deletion in compliance with privacy laws and regulations.
+
+      operationId: deleteUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the user to be deleted.
+      responses:
+        '204':
+          description: User deleted successfully, no content returned.
+        '404':
+          description: No user found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the deletion of the user.
+
+  /projects:
+    get:
+      summary: List all projects
+      description: |
+        Retrieves a comprehensive list of all projects within the system. This operation is crucial for users needing an overview of all existing projects, including their basic metadata and status. It allows for effective management and navigation across different projects, particularly useful in environments with multiple ongoing initiatives.
+
+        **Key Features**:
+        - **Broad Overview**: Provides a snapshot of all projects, facilitating quick access and management decisions.
+        - **Ease of Navigation**: Helps users identify and access specific projects quickly, enhancing workflow efficiency.
+
+        **Use Cases**:
+        - Administrators monitoring the overall progress and status of all projects.
+        - Team members seeking to quickly find and access specific projects they are working on or interested in.
+
+      operationId: listProjects
+      tags:
+        - Projects
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Successfully retrieved a list of all projects, each represented with basic details like project ID, name, and description.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        '500':
+          description: A server error occurred, preventing the listing of projects.
+
+    post:
+      summary: Create a new project
+      description: |
+        Creates a new project based on the provided details in the request. This endpoint facilitates the addition of new projects into the system, allowing for the initiation of new initiatives or work streams within the organization.
+
+        **Key Features**:
+        - **Project Initialization**: Enables the setup of new projects, defining their scope, objectives, and other necessary details from the outset.
+        - **Configurable Details**: Allows for detailed customization of project parameters such as name, description, and specific settings related to project management.
+
+        **Use Cases**:
+        - Starting new initiatives or phases in business operations.
+        - Expanding the organization's portfolio by adding projects that address new challenges or market opportunities.
+
+      operationId: createProject
+      tags:
+        - Projects
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        description: Contains the necessary information for creating a new project, such as the project name, description, and other relevant settings.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectInput'
+      responses:
+        '201':
+          description: The project was created successfully, with details of the new project provided in the response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad request due to invalid input, such as incomplete data fields or improper values.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Required field 'name' missing"
+
+  /projects/{projectId}:
+    get:
+      summary: Retrieve a project by ID
+      description: |
+        Retrieves detailed information about a specific project using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the project, including its metadata, associated prompts, and configuration settings.
+
+        **Key Features**:
+        - **Comprehensive Details**: Provides all relevant information about the project, including descriptions, member roles, and other metadata.
+        - **Project Oversight**: Essential for project managers and team members to understand current project settings and status.
+
+        **Use Cases**:
+        - Project managers reviewing project settings and progress.
+        - Team members accessing project details for integration with other tasks or for reporting purposes.
+
+      operationId: getProject
+      tags:
+        - Projects
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project to retrieve.
+      responses:
+        '200':
+          description: Detailed information about the project retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: No project found with the specified ID.
+        '500':
+          description: A server error occurred, preventing the retrieval of the project.
+
+    put:
+      summary: Update a project
+      description: |
+        Updates the specified project's details based on the provided input. This operation allows for modifications to project metadata such as the project name, description, and other configurable settings. It is vital for maintaining up-to-date information and adapting project settings to evolving requirements.
+
+        **Key Features**:
+        - **Flexible Modification**: Supports changes to most project attributes, facilitating dynamic project management.
+        - **Adaptive Configuration**: Enables projects to be adapted as team goals or business needs change.
+
+        **Use Cases**:
+        - Updating project details to reflect new directions or goals.
+        - Modifying access controls or roles as team dynamics change.
+
+      operationId: updateProject
+      tags:
+        - Projects
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project to be updated.
+      requestBody:
+        required: true
+        description: Contains the new details for the project, which may include the name, description, and other relevant settings.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectInput'
+      responses:
+        '200':
+          description: Project updated successfully, reflecting new settings and configurations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Bad request due to invalid input or missing required fields.
+        '404':
+          description: No project found with the specified ID to update.
+        '500':
+          description: A server error occurred, preventing the update of the project.
+
+    delete:
+      summary: Delete a project
+      description: |
+        Deletes a specific project using its unique ID, removing all data and settings associated with it. This operation is typically used when a project has been completed, or if it needs to be removed for organizational reasons.
+
+        **Key Features**:
+        - **Complete Removal**: Ensures that all project-related data is permanently deleted.
+        - **Security Compliance**: Helps maintain data hygiene and compliance by allowing for the disposal of unnecessary or outdated projects.
+
+        **Use Cases**:
+        - Removing projects that are no longer active or required.
+        - Cleaning up workspace and resources as part of project lifecycle management.
+
+      operationId: deleteProject
+      tags:
+        - Projects
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project to be deleted.
+      responses:
+        '204':
+          description: Project deleted successfully, with no remaining data stored.
+        '404':
+          description: No project found with the specified ID to delete.
+        '500':
+          description: A server error occurred, preventing the dele
+
+  /projects/{projectId}/keys:
+    post:
+      summary: Generate a new API key with specific scopes for a project
+      description: |
+        Generates a new API key for a specific project with designated scopes. This operation is crucial for creating secure, scoped access to the project's resources. It allows administrators to define specific permissions, ensuring that API keys can only access appropriate endpoints as per their operational requirements.
+
+        **Features**:
+        - **Scoped Access**: Tailors access permissions to specific needs, enhancing security by limiting API key capabilities to necessary actions.
+        - **Secure Management**: Generates keys in a secure manner, ensuring that they are only known to the requester and stored securely.
+
+        **Use Cases**:
+        - Provisioning a new service or system that requires access to the project.
+        - Creating temporary access for automation scripts or third-party integrations.
+
+        **Guidelines**:
+        - Ensure to specify the necessary scopes in the request body to avoid overly permissive access.
+        - Manage the lifecycle of API keys responsibly, revoking them when no longer needed.
+
+      operationId: generateApiKey
+      tags:
+        - API Keys
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The identifier of the project for which the API key is being generated.
+      requestBody:
+        required: true
+        description: Contains the scope definitions for the new API key.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyInput'
+      responses:
+        '201':
+          description: New API key generated successfully. The key details are included in the response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '400':
+          description: Invalid request, such as missing required fields or invalid scope specifications.
+        '404':
+          description: The specified project was not found.
+        '500':
+          description: A server error occurred, preventing the generation of the API key.
+
+    get:
+      summary: List all API keys for a project
+      description: |
+        Retrieves a list of all API keys associated with a specific project. This endpoint is essential for managing and reviewing the access provided to different services and users. It offers a comprehensive view of all keys, their scopes, and their statuses, which is critical for effective access management and security audits.
+
+        **Features**:
+        - **Comprehensive Overview**: Provides a complete listing of all API keys, facilitating audits and security reviews.
+        - **Access Transparency**: Ensures that administrators can view and monitor the scopes and usage of each API key, aiding in proactive security practices.
+
+        **Use Cases**:
+        - Auditing API keys to ensure that they are up-to-date and have appropriate permissions.
+        - Quickly identifying and managing keys that may need adjustments or revocation.
+
+      operationId: listApiKeys
+      tags:
+        - API Keys
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project whose API keys are to be listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of API keys for the project.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiKey'
+        '404':
+          description: The specified project was not found, indicating an invalid project ID.
+        '500':
+          description: A server error occurred, preventing the retrieval of API keys.
+
+  /projects/{projectId}/keys/{keyId}:
+    get:
+      summary: Retrieve a specific API key
+      description: |
+        Retrieves detailed information about a specific API key associated with a project. This operation is crucial for managing access to project resources, allowing administrators to review the permissions and details of individual API keys.
+
+        **Key Features**:
+        - **Security Management**: Provides the ability to monitor and manage API access through detailed key information.
+        - **Access Review**: Enables project managers to verify the scope and validity of an API key, ensuring that it aligns with current security policies.
+
+        **Use Cases**:
+        - Administrators auditing access permissions for compliance and security best practices.
+        - Developers checking API key details to troubleshoot access issues or to ensure proper configuration.
+
+      operationId: getApiKey
+      tags:
+        - API Keys
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project associated with the API key.
+        - name: keyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the API key to retrieve.
+      responses:
+        '200':
+          description: Detailed information about the API key retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '404':
+          description: Either the specified API key or the project was not found.
+        '500':
+          description: A server error occurred, preventing the retrieval of the API key.
+
+    put:
+      summary: Update an API key's scopes
+      description: |
+        Updates the scopes associated with a specific API key. This operation allows administrators to modify access levels and permissions for API keys, adapting to changing security needs or project requirements.
+
+        **Key Features**:
+        - **Scope Management**: Adjusts the access boundaries defined by the API key scopes, ensuring they are kept up-to-date with project roles and permissions.
+        - **Flexible Access Control**: Offers the ability to dynamically change API key permissions without needing to recreate keys.
+
+        **Use Cases**:
+        - Modifying API key permissions in response to role changes within a project team.
+        - Updating key scopes to restrict or expand access as part of security policy adjustments.
+
+      operationId: updateApiKey
+      tags:
+        - API Keys
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project for which the API key is managed.
+        - name: keyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the API key to be updated.
+      requestBody:
+        required: true
+        description: JSON payload containing the new scopes for the API key.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyInput'
+      responses:
+        '200':
+          description: The API key's scopes were updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '400':
+          description: Invalid input, such as unspecified or unsupported scopes.
+        '404':
+          description: Either the API key or the project was not found.
+        '500':
+          description: A server error occurred, preventing the update of the API key.
+
+    delete:
+      summary: Delete a specific API key
+      description: |
+        Deletes a specific API key from a project, permanently removing its access to the project resources. This operation is essential for maintaining security when an API key is no longer needed or if its permissions need to be revoked urgently.
+
+        **Key Features**:
+        - **Secure Cleanup**: Ensures that unused or compromised API keys are removed to prevent unauthorized access.
+        - **Access Revocation**: Provides a method to immediately invalidate an API key when necessary.
+
+        **Use Cases**:
+        - Removing access for team members who no longer require it, such as after project completion or role changes.
+        - Revoking keys that may have been exposed or compromised to maintain security integrity.
+
+      operationId: deleteApiKey
+      tags:
+        - API Keys
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project from which the API key will be deleted.
+        - name: keyId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the API key to be deleted.
+      responses:
+        '204':
+          description: The API key was deleted successfully, no content returned.
+        '404':
+          description: Either the API key or the project was not found.
+        '500':
+          description: A server error occurred, preventing the deletion of the API key.
+
+  /projects/{projectId}/prompts:
+    get:
+      summary: List all prompts in a project
+      description: |
+        Retrieves a comprehensive list of all prompts associated with a specific project. This operation is essential for users to view and manage all the prompts under a project, facilitating quick access to any particular prompt and understanding the scope of the project's content.
+
+        **Key Features**:
+        - **Comprehensive Overview**: Provides a complete list of all prompts, helping in the overall management and navigation of project content.
+        - **Efficient Project Management**: Enables project managers and team members to quickly assess the progress and status of various prompts within the project.
+
+        **Use Cases**:
+        - Developers and content creators looking to overview or navigate through all the prompts associated with a specific project.
+        - Useful in scenarios where multiple teams or stakeholders need to review or access prompt information collectively.
+
+      operationId: listPrompts
+      tags:
+        - Prompts
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project whose prompts are to be listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of all prompts in the specified project.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PromptStub'
+        '404':
+          description: Project not found, indicating the specified project ID does not exist.
+        '500':
+          description: A server error occurred, preventing the retrieval of prompts.
+
+    post:
+      summary: Create a new prompt in a project
+      description: |
+        Creates a new prompt within a specified project. This endpoint is crucial for expanding project content by adding new prompts, allowing users to input initial details for a new prompt which then becomes part of the project's documentation or content offerings.
+
+        **Key Features**:
+        - **Content Expansion**: Allows for the easy addition of new content to a project, supporting dynamic growth and updates.
+        - **Customizable Input**: Users can define various attributes of the prompt such as title, description, and specific content parameters through the `PromptInput` schema.
+
+        **Use Cases**:
+        - Content managers and creators adding new thematic prompts or content pieces to existing projects.
+        - Automating content creation processes by integrating with content management systems that can trigger prompt creations through API calls.
+
+      operationId: createPrompt
+      tags:
+        - Prompts
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project within which the new prompt is to be created.
+      requestBody:
+        required: true
+        description: Contains the necessary attributes for creating a new prompt, such as title, description, and any specific content elements.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptInput'
+      responses:
+        '201':
+          description: The prompt was created successfully and is now part of the project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        '400':
+          description: Invalid input provided in the request body, such as missing required fields or data that does not conform to the expected format.
+        '404':
+          description: Project not found, indicating the specified project ID does not exist.
+        '500':
+          description: A server error occurred, preventing the creation of the new prompt.
+
+  /projects/{projectId}/prompts/{promptId}:
+    get:
+      summary: Retrieve a specific prompt within a project
+      description: |
+        Retrieves detailed information about a specific prompt within a project, including its content, metadata, and any associated versioning details. This endpoint is essential for users who need to view the current state of a prompt or to fetch its details for further processing or display.
+
+        **Key Usage**:
+        - Viewing the complete details of a prompt for editorial or review purposes.
+        - Fetching prompt data for integration with other tools or services.
+
+      operationId: getPrompt
+      tags:
+        - Prompts
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt being retrieved.
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the prompt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        '404':
+          description: Either the prompt or the project was not found.
+        '500':
+          description: A server error occurred, preventing the retrieval of the prompt.
+
+    put:
+      summary: Update a specific prompt in a project
+      description: |
+        Updates the content or metadata of a specific prompt within a project. This operation allows users to modify existing prompts to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of prompt content.
+
+        **Key Usage**:
+        - Modifying the text or other properties of a prompt as part of content management workflows.
+        - Updating prompt settings or configurations based on new inputs or feedback.
+
+      operationId: updatePrompt
+      tags:
+        - Prompts
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt being updated.
+      requestBody:
+        required: true
+        description: JSON payload containing the updated data for the prompt.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptInput'
+      responses:
+        '200':
+          description: The prompt was updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prompt'
+        '400':
+          description: Invalid input, such as malformed data or incomplete required fields.
+        '404':
+          description: Either the prompt or the project was not found.
+        '500':
+          description: A server error occurred, preventing the update of the prompt.
+
+    delete:
+      summary: Delete a specific prompt from a project
+      description: |
+        Deletes a specific prompt from a project, removing it permanently from the system. This operation is used when a prompt is no longer needed or relevant, or as part of content cleanup and management strategies.
+
+        **Key Usage**:
+        - Removing outdated or irrelevant prompts to maintain a clean and efficient project environment.
+        - Complying with data retention policies by deleting prompts that are no longer necessary.
+
+      operationId: deletePrompt
+      tags:
+        - Prompts
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt to be deleted.
+      responses:
+        '204':
+          description: The prompt was deleted successfully; no content is returned.
+        '404':
+          description: Either the prompt or the project was not found.
+        '500':
+          description: A server error occurred, preventing the deletion of the prompt.
+
+  /projects/{projectId}/prompts/{promptId}/branches:
+    get:
+      summary: List all branches of a specific prompt
+      description: |
+        Retrieves a list of all branches associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
+        
+        **Usage**:
+        - Facilitates the management of multiple branch versions.
+        - Enables stakeholders to review historical changes and progress on a prompt.
+        - Supports collaborative review by providing access to various branch submissions.
+
+      operationId: listPromptBranches
+      tags:
+        - Branches
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt for which branches are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of all branches for the specified prompt.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Branch'
+        '404':
+          description: The specified prompt was not found.
+        '500':
+          description: A server error occurred, preventing the retrieval of branch data.
+
+    post:
+      summary: Create a new branch for a prompt
+      description: |
+        Creates a new branch version for a specific prompt. This endpoint allows users to start a new revision cycle by submitting initial branch content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
+        
+        **Usage**:
+        - Initiates a new branch for collaborative editing or further development.
+        - Helps in managing version control by starting a new branch of content development.
+        
+        **Requirements**:
+        - Users must provide initial content or parameters for the branch as defined in the `PromptBranchInput` schema.
+        - Appropriate permissions are required to create branches, typically restricted to content creators or project managers.
+
+      operationId: createPromptBranch
+      tags:
+        - Branches
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt for which a new branch is being created.
+      requestBody:
+        required: true
+        description: Contains the necessary information for creating a new branch, such as initial content or metadata.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchInput'
+      responses:
+        '201':
+          description: Branch created successfully and is now available for review or further editing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '400':
+          description: Invalid input, such as missing required fields or malformed data.
+        '404':
+          description: The specified prompt was not found, and thus the branch could not be created.
+        '500':
+          description: A server error occurred, preventing the creation of a new branch.
+
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}:
+    get:
+      summary: Retrieve a specific branch
+      description: |
+        Retrieves detailed information about a specific branch of a prompt. This endpoint is crucial for accessing the current state and details of a branch, including its creation date, name, and associated prompt ID. 
+
+        **Features**:
+        - **Branch Identification**: Provides unique identifiers for branches, allowing for precise tracking and management.
+        - **Metadata Access**: Includes metadata such as creation date and branch name, aiding in branch management and auditing.
+
+        **Use Cases**:
+        - Developers reviewing the state of a branch to understand its current content and history.
+        - Content managers assessing different branches to decide on merging or further development.
+        - Integrating branch data into other systems for enhanced content lifecycle management.
+
+        **Key Parameters**:
+        - `promptId`: Identifies the prompt to which the branch belongs.
+        - `branchName`: Specifies the name of the branch to retrieve.
+
+      operationId: getBranch
+      tags:
+        - Branches
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch to retrieve.
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the specified branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+        '404':
+          description: No branch found matching the specified identifiers.
+        '500':
+          description: A server error occurred, preventing the retrieval of the branch.
+
+    delete:
+      summary: Delete a specific branch
+      description: |
+        Deletes a specific branch of a prompt. This endpoint allows users to remove an entire branch and its associated commit history from a prompt. 
+
+        **Features**:
+        - **Branch Removal**: Enables the deletion of branches that are no longer needed or are obsolete, maintaining a clean and organized development environment.
+        - **Cascade Deletion**: Removes all commits associated with the branch, ensuring no orphaned data remains.
+
+        **Use Cases**:
+        - Developers cleaning up old branches that are no longer in use.
+        - Content managers removing experimental branches that didn't proceed to production.
+        - Automated systems enforcing branch retention policies by deleting branches past their retention period.
+
+        **Key Parameters**:
+        - `promptId`: Identifies the prompt whose branch is being deleted.
+        - `branchName`: Specifies the name of the branch to delete.
+
+      operationId: deleteBranch
+      tags:
+        - Branches
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch is being deleted.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch to be deleted.
+      responses:
+        '204':
+          description: Branch deleted successfully.
+        '404':
+          description: No branch found matching the specified identifiers.
+        '500':
+          description: A server error occurred, preventing the deletion of the branch.
+
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits:
+    get:
+      summary: List all commits of a specific branch
+      description: |
+        Retrieves a list of all commit histories associated with a specific branch of a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
+
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+
+      operationId: listBranchCommits
+      tags:
+        - Commits
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch whose commits are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of all commits associated with the branch.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commit'
+        '404':
+          description: No branch found matching the specified identifiers.
+        '500':
+          description: A server error occurred, preventing the retrieval of commit information.
+
+    post:
+      summary: Create a new commit for a branch
+      description: |
+        Creates a new commit for a specific branch of a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
+
+        **Features**:
+        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
+        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
+        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
+
+        **Use Cases**:
+        - Developers committing new changes or features to a branch.
+        - Content managers updating prompt content and documenting the changes.
+        - Teams collaborating on a project and needing a clear record of each member's contributions.
+
+      operationId: createBranchCommit
+      tags:
+        - Commits
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch is being committed to.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch for which a new commit is being created.
+      requestBody:
+        required: true
+        description: Contains the necessary information for creating a new commit, such as commit message and changes.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommitInput'
+      responses:
+        '201':
+          description: Commit created successfully and is now part of the branch history.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+        '400':
+          description: Invalid input, such as missing required fields or malformed data.
+        '404':
+          description: The specified branch was not found, and thus the commit could not be created.
+        '500':
+          description: A server error occurred, preventing the creation of a new commit.
+
+  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}:
+    get:
+      summary: Retrieve a specific commit or the latest commit of a branch
+      description: |
+        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
+
+        **Features**:
+        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
+        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
+        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
+
+        **Use Cases**:
+        - Retrieving past commits for audit or comparison purposes.
+        - Accessing the latest commit to continue development or review current changes.
+        - Integrating commit data into other systems for enhanced content lifecycle management.
+
+      operationId: getBranchCommit
+      tags:
+        - Commits
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch.
+        - name: commitId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the commit to retrieve, or 'latest' to obtain the most recent commit.
+          example: 'latest'  # Providing an example to clarify usage
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the specified commit of the branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+        '404':
+          description: No branch or commit found matching the specified identifiers.
+        '500':
+          description: A server error occurred, preventing the retrieval of the branch commit.
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+      description: |
+        API Key authentication provides a straightforward method for clients to authenticate requests. This scheme expects an API key to be supplied in the headers of each request. Clients must include the API key in the 'X-API-KEY' header field.
+
+        **How to use**:
+        - Obtain an API key from the API provider.
+        - Include the API key in the header of each request to the API as follows:
+          ```
+          X-API-KEY: {api_key}
+          ```
+        - The API validates the key against its database, and if the key is valid, allows access to the requested resources.
+
+        **Advantages**:
+        - Simple and easy to implement.
+        - Suitable for accessing public APIs where security requirements are not excessively strict.
+
+        **Limitations**:
+        - Less secure than more complex authentication methods, such as tokens, as API keys can be easily exposed in transit or storage.
+        - API keys do not expire by default and revoking them requires direct intervention.
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Bearer Token authentication uses JSON Web Tokens (JWT) to verify the identity of the requester. This scheme is included in the Authorization header of each HTTP request using the Bearer format.
+
+        **How to use**:
+        - Obtain a JWT from the authentication server. Typically, this involves an initial request with credentials (username/password) to receive the token.
+        - Include the token in the Authorization header of your HTTP requests as follows:
+          ```
+          Authorization: Bearer {token}
+          ```
+        - The server decodes the JWT to verify its validity and authorizes the request based on the token's payload and signature.
+
+        **Advantages**:
+        - Offers more security than API key authentication as the token content is protected by cryptographic algorithms.
+        - Tokens can be designed to expire after a certain period, enhancing security by limiting the duration of their validity.
+
+        **Limitations**:
+        - Requires a more complex backend setup to issue and verify tokens.
+        - Handling token renewal and revocation can add overhead to client and server implementations.
+
+        **Example**:
+        To access protected routes or resources, the client must authenticate by providing the JWT in the authorization header:
+        ```
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiw
+
+  schemas:
+    KSUID:
+        type: string
+        pattern: '^[A-Za-z0-9]{27}$'
+        minLength: 27
+        maxLength: 27
+        description: A K-sortable unique identifier (KSUID)
+    Organization:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the organization
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the organization
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: Description for the organization
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of organization creation
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to the organization
+
+    OrganizationInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the organization
+        description:
+          type: string
+          description: Description for the organization
+
+    Team:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the team
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the team
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the team
+        orgId:
+          $ref: '#/components/schemas/KSUID'
+          description: The organization to which the team belongs
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of team creation
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to the team
+
+    TeamInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the team
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the team
+
+    User:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the user
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: User's full name (optional)
+        email:
+          type: string
+          format: email
+          description: User's email address
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp of user creation
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      required:
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: User's full name (optional)
+        email:
+          type: string
+          format: email
+          description: User's email address
+
+    Project:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the project
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the project
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the project
+        orgId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier for the organization to which the project belongs
+        teamId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier for the team to which the project belongs
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the project was last updated
+
+    ProjectInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the project
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the project
+        orgId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier for the organization to which the project belongs
+        teamId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier for the team to which the project belongs
+
+    ApiKey:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        key:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: The API key token
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of scopes or permissions granted by this API key
+        projectId:
+          $ref: '#/components/schemas/KSUID'
+          description: The project ID this API key belongs to
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the API key was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the API key was last updated
+
+    ApiKeyInput:
+      type: object
+      required:
+        - scopes
+      properties:
+        scopes:
+          type: array
+          items:
+            type: string
+          description: List of scopes or permissions to be granted to this API key
+
+    Prompt:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the prompt
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the project
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 50000
+          description: Contents of the prompt
+        projectId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the prompt was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the prompt was last updated
+
+    PromptInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the prompt
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the project
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 50000
+          description: Contents of the prompt
+
+    PromptStub:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Name of the prompt
+        description:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A brief description of the project
+        stub:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: A 180 character preview of the prompt
+        projectId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the prompt was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the prompt was last updated
+
+    Branch:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Branch name unique to the prompt
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this branch was created
+
+    BranchInput:
+      type: object
+      required:
+        - id
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Branch name unique to the prompt
+
+    Commit:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the commit of the branch
+        content:
+          type: string
+          minLength: 1
+          description: Content of the prompt in this commit
+        message:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: Message describing the changes in this commit
+        checksum:
+          type: string
+          description: SHA-256 checksum of the content in this commit
+        userId:
+          $ref: '#/components/schemas/KSUID'
+          description: Identifier of the user that created this commit
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this commit was created
+
+    CommitInput:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: Content of the prompt in this commit
+        message:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: Message describing the changes in this commit
