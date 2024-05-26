@@ -1,6 +1,0 @@
-# localstack volume data
-.localstack
-
-# OpenAPI generator files
-.openapi-generator-ignore
-.openapi-generator
