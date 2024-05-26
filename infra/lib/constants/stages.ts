@@ -1,5 +1,5 @@
 enum Stages {
-    STAGING = "staging",
+    DEV = "dev",
     PROD = "prod"
 }
 

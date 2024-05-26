@@ -11,14 +11,14 @@ import { PipelineStack } from '../lib/pipeline-stack';
 const app = new cdk.App();
 
 const stages = [
-  new Stage(app, `${Stages.STAGING}-${Regions.US_EAST_1}`, Stages.STAGING, {
-    env: {account: Accounts.STAGING, region: Regions.US_EAST_1}
+  new Stage(app, `${Stages.DEV}-${Regions.US_EAST_1}`, Stages.DEV, {
+    env: {account: Accounts.DEV, region: Regions.US_EAST_1}
   })
 ]
 
 new PipelineStack(app, 'PipelineStack', stages, {
   env: {
     region: Regions.US_WEST_2,
-    account: Accounts.STAGING
+    account: Accounts.DEV
   }
 })

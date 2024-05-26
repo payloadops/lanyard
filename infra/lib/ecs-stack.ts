@@ -29,7 +29,7 @@ export class EcsStack extends cdk.Stack {
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic');
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
 
-    const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('Repository', stage, region), `arn:aws:ecr:${Regions.US_WEST_2}:${Accounts.STAGING}:repository/app`)
+    const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('Repository', stage, region), `arn:aws:ecr:${Regions.US_WEST_2}:${Accounts.DEV}:repository/app`)
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
