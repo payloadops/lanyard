@@ -11,6 +11,7 @@ import { VpcStack } from './vpc-stack';
 import { disambiguator } from './util/disambiguator';
 import Stages from './constants/stages';
 import Regions from './constants/regions';
+import Accounts from './constants/accounts';
 
 
 export class EcsStack extends cdk.Stack {
@@ -24,12 +25,11 @@ export class EcsStack extends cdk.Stack {
       vpc: vpc
     });
 
-    const repository = region === Regions.US_EAST_1 ? new ecr.Repository(this, `Repository-${stage}`, {repositoryName: "app"}) : ecr.Repository.fromRepositoryArn(scope, `Repository-${stage}`, `arn:aws:ecr:us-east-1:${props?.env?.account}:repository/app`);
-
     const securityGroup = new ec2.SecurityGroup(this, disambiguator('ServiceSecurityGroup', stage, region), { vpc });
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic');
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
 
+    const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('Repository', stage, region), `arn:aws:ecr:${Regions.US_WEST_2}:${Accounts.STAGING}:repository/app`)
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
@@ -40,7 +40,7 @@ export class EcsStack extends cdk.Stack {
           "region": region,
           "stage": stage,
         },
-        image: ecs.ContainerImage.fromEcrRepository(repository),
+        image: ecs.ContainerImage.fromRegistry(`${ecrRepository.repositoryUriForTag(process.env.COMMIT_SHA)}`),
         containerPort: 8080,
         // logDriver: ecs.LogDrivers.awsLogs({
         //   streamPrefix: "ecs",

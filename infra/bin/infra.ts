@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-
 import Stages from '../lib/constants/stages';
 import Accounts from '../lib/constants/accounts';
 import Regions from '../lib/constants/regions';
