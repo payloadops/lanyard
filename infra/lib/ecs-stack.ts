@@ -56,16 +56,13 @@ export class EcsStack extends cdk.Stack {
     
     // Add ECR related permissions to the role
     ecsTaskRole.addToPolicy(new iam.PolicyStatement({
- 
+      actions: [
+        's3:*',
+        'dynamo:*'
+      ],
+      resources: ['*'],
     }));
     
-    // If you are using specific ECR repositories, replace '*' with specific ARN(s)
-    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
-
-    }));
-    
-    
-
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', stage, region), {
       vpc: vpc
     });
