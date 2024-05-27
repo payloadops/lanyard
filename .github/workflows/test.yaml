@@ -95,12 +95,8 @@ jobs:
         run: npm install
         working-directory: ./infra
 
-      - name: Run CDK Synth
-        run: cdk synth
-        working-directory: ./infra
-
-      - name: Run CDK Diff
-        run: cdk diff
+      - name: Run CDK test
+        run: npm test
         working-directory: ./infra
 
   openapi-diff:
