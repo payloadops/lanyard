@@ -49,7 +49,7 @@ export class EcsStack extends cdk.Stack {
           "region": region,
           "stage": stage,
         },
-        image: ecs.ContainerImage.fromRegistry(`${ecrRepository.repositoryUriForTag(process.env.COMMIT_SHA)}`),
+        image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
         containerPort: 8080,
         // logDriver: ecs.LogDrivers.awsLogs({
         //   streamPrefix: "ecs",

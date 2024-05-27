@@ -2,6 +2,10 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
+import { CodeBuildAction, CodeBuildActionType } from 'aws-cdk-lib/aws-codepipeline-actions';
+import { Artifact } from 'aws-cdk-lib/aws-codepipeline';
+import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
+import { BuildSpec, PipelineProject } from 'aws-cdk-lib/aws-codebuild';
 
 const REPO = "payloadops/plato";
 
@@ -30,7 +34,26 @@ export class PipelineStack extends cdk.Stack {
           primaryOutputDirectory: 'infra/cdk.out',
         })
       });
+
+      const project = new PipelineProject(this, 'Project', {
+        buildSpec: BuildSpec.fromObject({
+          
+        })
+      })
+      const sourceOutput = new Artifact();
       
+      pipeline.pipeline.addStage({
+        stageName: "Build",
+        actions: [
+          new CodeBuildAction({
+            actionName: 'Build Image',
+            project,
+            input: sourceOutput,
+            type: CodeBuildActionType.BUILD,
+          })
+        ]
+      })
+
       stages.forEach(stage => pipeline.addStage(stage));
     }
   }
