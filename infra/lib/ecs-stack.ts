@@ -80,10 +80,10 @@ export class EcsStack extends cdk.Stack {
       desiredCount: 1, // Default is 1
       healthCheck: {
         command: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ],
-        interval: cdk.Duration.minutes(30),
+        interval: cdk.Duration.seconds(30),
         retries: 5,
-        startPeriod: cdk.Duration.minutes(30),
-        timeout: cdk.Duration.minutes(30),
+        startPeriod: cdk.Duration.seconds(30),
+        timeout: cdk.Duration.seconds(5),
       },
       taskImageOptions: { 
         environment: {
