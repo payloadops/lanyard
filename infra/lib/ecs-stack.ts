@@ -75,10 +75,10 @@ export class EcsStack extends cdk.Stack {
 
     // Create a new Secrets Manager secret to store JWT_SECRET
     const ecsSecret = new ssm.Secret(this, disambiguator('JwtSecret', stage, region), {
-      secretName: 'ecs-secret',
+      secretName: 'plato-secret',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({
-          JWT_SECRET: 'CHANGEME',
+          JWT_SECRET: 'CHANGE_ME',
         }),
         generateStringKey: 'unused',
       },
