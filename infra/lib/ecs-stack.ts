@@ -23,13 +23,13 @@ export class EcsStack extends cdk.Stack {
     const region = props?.env?.region!
     const vpc = vpcStack.vpc;
 
-    const ecsTaskRole = new iam.Role(this, 'ecsTaskRole', {
+    const ecsExecutionRole = new iam.Role(this, 'ecsExecutionRole', {
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       description: 'Role for ECS tasks to interact with ECR and other AWS services',
     });
     
     // Add ECR related permissions to the role
-    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+    ecsExecutionRole.addToPolicy(new iam.PolicyStatement({
       actions: [
         'ecr:GetAuthorizationToken',
         'ecr:BatchCheckLayerAvailability',
@@ -40,7 +40,7 @@ export class EcsStack extends cdk.Stack {
     }));
     
     // If you are using specific ECR repositories, replace '*' with specific ARN(s)
-    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+    ecsExecutionRole.addToPolicy(new iam.PolicyStatement({
       actions: [
         'ecr:GetDownloadUrlForLayer',
         'ecr:BatchGetImage'
@@ -68,7 +68,8 @@ export class EcsStack extends cdk.Stack {
           "region": region,
           "stage": stage,
         },
-        taskRole: ecsTaskRole,
+        taskRole: ecsExecutionRole,
+        executionRole: ecsExecutionRole,
         image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
         containerPort: 8080,
         // logDriver: ecs.LogDrivers.awsLogs({
