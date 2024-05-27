@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"fmt"
@@ -161,3 +162,4 @@ func (s *TeamsAPIService) UpdateTeam(ctx context.Context, orgId string, teamId s
 
 	return openapi.Response(http.StatusOK, team), nil
 }
+*/

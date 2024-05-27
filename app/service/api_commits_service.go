@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"fmt"
@@ -169,3 +170,4 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId str
 
 	return openapi.Response(http.StatusOK, commits), nil
 }
+*/

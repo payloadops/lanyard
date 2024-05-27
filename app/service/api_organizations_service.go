@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"fmt"
@@ -110,3 +111,4 @@ func (s *OrganizationsAPIService) UpdateOrganization(ctx context.Context, orgId 
 
 	return openapi.Response(http.StatusOK, org), nil
 }
+*/

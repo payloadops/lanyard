@@ -10,18 +10,26 @@ From the [OpenAPI Specification](https://swagger.io/specification/):
 
 > An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
 
-# Requirements
+## Requirements
 
 The following dependencies are necessary to run the Swagger UI and mock server.
 
 * [Docker Compose >= 2.26.1](https://docs.docker.com/compose/install/)
 * [Docker >= 26.0.0](https://docs.docker.com/get-docker/)
+* [OpenAPI Generator >= 5.1.1](https://openapi-generator.tech/docs/installation)
 
-# Development
+## Development
 
 Run docker compose in the root directory of this project, which will expose Swagger UI,
 and the mock server.
 
 ```/bin/bash
 docker-compose up
+```
+
+## Code Generation
+To generate server-side stubs for the OpenAPI spec, excluding the service modules, use the OpenAPI Generator with the following command:
+
+```/bin/bash
+./codegen.sh
 ```

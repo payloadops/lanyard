@@ -9,6 +9,7 @@
 // Package mocks is a generated GoMock package.
 package mocks
 
+/*
 import (
 	context "context"
 	reflect "reflect"
@@ -126,3 +127,4 @@ func (mr *MockTeamManagerMockRecorder) UpdateTeam(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTeam", reflect.TypeOf((*MockTeamManager)(nil).UpdateTeam), arg0, arg1)
 }
+*/

@@ -9,6 +9,7 @@
 // Package mocks is a generated GoMock package.
 package mocks
 
+/*
 import (
 	context "context"
 	reflect "reflect"
@@ -111,3 +112,4 @@ func (mr *MockAPIKeyManagerMockRecorder) UpdateAPIKey(arg0, arg1 any) *gomock.Ca
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).UpdateAPIKey), arg0, arg1)
 }
+*/

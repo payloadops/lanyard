@@ -1,5 +1,6 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
@@ -187,3 +188,4 @@ func (d *TeamDBClient) ListTeamsByOrganization(ctx context.Context, orgID string
 
 	return teams, nil
 }
+*/

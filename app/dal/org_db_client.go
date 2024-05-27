@@ -1,5 +1,6 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
@@ -161,3 +162,4 @@ func (d *OrgDBClient) ListOrganizations(ctx context.Context) ([]Organization, er
 
 	return orgs, nil
 }
+*/
