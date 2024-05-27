@@ -68,7 +68,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
-          "JWT_SECRET": `${ecs.Secret.fromSecretsManager(Secret.fromSecretCompleteArn(this, "jwtSecret", `arn:aws:secretsmanager:${region}:${this.account}:secret:dev/jwt_secret`))}`,
+          "JWT_SECRET": `${ecs.Secret.fromSecretsManager(Secret.fromSecretNameV2(this, "jwtSecret", "dev/jwt_secret"))}`,
         },
         taskRole: ecsExecutionRole,
         executionRole: ecsExecutionRole,
