@@ -84,15 +84,15 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./cdk
+        working-directory: ./infra
 
       - name: Run CDK Synth
         run: cdk synth
-        working-directory: ./cdk
+        working-directory: ./infra
 
       - name: Run CDK Diff
         run: cdk diff
-        working-directory: ./cdk
+        working-directory: ./infra
 
   openapi-diff:
     runs-on: ubuntu-latest
