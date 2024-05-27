@@ -33,3 +33,4 @@ openapi/model_team.go
 openapi/model_team_input.go
 openapi/model_user.go
 openapi/model_user_input.go
+openapi/routers.go
