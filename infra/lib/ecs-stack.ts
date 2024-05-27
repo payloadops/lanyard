@@ -79,7 +79,7 @@ export class EcsStack extends cdk.Stack {
       cpu: 256, // Default is 256
       desiredCount: 1, // Default is 1
       healthCheck: {
-        command: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ],
+        command: [ "CMD-SHELL", "curl -f http://localhost:8080/v1/health || exit 1" ],
         interval: cdk.Duration.seconds(30),
         retries: 5,
         startPeriod: cdk.Duration.seconds(30),
@@ -89,6 +89,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
+          "JWT_SECRET": "secret"
         },
         taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
