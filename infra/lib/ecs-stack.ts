@@ -108,6 +108,10 @@ export class EcsStack extends cdk.Stack {
       securityGroups: [securityGroup]
     });
 
+    fargateService.targetGroup.configureHealthCheck({
+      path: "/v1/health",
+    });
+
     const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 1, maxCapacity: 10 });
     scaling.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 70,
