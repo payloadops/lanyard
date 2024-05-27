@@ -39,7 +39,6 @@ export class PipelineStack extends cdk.Stack {
             'docker build -t $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION .',
             'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI',
             'docker push $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION',
-            `echo $CODEBUILD_RESOLVED_SOURCE_VERSION > image_tag.txt`
         ],
         env: {
           'ECR_URI': ecrRepository.repositoryUri
