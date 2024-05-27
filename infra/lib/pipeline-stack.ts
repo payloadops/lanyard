@@ -2,9 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
-import { Artifact } from 'aws-cdk-lib/aws-codepipeline';
-import { PipelineProject } from 'aws-cdk-lib/aws-codebuild';
-import { BUILDSPEC } from './constants/buildspec';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 
 const REPO = "payloadops/plato";
