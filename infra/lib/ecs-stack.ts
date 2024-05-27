@@ -49,6 +49,23 @@ export class EcsStack extends cdk.Stack {
       resources: ['*'],
     }));
 
+    const ecsTaskRole = new iam.Role(this, 'ecsExecutionRole', {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role for ECS tasks to interact with ECR and other AWS services',
+    });
+    
+    // Add ECR related permissions to the role
+    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+ 
+    }));
+    
+    // If you are using specific ECR repositories, replace '*' with specific ARN(s)
+    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+
+    }));
+    
+    
+
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', stage, region), {
       vpc: vpc
     });
@@ -64,13 +81,20 @@ export class EcsStack extends cdk.Stack {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
       desiredCount: 1, // Default is 1
+      healthCheck: {
+        command: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ],
+        interval: cdk.Duration.minutes(30),
+        retries: 5,
+        startPeriod: cdk.Duration.minutes(30),
+        timeout: cdk.Duration.minutes(30),
+      },
       taskImageOptions: { 
         environment: {
           "REGION": region,
           "STAGE": stage,
           "JWT_SECRET": `${ecs.Secret.fromSecretsManager(Secret.fromSecretNameV2(this, "jwtSecret", "dev/jwt_secret"))}`,
         },
-        taskRole: ecsExecutionRole,
+        taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
         image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
         containerPort: 8080,
