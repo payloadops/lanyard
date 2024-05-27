@@ -118,6 +118,7 @@ jobs:
 
       - name: Run OpenAPI Generator
         run: |
+          shopt -s expand_aliases
           alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
           ./codegen.sh
         env:
