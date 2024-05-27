@@ -53,7 +53,7 @@ export class PipelineStack extends cdk.Stack {
           'ecr:CompleteLayerUpload',
           'ecr:PutImage',
         ],
-        resources: [`${ecrRepository.repositoryArn}/*`],
+        resources: [`*`],
       }));
 
       const dockerBuildStep = new CodeBuildStep('BuildAndPushDockerImage', {
@@ -64,7 +64,8 @@ export class PipelineStack extends cdk.Stack {
             'docker push $ECR_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION',
         ],
         env: {
-            'ECR_URI': ecrRepository.repositoryUri
+            'ECR_URI': ecrRepository.repositoryUri,
+            'AWS_DEFAULT_REGION': this.region
         },
         buildEnvironment: {
             buildImage: LinuxBuildImage.STANDARD_5_0,
