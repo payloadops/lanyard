@@ -14,6 +14,7 @@ import Regions from './constants/regions';
 import Accounts from './constants/accounts';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 
 export class EcsStack extends cdk.Stack {
@@ -67,7 +68,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
-          "JWT_SECRET": "empty",
+          "JWT_SECRET": `${ecs.Secret.fromSecretsManager(Secret.fromSecretCompleteArn(this, "jwtSecret", `arn:aws:secretsmanager:${region}:${this.account}:secret:dev/jwt_secret`))}`,
         },
         taskRole: ecsExecutionRole,
         executionRole: ecsExecutionRole,
