@@ -1,4 +1,4 @@
-name: Run Tests, OpenAPI diff, and CDK Check
+name: Tests
 
 on:
   pull_request:
@@ -110,7 +110,7 @@ jobs:
 
       - name: Run OpenAPI Generator
         run: |
-          ./generate-openapi.sh
+          ./codegen.sh
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         working-directory: ./spec
