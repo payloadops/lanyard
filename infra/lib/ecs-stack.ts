@@ -13,6 +13,7 @@ import Stages from './constants/stages';
 import Regions from './constants/regions';
 import Accounts from './constants/accounts';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 
 export class EcsStack extends cdk.Stack {
@@ -21,6 +22,31 @@ export class EcsStack extends cdk.Stack {
 
     const region = props?.env?.region!
     const vpc = vpcStack.vpc;
+
+    const ecsTaskRole = new iam.Role(this, 'ecsTaskRole', {
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+      description: 'Role for ECS tasks to interact with ECR and other AWS services',
+    });
+    
+    // Add ECR related permissions to the role
+    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+      actions: [
+        'ecr:GetAuthorizationToken',
+        'ecr:BatchCheckLayerAvailability',
+        'ecr:GetDownloadUrlForLayer',
+        'ecr:BatchGetImage'
+      ],
+      resources: ['*'],
+    }));
+    
+    // If you are using specific ECR repositories, replace '*' with specific ARN(s)
+    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+      actions: [
+        'ecr:GetDownloadUrlForLayer',
+        'ecr:BatchGetImage'
+      ],
+      resources: ['*'],
+    }));
 
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', stage, region), {
       vpc: vpc
@@ -42,6 +68,7 @@ export class EcsStack extends cdk.Stack {
           "region": region,
           "stage": stage,
         },
+        taskRole: ecsTaskRole,
         image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
         containerPort: 8080,
         // logDriver: ecs.LogDrivers.awsLogs({
