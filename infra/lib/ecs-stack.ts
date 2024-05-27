@@ -89,7 +89,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
-          "JWT_SECRET": `${ecs.Secret.fromSecretsManager(Secret.fromSecretNameV2(this, "jwtSecret", "dev/jwt_secret"))}`,
+          "JWT_SECRET": Secret.fromSecretNameV2(this, "jwtSecret", "dev/jwt_secret").secretValue.toString(),
         },
         taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
