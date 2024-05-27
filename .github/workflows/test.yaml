@@ -1,4 +1,4 @@
-name: Run Tests and CDK Check
+name: Run Tests, OpenAPI diff, and CDK Check
 
 on:
   pull_request:
@@ -28,9 +28,11 @@ jobs:
 
       - name: Build Docker images
         run: docker-compose build
+        working-directory: ./app
 
       - name: Start services
         run: docker-compose up -d
+        working-directory: ./app
 
       - name: Wait for services to be ready
         run: |
@@ -38,12 +40,15 @@ jobs:
             echo "Waiting for services to be ready..."
             sleep 10
           done
+        working-directory: ./app
 
       - name: Run Unit Tests
         run: docker-compose run --rm platoapi go test -v ./...
+        working-directory: ./app
 
       - name: Stop services
         run: docker-compose down
+        working-directory: ./app
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -68,9 +73,11 @@ jobs:
 
       - name: Build Docker images
         run: docker-compose build
+        working-directory: ./app
 
       - name: Start services
         run: docker-compose up -d
+        working-directory: ./app
 
       - name: Wait for services to be ready
         run: |
@@ -78,12 +85,15 @@ jobs:
             echo "Waiting for services to be ready..."
             sleep 10
           done
+        working-directory: ./app
 
       - name: Run E2E Tests
-        run: docker-compose run --rm platoapi go test -v ./e2e
+        run: docker-compose run --rm platoapi go test -v ./... --tags=e2e
+        working-directory: ./app
 
       - name: Stop services
         run: docker-compose down
+        working-directory: ./app
 
   cdk-checks:
     runs-on: ubuntu-latest
@@ -96,22 +106,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14' # Specify the Node.js version required for CDK
+          node-version: '20' # Specify the Node.js version required for CDK
 
       - name: Install CDK
         run: npm install -g aws-cdk
 
       - name: Install dependencies
         run: npm install
-        working-directory: cdk # Adjust this if your CDK app is in a different directory
+        working-directory: ./cdk
 
       - name: Run CDK Synth
         run: cdk synth
-        working-directory: cdk # Adjust this if your CDK app is in a different directory
+        working-directory: ./cdk
 
       - name: Run CDK Diff
         run: cdk diff
-        working-directory: cdk # Adjust this if your CDK app is in a different directory
+        working-directory: ./cdk
 
   openapi-diff:
     runs-on: ubuntu-latest
@@ -125,12 +135,14 @@ jobs:
         run: |
           wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.1.1/openapi-generator-cli-5.1.1.jar -O openapi-generator-cli.jar
           alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
+        working-directory: ./spec
 
       - name: Run OpenAPI Generator
         run: |
           ./generate-openapi.sh
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
+        working-directory: ./spec
 
       - name: Check for differences
         run: |
@@ -140,6 +152,7 @@ jobs:
           else
             echo "Generated code matches the current code."
           fi
+        working-directory: ./spec
 
   #notify:
   #  runs-on: ubuntu-latest
