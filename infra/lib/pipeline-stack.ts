@@ -5,6 +5,7 @@ import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import { Artifact } from 'aws-cdk-lib/aws-codepipeline';
 import { PipelineProject } from 'aws-cdk-lib/aws-codebuild';
 import { BUILDSPEC } from './constants/buildspec';
+import * as ecr from 'aws-cdk-lib/aws-ecr';
 
 const REPO = "payloadops/plato";
 
@@ -12,7 +13,7 @@ export class PipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stages: cdk.Stage[], props?: cdk.StackProps) {
       super(scope, id, props);
 
-      const connection = new codestarconnections.CfnConnection(this, 'MyConnection', {
+      const connection = new codestarconnections.CfnConnection(this, 'Connection', {
         connectionName: 'GitHubConnection',
         providerType: 'GitHub',
       });
@@ -34,10 +35,25 @@ export class PipelineStack extends cdk.Stack {
         })
       });
 
-      const project = new PipelineProject(this, 'Project', {
-        buildSpec: BUILDSPEC
-      })
-      const output = new Artifact('Output');
+      const ecrRepository = new ecr.Repository(this, 'Repository');
+      const dockerBuildStep = new ShellStep('BuildAndPushDockerImage', {
+        commands: [
+            'cd app',
+            'docker build -t $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION .',
+            'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI',
+            'docker push $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION',
+            `echo $CODEBUILD_RESOLVED_SOURCE_VERSION > image_tag.txt`
+        ],
+        env: {
+          'ECR_URI': ecrRepository.repositoryUri
+        },
+      });
+
+      pipeline.addWave('BuildAndPushImage', {
+        post: [
+          dockerBuildStep
+        ]
+      });
       
       stages.forEach(stage => pipeline.addStage(stage));
     }
