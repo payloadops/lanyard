@@ -2,12 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
-import { CodeBuildAction, CodeBuildActionType } from 'aws-cdk-lib/aws-codepipeline-actions';
 import { Artifact } from 'aws-cdk-lib/aws-codepipeline';
-import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
-import { BuildSpec, PipelineProject } from 'aws-cdk-lib/aws-codebuild';
+import { PipelineProject } from 'aws-cdk-lib/aws-codebuild';
 import { BUILDSPEC } from './constants/buildspec';
-import { BuildStage } from './build-stage';
 
 const REPO = "payloadops/plato";
 
