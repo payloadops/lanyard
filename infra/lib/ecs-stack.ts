@@ -14,7 +14,7 @@ import Regions from './constants/regions';
 import Accounts from './constants/accounts';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 
 
 export class EcsStack extends cdk.Stack {
@@ -73,13 +73,27 @@ export class EcsStack extends cdk.Stack {
 
     const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('ServiceRepository', stage, region), `arn:aws:ecr:${Regions.US_EAST_1}:${Accounts.DEV}:repository/app`)
 
+    // Create a new Secrets Manager secret to store JWT_SECRET
+    const ecsSecret = new ssm.Secret(this, disambiguator('JwtSecret', stage, region), {
+      secretName: 'ecs-secret',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          JWT_SECRET: 'CHANGEME',
+        }),
+        generateStringKey: 'unused',
+      },
+    });
+
+    // Allow the ecs task role to read JWT_SECRET
+    ecsSecret.grantRead(ecsTaskRole)
+
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
       desiredCount: 1, // Default is 1
       healthCheck: {
-        command: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ],
+        command: [ "CMD-SHELL", "curl -f http://localhost:8080/v1/health || exit 1" ],
         interval: cdk.Duration.seconds(30),
         retries: 5,
         startPeriod: cdk.Duration.seconds(30),
@@ -89,6 +103,9 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
+        },
+        secrets: {
+          "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
         },
         taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
