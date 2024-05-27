@@ -34,7 +34,7 @@ export class PipelineStack extends cdk.Stack {
         })
       });
 
-      const ecrRepository = new ecr.Repository(this, 'Repository', {repositoryName: "repository"});
+      const ecrRepository = new ecr.Repository(this, 'Repository', {repositoryName: "app"});
 
       const codeBuildRole = new iam.Role(this, 'CodeBuildRole', {
         assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
@@ -59,9 +59,9 @@ export class PipelineStack extends cdk.Stack {
       const dockerBuildStep = new CodeBuildStep('BuildAndPushDockerImage', {
         commands: [
             'cd app',
-            'docker build -t $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION .',
+            'docker build -t $ECR_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION .',
             'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI',
-            'docker push $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION',
+            'docker push $ECR_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION',
         ],
         env: {
             'ECR_URI': ecrRepository.repositoryUri
