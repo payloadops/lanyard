@@ -1,0 +1,156 @@
+name: Run Tests and CDK Check
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ secrets.AWS_ECR_REGISTRY }}
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose version
+          docker --version
+
+      - name: Build Docker images
+        run: docker-compose build
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          until curl -s http://localhost:8080/health; do
+            echo "Waiting for services to be ready..."
+            sleep 10
+          done
+
+      - name: Run Unit Tests
+        run: docker-compose run --rm platoapi go test -v ./...
+
+      - name: Stop services
+        run: docker-compose down
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ secrets.AWS_ECR_REGISTRY }}
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose version
+          docker --version
+
+      - name: Build Docker images
+        run: docker-compose build
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Wait for services to be ready
+        run: |
+          until curl -s http://localhost:8080/health; do
+            echo "Waiting for services to be ready..."
+            sleep 10
+          done
+
+      - name: Run E2E Tests
+        run: docker-compose run --rm platoapi go test -v ./e2e
+
+      - name: Stop services
+        run: docker-compose down
+
+  cdk-checks:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # Specify the Node.js version required for CDK
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: cdk # Adjust this if your CDK app is in a different directory
+
+      - name: Run CDK Synth
+        run: cdk synth
+        working-directory: cdk # Adjust this if your CDK app is in a different directory
+
+      - name: Run CDK Diff
+        run: cdk diff
+        working-directory: cdk # Adjust this if your CDK app is in a different directory
+
+  openapi-diff:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up OpenAPI Generator
+        run: |
+          wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.1.1/openapi-generator-cli-5.1.1.jar -O openapi-generator-cli.jar
+          alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
+
+      - name: Run OpenAPI Generator
+        run: |
+          ./generate-openapi.sh
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Check for differences
+        run: |
+          if ! git diff --exit-code; then
+            echo "Generated code differs from the current code. Please regenerate the interfaces and commit the changes."
+            exit 1
+          else
+            echo "Generated code matches the current code."
+          fi
+
+  #notify:
+  #  runs-on: ubuntu-latest
+  #  needs: [unit-tests, e2e-tests, cdk-checks, openapi-diff]
+  #
+  #  steps:
+  #    - name: Post a Slack notification for failure
+  #      if: failure()
+  #      uses: 8398a7/action-slack@v3
+  #      with:
+  #        status: failure
+  #        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+  #      env:
+  #        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
