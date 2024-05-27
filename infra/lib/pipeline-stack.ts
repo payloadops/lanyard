@@ -6,6 +6,7 @@ import { CodeBuildAction, CodeBuildActionType } from 'aws-cdk-lib/aws-codepipeli
 import { Artifact } from 'aws-cdk-lib/aws-codepipeline';
 import { CodeBuildProject } from 'aws-cdk-lib/aws-events-targets';
 import { BuildSpec, PipelineProject } from 'aws-cdk-lib/aws-codebuild';
+import { BUILDSPEC } from './constants/buildspec';
 
 const REPO = "payloadops/plato";
 
@@ -36,11 +37,9 @@ export class PipelineStack extends cdk.Stack {
       });
 
       const project = new PipelineProject(this, 'Project', {
-        buildSpec: BuildSpec.fromObject({
-          
-        })
+        buildSpec: BUILDSPEC
       })
-      const sourceOutput = new Artifact();
+      const output = new Artifact('Output');
       
       pipeline.pipeline.addStage({
         stageName: "Build",
@@ -48,7 +47,7 @@ export class PipelineStack extends cdk.Stack {
           new CodeBuildAction({
             actionName: 'Build Image',
             project,
-            input: sourceOutput,
+            input: output,
             type: CodeBuildActionType.BUILD,
           })
         ]
