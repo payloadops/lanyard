@@ -6,17 +6,12 @@ import Regions from './constants/regions';
 import Stages from './constants/stages';
 import { disambiguator } from './util/disambiguator';
 
-const REPO = "payload/plato";
+const REPO = "payloadops/plato";
 
 export class PipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stages: cdk.Stage[], props?: cdk.StackProps) {
       super(scope, id, props);
 
-      new Repository(this, disambiguator("Repository", Stages.DEV, Regions.US_WEST_2), {
-        repositoryName: "app",
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
-      })
-  
       const pipeline = new CodePipeline(this, 'Pipeline', {
         pipelineName: 'Pipeline',
         selfMutation: true,
