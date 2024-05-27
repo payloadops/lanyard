@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// PromptsAPIController binds http requests to an app service and writes the service results to the http response
+// PromptsAPIController binds http requests to an api service and writes the service results to the http response
 type PromptsAPIController struct {
 	service PromptsAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithPromptsAPIErrorHandler(h ErrorHandler) PromptsAPIOption {
 	}
 }
 
-// NewPromptsAPIController creates a default app controller
+// NewPromptsAPIController creates a default api controller
 func NewPromptsAPIController(s PromptsAPIServicer, opts ...PromptsAPIOption) Router {
 	controller := &PromptsAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewPromptsAPIController(s PromptsAPIServicer, opts ...PromptsAPIOption) Rou
 	return controller
 }
 
-// Routes returns all the app routes for the PromptsAPIController
+// Routes returns all the api routes for the PromptsAPIController
 func (c *PromptsAPIController) Routes() Routes {
 	return Routes{
 		"CreatePrompt": Route{

@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// HealthCheckAPIController binds http requests to an app service and writes the service results to the http response
+// HealthCheckAPIController binds http requests to an api service and writes the service results to the http response
 type HealthCheckAPIController struct {
 	service HealthCheckAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithHealthCheckAPIErrorHandler(h ErrorHandler) HealthCheckAPIOption {
 	}
 }
 
-// NewHealthCheckAPIController creates a default app controller
+// NewHealthCheckAPIController creates a default api controller
 func NewHealthCheckAPIController(s HealthCheckAPIServicer, opts ...HealthCheckAPIOption) Router {
 	controller := &HealthCheckAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewHealthCheckAPIController(s HealthCheckAPIServicer, opts ...HealthCheckAP
 	return controller
 }
 
-// Routes returns all the app routes for the HealthCheckAPIController
+// Routes returns all the api routes for the HealthCheckAPIController
 func (c *HealthCheckAPIController) Routes() Routes {
 	return Routes{
 		"HealthCheck": Route{

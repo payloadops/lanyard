@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// TeamsAPIController binds http requests to an app service and writes the service results to the http response
+// TeamsAPIController binds http requests to an api service and writes the service results to the http response
 type TeamsAPIController struct {
 	service TeamsAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithTeamsAPIErrorHandler(h ErrorHandler) TeamsAPIOption {
 	}
 }
 
-// NewTeamsAPIController creates a default app controller
+// NewTeamsAPIController creates a default api controller
 func NewTeamsAPIController(s TeamsAPIServicer, opts ...TeamsAPIOption) Router {
 	controller := &TeamsAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewTeamsAPIController(s TeamsAPIServicer, opts ...TeamsAPIOption) Router {
 	return controller
 }
 
-// Routes returns all the app routes for the TeamsAPIController
+// Routes returns all the api routes for the TeamsAPIController
 func (c *TeamsAPIController) Routes() Routes {
 	return Routes{
 		"CreateTeam": Route{

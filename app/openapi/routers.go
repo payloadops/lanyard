@@ -26,17 +26,17 @@ import (
 	"strings"
 )
 
-// A Route defines the parameters for an app endpoint
+// A Route defines the parameters for an api endpoint
 type Route struct {
 	Method	  string
 	Pattern	 string
 	HandlerFunc http.HandlerFunc
 }
 
-// Routes is a map of defined app endpoints
+// Routes is a map of defined api endpoints
 type Routes map[string]Route
 
-// Router defines the required methods for retrieving app routes
+// Router defines the required methods for retrieving api routes
 type Router interface {
 	Routes() Routes
 }
@@ -45,7 +45,7 @@ const errMsgRequiredMissing = "required parameter is missing"
 const errMsgMinValueConstraint = "provided parameter is not respecting minimum value constraint"
 const errMsgMaxValueConstraint = "provided parameter is not respecting maximum value constraint"
 
-// NewRouter creates a new router for any number of app routers
+// NewRouter creates a new router for any number of api routers
 func NewRouter(routers ...Router) chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)

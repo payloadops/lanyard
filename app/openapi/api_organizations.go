@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// OrganizationsAPIController binds http requests to an app service and writes the service results to the http response
+// OrganizationsAPIController binds http requests to an api service and writes the service results to the http response
 type OrganizationsAPIController struct {
 	service OrganizationsAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithOrganizationsAPIErrorHandler(h ErrorHandler) OrganizationsAPIOption {
 	}
 }
 
-// NewOrganizationsAPIController creates a default app controller
+// NewOrganizationsAPIController creates a default api controller
 func NewOrganizationsAPIController(s OrganizationsAPIServicer, opts ...OrganizationsAPIOption) Router {
 	controller := &OrganizationsAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewOrganizationsAPIController(s OrganizationsAPIServicer, opts ...Organizat
 	return controller
 }
 
-// Routes returns all the app routes for the OrganizationsAPIController
+// Routes returns all the api routes for the OrganizationsAPIController
 func (c *OrganizationsAPIController) Routes() Routes {
 	return Routes{
 		"CreateOrganization": Route{

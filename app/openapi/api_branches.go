@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// BranchesAPIController binds http requests to an app service and writes the service results to the http response
+// BranchesAPIController binds http requests to an api service and writes the service results to the http response
 type BranchesAPIController struct {
 	service BranchesAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithBranchesAPIErrorHandler(h ErrorHandler) BranchesAPIOption {
 	}
 }
 
-// NewBranchesAPIController creates a default app controller
+// NewBranchesAPIController creates a default api controller
 func NewBranchesAPIController(s BranchesAPIServicer, opts ...BranchesAPIOption) Router {
 	controller := &BranchesAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewBranchesAPIController(s BranchesAPIServicer, opts ...BranchesAPIOption) 
 	return controller
 }
 
-// Routes returns all the app routes for the BranchesAPIController
+// Routes returns all the api routes for the BranchesAPIController
 func (c *BranchesAPIController) Routes() Routes {
 	return Routes{
 		"CreatePromptBranch": Route{

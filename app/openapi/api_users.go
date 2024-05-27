@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// UsersAPIController binds http requests to an app service and writes the service results to the http response
+// UsersAPIController binds http requests to an api service and writes the service results to the http response
 type UsersAPIController struct {
 	service UsersAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithUsersAPIErrorHandler(h ErrorHandler) UsersAPIOption {
 	}
 }
 
-// NewUsersAPIController creates a default app controller
+// NewUsersAPIController creates a default api controller
 func NewUsersAPIController(s UsersAPIServicer, opts ...UsersAPIOption) Router {
 	controller := &UsersAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewUsersAPIController(s UsersAPIServicer, opts ...UsersAPIOption) Router {
 	return controller
 }
 
-// Routes returns all the app routes for the UsersAPIController
+// Routes returns all the api routes for the UsersAPIController
 func (c *UsersAPIController) Routes() Routes {
 	return Routes{
 		"CreateUser": Route{

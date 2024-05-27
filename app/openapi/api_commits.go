@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// CommitsAPIController binds http requests to an app service and writes the service results to the http response
+// CommitsAPIController binds http requests to an api service and writes the service results to the http response
 type CommitsAPIController struct {
 	service CommitsAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithCommitsAPIErrorHandler(h ErrorHandler) CommitsAPIOption {
 	}
 }
 
-// NewCommitsAPIController creates a default app controller
+// NewCommitsAPIController creates a default api controller
 func NewCommitsAPIController(s CommitsAPIServicer, opts ...CommitsAPIOption) Router {
 	controller := &CommitsAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewCommitsAPIController(s CommitsAPIServicer, opts ...CommitsAPIOption) Rou
 	return controller
 }
 
-// Routes returns all the app routes for the CommitsAPIController
+// Routes returns all the api routes for the CommitsAPIController
 func (c *CommitsAPIController) Routes() Routes {
 	return Routes{
 		"CreateBranchCommit": Route{

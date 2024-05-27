@@ -18,7 +18,7 @@ import (
 
 
 
-// APIKeysAPIRouter defines the required methods for binding the app requests to a responses for the APIKeysAPI
+// APIKeysAPIRouter defines the required methods for binding the api requests to a responses for the APIKeysAPI
 // The APIKeysAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a APIKeysAPIServicer to perform the required actions, then write the service results to the http response.
 type APIKeysAPIRouter interface { 
@@ -28,7 +28,7 @@ type APIKeysAPIRouter interface {
 	ListApiKeys(http.ResponseWriter, *http.Request)
 	UpdateApiKey(http.ResponseWriter, *http.Request)
 }
-// BranchesAPIRouter defines the required methods for binding the app requests to a responses for the BranchesAPI
+// BranchesAPIRouter defines the required methods for binding the api requests to a responses for the BranchesAPI
 // The BranchesAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a BranchesAPIServicer to perform the required actions, then write the service results to the http response.
 type BranchesAPIRouter interface { 
@@ -37,7 +37,7 @@ type BranchesAPIRouter interface {
 	GetBranch(http.ResponseWriter, *http.Request)
 	ListPromptBranches(http.ResponseWriter, *http.Request)
 }
-// CommitsAPIRouter defines the required methods for binding the app requests to a responses for the CommitsAPI
+// CommitsAPIRouter defines the required methods for binding the api requests to a responses for the CommitsAPI
 // The CommitsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a CommitsAPIServicer to perform the required actions, then write the service results to the http response.
 type CommitsAPIRouter interface { 
@@ -45,13 +45,13 @@ type CommitsAPIRouter interface {
 	GetBranchCommit(http.ResponseWriter, *http.Request)
 	ListBranchCommits(http.ResponseWriter, *http.Request)
 }
-// HealthCheckAPIRouter defines the required methods for binding the app requests to a responses for the HealthCheckAPI
+// HealthCheckAPIRouter defines the required methods for binding the api requests to a responses for the HealthCheckAPI
 // The HealthCheckAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a HealthCheckAPIServicer to perform the required actions, then write the service results to the http response.
 type HealthCheckAPIRouter interface { 
 	HealthCheck(http.ResponseWriter, *http.Request)
 }
-// OrganizationsAPIRouter defines the required methods for binding the app requests to a responses for the OrganizationsAPI
+// OrganizationsAPIRouter defines the required methods for binding the api requests to a responses for the OrganizationsAPI
 // The OrganizationsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a OrganizationsAPIServicer to perform the required actions, then write the service results to the http response.
 type OrganizationsAPIRouter interface { 
@@ -61,7 +61,7 @@ type OrganizationsAPIRouter interface {
 	ListOrganizations(http.ResponseWriter, *http.Request)
 	UpdateOrganization(http.ResponseWriter, *http.Request)
 }
-// ProjectsAPIRouter defines the required methods for binding the app requests to a responses for the ProjectsAPI
+// ProjectsAPIRouter defines the required methods for binding the api requests to a responses for the ProjectsAPI
 // The ProjectsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a ProjectsAPIServicer to perform the required actions, then write the service results to the http response.
 type ProjectsAPIRouter interface { 
@@ -71,7 +71,7 @@ type ProjectsAPIRouter interface {
 	ListProjects(http.ResponseWriter, *http.Request)
 	UpdateProject(http.ResponseWriter, *http.Request)
 }
-// PromptsAPIRouter defines the required methods for binding the app requests to a responses for the PromptsAPI
+// PromptsAPIRouter defines the required methods for binding the api requests to a responses for the PromptsAPI
 // The PromptsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a PromptsAPIServicer to perform the required actions, then write the service results to the http response.
 type PromptsAPIRouter interface { 
@@ -81,7 +81,7 @@ type PromptsAPIRouter interface {
 	ListPrompts(http.ResponseWriter, *http.Request)
 	UpdatePrompt(http.ResponseWriter, *http.Request)
 }
-// TeamsAPIRouter defines the required methods for binding the app requests to a responses for the TeamsAPI
+// TeamsAPIRouter defines the required methods for binding the api requests to a responses for the TeamsAPI
 // The TeamsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a TeamsAPIServicer to perform the required actions, then write the service results to the http response.
 type TeamsAPIRouter interface { 
@@ -91,7 +91,7 @@ type TeamsAPIRouter interface {
 	ListTeams(http.ResponseWriter, *http.Request)
 	UpdateTeam(http.ResponseWriter, *http.Request)
 }
-// UsersAPIRouter defines the required methods for binding the app requests to a responses for the UsersAPI
+// UsersAPIRouter defines the required methods for binding the api requests to a responses for the UsersAPI
 // The UsersAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a UsersAPIServicer to perform the required actions, then write the service results to the http response.
 type UsersAPIRouter interface { 
@@ -103,7 +103,7 @@ type UsersAPIRouter interface {
 }
 
 
-// APIKeysAPIServicer defines the app actions for the APIKeysAPI service
+// APIKeysAPIServicer defines the api actions for the APIKeysAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -116,7 +116,7 @@ type APIKeysAPIServicer interface {
 }
 
 
-// BranchesAPIServicer defines the app actions for the BranchesAPI service
+// BranchesAPIServicer defines the api actions for the BranchesAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -128,7 +128,7 @@ type BranchesAPIServicer interface {
 }
 
 
-// CommitsAPIServicer defines the app actions for the CommitsAPI service
+// CommitsAPIServicer defines the api actions for the CommitsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -139,7 +139,7 @@ type CommitsAPIServicer interface {
 }
 
 
-// HealthCheckAPIServicer defines the app actions for the HealthCheckAPI service
+// HealthCheckAPIServicer defines the api actions for the HealthCheckAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -148,7 +148,7 @@ type HealthCheckAPIServicer interface {
 }
 
 
-// OrganizationsAPIServicer defines the app actions for the OrganizationsAPI service
+// OrganizationsAPIServicer defines the api actions for the OrganizationsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -161,7 +161,7 @@ type OrganizationsAPIServicer interface {
 }
 
 
-// ProjectsAPIServicer defines the app actions for the ProjectsAPI service
+// ProjectsAPIServicer defines the api actions for the ProjectsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -174,7 +174,7 @@ type ProjectsAPIServicer interface {
 }
 
 
-// PromptsAPIServicer defines the app actions for the PromptsAPI service
+// PromptsAPIServicer defines the api actions for the PromptsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -187,7 +187,7 @@ type PromptsAPIServicer interface {
 }
 
 
-// TeamsAPIServicer defines the app actions for the TeamsAPI service
+// TeamsAPIServicer defines the api actions for the TeamsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
@@ -200,7 +200,7 @@ type TeamsAPIServicer interface {
 }
 
 
-// UsersAPIServicer defines the app actions for the UsersAPI service
+// UsersAPIServicer defines the api actions for the UsersAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.

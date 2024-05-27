@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// ProjectsAPIController binds http requests to an app service and writes the service results to the http response
+// ProjectsAPIController binds http requests to an api service and writes the service results to the http response
 type ProjectsAPIController struct {
 	service ProjectsAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithProjectsAPIErrorHandler(h ErrorHandler) ProjectsAPIOption {
 	}
 }
 
-// NewProjectsAPIController creates a default app controller
+// NewProjectsAPIController creates a default api controller
 func NewProjectsAPIController(s ProjectsAPIServicer, opts ...ProjectsAPIOption) Router {
 	controller := &ProjectsAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewProjectsAPIController(s ProjectsAPIServicer, opts ...ProjectsAPIOption) 
 	return controller
 }
 
-// Routes returns all the app routes for the ProjectsAPIController
+// Routes returns all the api routes for the ProjectsAPIController
 func (c *ProjectsAPIController) Routes() Routes {
 	return Routes{
 		"CreateProject": Route{

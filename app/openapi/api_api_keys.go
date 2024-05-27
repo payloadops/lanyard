@@ -19,7 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// APIKeysAPIController binds http requests to an app service and writes the service results to the http response
+// APIKeysAPIController binds http requests to an api service and writes the service results to the http response
 type APIKeysAPIController struct {
 	service APIKeysAPIServicer
 	errorHandler ErrorHandler
@@ -35,7 +35,7 @@ func WithAPIKeysAPIErrorHandler(h ErrorHandler) APIKeysAPIOption {
 	}
 }
 
-// NewAPIKeysAPIController creates a default app controller
+// NewAPIKeysAPIController creates a default api controller
 func NewAPIKeysAPIController(s APIKeysAPIServicer, opts ...APIKeysAPIOption) Router {
 	controller := &APIKeysAPIController{
 		service:      s,
@@ -49,7 +49,7 @@ func NewAPIKeysAPIController(s APIKeysAPIServicer, opts ...APIKeysAPIOption) Rou
 	return controller
 }
 
-// Routes returns all the app routes for the APIKeysAPIController
+// Routes returns all the api routes for the APIKeysAPIController
 func (c *APIKeysAPIController) Routes() Routes {
 	return Routes{
 		"DeleteApiKey": Route{
