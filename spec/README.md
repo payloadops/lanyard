@@ -16,7 +16,7 @@ The following dependencies are necessary to run the Swagger UI and mock server.
 
 * [Docker Compose >= 2.26.1](https://docs.docker.com/compose/install/)
 * [Docker >= 26.0.0](https://docs.docker.com/get-docker/)
-* [OpenAPI Generator >= 5.1.1](https://openapi-generator.tech/docs/installation)
+* [OpenAPI Generator >= 7.5.0](https://openapi-generator.tech/docs/installation)
 
 ## Development
 

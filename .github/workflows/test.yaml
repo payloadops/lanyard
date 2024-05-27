@@ -104,12 +104,12 @@ jobs:
 
       - name: Set up OpenAPI Generator
         run: |
-          wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/5.1.1/openapi-generator-cli-5.1.1.jar -O openapi-generator-cli.jar
-          alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
+          wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.5.0/openapi-generator-cli-7.5.0.jar -O openapi-generator-cli.jar
         working-directory: ./spec
 
       - name: Run OpenAPI Generator
         run: |
+          alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
           ./codegen.sh
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
