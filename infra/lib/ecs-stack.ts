@@ -72,13 +72,13 @@ export class EcsStack extends cdk.Stack {
         executionRole: ecsExecutionRole,
         image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
         containerPort: 8080,
-        // logDriver: ecs.LogDrivers.awsLogs({
-        //   streamPrefix: "ecs",
-        //   logGroup: new aws_logs.LogGroup(this, "LogGroup", {
-        //     logGroupName: "/ecs/PlatoCluster",
-        //     removalPolicy: cdk.RemovalPolicy.DESTROY,
-        //   }),
-        // }),
+        logDriver: ecs.LogDrivers.awsLogs({
+          streamPrefix: "ecs",
+          logGroup: new aws_logs.LogGroup(this, "LogGroup", {
+            logGroupName: "/ecs/PlatoCluster",
+            removalPolicy: cdk.RemovalPolicy.DESTROY,
+          }),
+        }),
        },
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true,
