@@ -11,11 +11,7 @@
 
 package openapi
 
-
-
-
 type CreateProject400Response struct {
-
 	Error string `json:"error,omitempty"`
 }
 

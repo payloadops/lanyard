@@ -11,9 +11,6 @@
 
 package openapi
 
-
-
-
 type ApiKeyInput struct {
 
 	// List of scopes or permissions to be granted to this API key

@@ -14,9 +14,6 @@ package openapi
 import (
 	"encoding/json"
 	"errors"
-	"time"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -24,12 +21,16 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 // A Route defines the parameters for an api endpoint
 type Route struct {
-	Method	  string
-	Pattern	 string
+	Method      string
+	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
 
@@ -147,7 +148,7 @@ func readFileHeaderToTempFile(fileHeader *multipart.FileHeader) (*os.File, error
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return file, nil
 }
 
@@ -335,7 +336,6 @@ func parseNumericArrayParameter[T Number](param, delim string, required bool, fn
 
 	return values, nil
 }
-
 
 // parseQuery parses query paramaters and returns an error if any malformed value pairs are encountered.
 func parseQuery(rawQuery string) (url.Values, error) {

@@ -21,7 +21,7 @@ import (
 
 // TeamsAPIController binds http requests to an api service and writes the service results to the http response
 type TeamsAPIController struct {
-	service TeamsAPIServicer
+	service      TeamsAPIServicer
 	errorHandler ErrorHandler
 }
 

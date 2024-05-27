@@ -21,7 +21,7 @@ import (
 
 // OrganizationsAPIController binds http requests to an api service and writes the service results to the http response
 type OrganizationsAPIController struct {
-	service OrganizationsAPIServicer
+	service      OrganizationsAPIServicer
 	errorHandler ErrorHandler
 }
 

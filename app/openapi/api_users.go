@@ -21,7 +21,7 @@ import (
 
 // UsersAPIController binds http requests to an api service and writes the service results to the http response
 type UsersAPIController struct {
-	service UsersAPIServicer
+	service      UsersAPIServicer
 	errorHandler ErrorHandler
 }
 

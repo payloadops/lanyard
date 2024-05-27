@@ -18,7 +18,7 @@ import (
 
 // HealthCheckAPIController binds http requests to an api service and writes the service results to the http response
 type HealthCheckAPIController struct {
-	service HealthCheckAPIServicer
+	service      HealthCheckAPIServicer
 	errorHandler ErrorHandler
 }
 
