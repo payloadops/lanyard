@@ -32,7 +32,7 @@ export class PipelineStack extends cdk.Stack {
         })
       });
 
-      const ecrRepository = new ecr.Repository(this, 'Repository');
+      const ecrRepository = new ecr.Repository(this, 'Repository', {repositoryName: "repository"});
       const dockerBuildStep = new ShellStep('BuildAndPushDockerImage', {
         commands: [
             'cd app',
