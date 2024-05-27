@@ -1,8 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 
 const REPO = "payloadops/plato";
 
@@ -33,7 +35,28 @@ export class PipelineStack extends cdk.Stack {
       });
 
       const ecrRepository = new ecr.Repository(this, 'Repository', {repositoryName: "repository"});
-      const dockerBuildStep = new ShellStep('BuildAndPushDockerImage', {
+
+      const codeBuildRole = new iam.Role(this, 'CodeBuildRole', {
+        assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
+        description: 'Role for CodeBuild to access ECR and other resources',
+      });
+  
+      codeBuildRole.addToPolicy(new iam.PolicyStatement({
+        actions: [
+          'ecr:GetAuthorizationToken',
+          'ecr:GetDownloadUrlForLayer',
+          'ecr:BatchGetImage',
+          'ecr:GetLoginPassword',
+          'ecr:BatchCheckLayerAvailability',
+          'ecr:InitiateLayerUpload',
+          'ecr:UploadLayerPart',
+          'ecr:CompleteLayerUpload',
+          'ecr:PutImage',
+        ],
+        resources: [`${ecrRepository.repositoryUri}/*`],
+      }));
+
+      const dockerBuildStep = new CodeBuildStep('BuildAndPushDockerImage', {
         commands: [
             'cd app',
             'docker build -t $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION .',
@@ -41,9 +64,14 @@ export class PipelineStack extends cdk.Stack {
             'docker push $ECR_URI/app:$CODEBUILD_RESOLVED_SOURCE_VERSION',
         ],
         env: {
-          'ECR_URI': ecrRepository.repositoryUri
+            'ECR_URI': ecrRepository.repositoryUri
         },
-      });
+        buildEnvironment: {
+            buildImage: LinuxBuildImage.STANDARD_5_0,
+            privileged: true, // necessary for Docker operations
+        },
+        role: codeBuildRole // Explicitly specify the IAM role
+    });
 
       pipeline.addWave('BuildAndPushImage', {
         post: [
