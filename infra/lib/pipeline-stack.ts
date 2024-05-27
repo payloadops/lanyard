@@ -1,10 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
-import { Repository } from 'aws-cdk-lib/aws-ecr';
-import Regions from './constants/regions';
-import Stages from './constants/stages';
-import { disambiguator } from './util/disambiguator';
+import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 
 const REPO = "payloadops/plato";
 
@@ -12,11 +9,18 @@ export class PipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stages: cdk.Stage[], props?: cdk.StackProps) {
       super(scope, id, props);
 
+      const connection = new codestarconnections.CfnConnection(this, 'MyConnection', {
+        connectionName: 'MyGitHubConnection',
+        providerType: 'GitHub', // or 'Bitbucket', 'GitHubEnterpriseServer'
+      });
+
       const pipeline = new CodePipeline(this, 'Pipeline', {
         pipelineName: 'Pipeline',
         selfMutation: true,
         synth: new ShellStep('Synth', {
-          input: CodePipelineSource.gitHub(REPO, 'main'),
+          input: CodePipelineSource.connection(REPO, 'main', {
+            connectionArn: connection.attrConnectionArn
+          }),
           commands: [
               'cd infra',
               'npm ci',
@@ -27,6 +31,6 @@ export class PipelineStack extends cdk.Stack {
         })
       });
       
-      stages.forEach(stage => pipeline.addStage(stage))
+      stages.forEach(stage => pipeline.addStage(stage));
     }
   }
