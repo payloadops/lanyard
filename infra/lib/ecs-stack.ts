@@ -49,7 +49,7 @@ export class EcsStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    const ecsTaskRole = new iam.Role(this, 'ecsExecutionRole', {
+    const ecsTaskRole = new iam.Role(this, 'ecsTaskRole', {
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
       description: 'Role for ECS tasks to interact with ECR and other AWS services',
     });
