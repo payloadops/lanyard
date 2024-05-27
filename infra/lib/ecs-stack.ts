@@ -12,6 +12,7 @@ import { disambiguator } from './util/disambiguator';
 import Stages from './constants/stages';
 import Regions from './constants/regions';
 import Accounts from './constants/accounts';
+import { Repository } from 'aws-cdk-lib/aws-ecr';
 
 
 export class EcsStack extends cdk.Stack {
@@ -29,7 +30,15 @@ export class EcsStack extends cdk.Stack {
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic');
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
 
-    const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('Repository', stage, region), `arn:aws:ecr:${Regions.US_WEST_2}:${Accounts.DEV}:repository/app`)
+    let ecrRepository;
+    if (Stages.DEV === props?.env?.account) {
+      ecrRepository =  new Repository(this, disambiguator("Repository", Stages.DEV, Regions.US_EAST_1), {
+        repositoryName: "app",
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      })
+    } else {
+      ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('Repository', stage, region), `arn:aws:ecr:${Regions.US_EAST_1}:${Accounts.DEV}:repository/app`)
+    }
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required

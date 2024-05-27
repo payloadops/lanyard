@@ -18,7 +18,7 @@ const stages = [
 
 new PipelineStack(app, 'PipelineStack', stages, {
   env: {
-    region: Regions.US_WEST_2,
+    region: Regions.US_EAST_1,
     account: Accounts.DEV
   }
 })
