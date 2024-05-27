@@ -10,7 +10,7 @@ export class PipelineStack extends cdk.Stack {
       super(scope, id, props);
 
       const connection = new codestarconnections.CfnConnection(this, 'MyConnection', {
-        connectionName: 'MyGitHubConnection',
+        connectionName: 'GitHubConnection',
         providerType: 'GitHub', // or 'Bitbucket', 'GitHubEnterpriseServer'
       });
 
