@@ -65,8 +65,9 @@ export class EcsStack extends cdk.Stack {
       desiredCount: 1, // Default is 1
       taskImageOptions: { 
         environment: {
-          "region": region,
-          "stage": stage,
+          "REGION": region,
+          "STAGE": stage,
+          "JWT_SECRET": "empty",
         },
         taskRole: ecsExecutionRole,
         executionRole: ecsExecutionRole,
