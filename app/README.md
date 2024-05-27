@@ -121,7 +121,7 @@ go test ./...
 To run the e2e tests, please make sure that the service is running in locally or in docker, and use the following command:
 
 ```sh
-go test ./... --tags=e2e
+go test ./e2e --tags=e2e
 ```
 
 The following environment variables are available:
