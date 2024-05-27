@@ -11,7 +11,7 @@ export class PipelineStack extends cdk.Stack {
 
       const connection = new codestarconnections.CfnConnection(this, 'MyConnection', {
         connectionName: 'GitHubConnection',
-        providerType: 'GitHub', // or 'Bitbucket', 'GitHubEnterpriseServer'
+        providerType: 'GitHub',
       });
 
       const pipeline = new CodePipeline(this, 'Pipeline', {
@@ -19,15 +19,16 @@ export class PipelineStack extends cdk.Stack {
         selfMutation: true,
         synth: new ShellStep('Synth', {
           input: CodePipelineSource.connection(REPO, 'main', {
-            connectionArn: connection.attrConnectionArn
+            connectionArn: connection.attrConnectionArn,
           }),
           commands: [
               'cd infra',
               'npm ci',
               'npm run build',
-              'npx cdk synth'
+              'npx cdk synth',
+              'ls'
             ],
-          primaryOutputDirectory: 'infra/cdk.out',
+          primaryOutputDirectory: '/infra/cdk.out',
         })
       });
       
