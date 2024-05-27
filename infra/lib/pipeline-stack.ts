@@ -53,7 +53,7 @@ export class PipelineStack extends cdk.Stack {
           'ecr:CompleteLayerUpload',
           'ecr:PutImage',
         ],
-        resources: [`${ecrRepository.repositoryUri}/*`],
+        resources: [`${ecrRepository.repositoryArn}/*`],
       }));
 
       const dockerBuildStep = new CodeBuildStep('BuildAndPushDockerImage', {
