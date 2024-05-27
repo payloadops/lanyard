@@ -1,5 +1,6 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
@@ -202,3 +203,4 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, branchID strin
 
 	return commits, nil
 }
+*/

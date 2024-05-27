@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"fmt"
@@ -171,3 +172,4 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 
 	return openapi.Response(http.StatusOK, apiKey), nil
 }
+*/

@@ -11,9 +11,6 @@
 
 package openapi
 
-
-
-
 type TeamInput struct {
 
 	// Name of the team

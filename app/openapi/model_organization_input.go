@@ -11,9 +11,6 @@
 
 package openapi
 
-
-
-
 type OrganizationInput struct {
 
 	// Name of the organization

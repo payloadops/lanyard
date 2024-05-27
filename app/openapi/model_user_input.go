@@ -11,9 +11,6 @@
 
 package openapi
 
-
-
-
 type UserInput struct {
 
 	// User's full name (optional)

@@ -1,5 +1,6 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
@@ -166,3 +167,4 @@ func (d *APIKeyDBClient) ListAPIKeys(ctx context.Context, projectId string) ([]A
 
 	return apiKeys, nil
 }
+*/

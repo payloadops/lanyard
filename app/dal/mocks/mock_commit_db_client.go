@@ -9,6 +9,7 @@
 // Package mocks is a generated GoMock package.
 package mocks
 
+/*
 import (
 	context "context"
 	reflect "reflect"
@@ -98,3 +99,4 @@ func (mr *MockCommitManagerMockRecorder) ListCommitsByBranch(arg0, arg1 any) *go
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommitsByBranch", reflect.TypeOf((*MockCommitManager)(nil).ListCommitsByBranch), arg0, arg1)
 }
+*/

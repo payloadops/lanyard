@@ -11,12 +11,9 @@
 
 package openapi
 
-
 import (
 	"time"
 )
-
-
 
 type Branch struct {
 

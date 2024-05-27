@@ -1,0 +1,143 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.22.2" # Specify the Go version you are using
+
+      - name: Install dependencies
+        run: go mod download
+        working-directory: ./app
+
+      - name: Run Unit Tests
+        run: go test -v ./...
+        working-directory: ./app
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose version
+          docker --version
+
+      - name: Build Docker images
+        run: docker-compose build
+        working-directory: ./app
+
+      - name: Start services
+        run: docker-compose up -d
+        working-directory: ./app
+
+      - name: Wait for services to be ready
+        run: |
+          until curl -s http://localhost:8080/v1/health; do
+            echo "Waiting for services to be ready..."
+            sleep 10
+          done
+        working-directory: ./app
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.22.2" # Specify the Go version you are using
+
+      - name: Install dependencies
+        run: go mod download
+        working-directory: ./app
+
+      - name: Run E2E Tests
+        run: go test -v ./e2e --tags=e2e
+        working-directory: ./app
+
+      - name: Stop services
+        run: docker-compose down
+        working-directory: ./app
+
+  cdk-checks:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20' # Specify the Node.js version required for CDK
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./infra
+
+      - name: Run CDK test
+        run: npm test
+        working-directory: ./infra
+
+  openapi-diff:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up OpenAPI Generator
+        run: |
+          wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.5.0/openapi-generator-cli-7.5.0.jar -O openapi-generator-cli.jar
+        working-directory: ./spec
+
+      - name: Run OpenAPI Generator
+        run: |
+          # I hate this, but aliases do not seem to work correctly in this environment
+          java -jar ./openapi-generator-cli.jar generate -g go-server -i ./spec/spec.v1.yaml -o ../app --additional-properties=router=chi,packageName=openapi,outputAsLibrary=true,sourceFolder=openapi,onlyInterfaces=true
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        working-directory: ./spec
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.22.2" # Specify the Go version you are using
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Remove unused imports
+        run: goimports -w ../app/openapi
+        working-directory: ./spec
+
+      - name: Check for differences
+        run: |
+          if ! git diff --exit-code; then
+            echo "Generated code differs from the current code. Please regenerate the interfaces and commit the changes."
+            exit 1
+          else
+            echo "Generated code matches the current code."
+          fi
+        working-directory: ./spec

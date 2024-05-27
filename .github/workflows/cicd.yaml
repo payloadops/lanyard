@@ -4,16 +4,10 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "app/**"
-      - "infra/**"
-      - "spec/**"
-      - "Dockerfile"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -34,16 +28,15 @@ jobs:
           # Build the Docker image
           cd app
           docker build -t ${{ steps.login-ecr.outputs.registry }}/app:${{ github.sha }} .
-          working-directory: ./app
 
           # Push the Docker image
           docker push ${{ steps.login-ecr.outputs.registry }}/app:${{ github.sha }}
-          working-directory: ./app
+        working-directory: ./app
 
       - name: Output image name
         run: |
           echo "Docker Image: ${{ steps.login-ecr.outputs.registry }}/app:${{ github.sha }}"
-          working-directory: ./app
+        working-directory: ./app
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -54,7 +47,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: "20"
 
       - name: Switch to Infra Directory
         run: cd infra
@@ -79,3 +72,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           COMMIT_SHA: ${{ github.sha }}
+        working-directory: ./infra

@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"errors"
@@ -113,3 +114,4 @@ func (s *UsersAPIService) UpdateUser(ctx context.Context, userId string, userInp
 
 	return openapi.Response(http.StatusOK, user), nil
 }
+*/

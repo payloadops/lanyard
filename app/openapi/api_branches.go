@@ -21,7 +21,7 @@ import (
 
 // BranchesAPIController binds http requests to an api service and writes the service results to the http response
 type BranchesAPIController struct {
-	service BranchesAPIServicer
+	service      BranchesAPIServicer
 	errorHandler ErrorHandler
 }
 

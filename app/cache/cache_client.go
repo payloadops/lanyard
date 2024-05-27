@@ -1,5 +1,6 @@
 package cache
 
+/*
 import (
 	"context"
 	"encoding/json"
@@ -45,3 +46,4 @@ func (r *RedisCache) Get(ctx context.Context, key string, dest interface{}) erro
 
 	return json.Unmarshal(data, dest)
 }
+*/

@@ -1,5 +1,6 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
@@ -161,3 +162,4 @@ func (d *UserDBClient) ListUsers(ctx context.Context) ([]User, error) {
 
 	return users, nil
 }
+*/
