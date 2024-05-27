@@ -118,11 +118,22 @@ jobs:
 
       - name: Run OpenAPI Generator
         run: |
-          shopt -s expand_aliases
-          alias openapi-generator="java -jar $(pwd)/openapi-generator-cli.jar"
-          ./codegen.sh
+          # I hate this, but aliases do not seem to work correctly in this environment
+          java -jar ./openapi-generator-cli.jar generate -g go-server -i ./spec/spec.v1.yaml -o ../app --additional-properties=router=chi,packageName=openapi,outputAsLibrary=true,sourceFolder=openapi,onlyInterfaces=true
         env:
           GITHUB_WORKSPACE: ${{ github.workspace }}
+        working-directory: ./spec
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.22.2" # Specify the Go version you are using
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Remove unused imports
+        run: goimports -w ../app
         working-directory: ./spec
 
       - name: Check for differences
