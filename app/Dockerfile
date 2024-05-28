@@ -22,6 +22,9 @@ FROM alpine:latest
 # Add CA Certificates for HTTPS connections.
 RUN apk --no-cache add ca-certificates
 
+# Install curl since it's used for ECS health checks
+RUN apk add curl
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
