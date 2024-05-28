@@ -5,6 +5,7 @@ import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
+import Accounts from './constants/accounts';
 
 const REPO = "payloadops/plato";
 
@@ -80,6 +81,15 @@ export class PipelineStack extends cdk.Stack {
         ]
       });
       
-      stages.forEach(stage => pipeline.addStage(stage));
+      stages.forEach(stage => {
+        if (stage.account !== Accounts.PROD) {
+          pipeline.addStage(stage, {
+            post: [
+            // steps go here
+          ]})
+        } else {
+          pipeline.addStage(stage)
+        }
+      });
     }
   }
