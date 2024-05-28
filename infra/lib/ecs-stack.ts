@@ -89,7 +89,8 @@ export class EcsStack extends cdk.Stack {
     // Allow the ecs task role to read JWT_SECRET
     ecsSecret.grantRead(ecsTaskRole)
 
-    const domain = `${Subdomains.PROD}.${DOMAIN}`;
+    const subdomain = Accounts.DEV === this.account ? Subdomains.DEV : Subdomains.PROD;
+    const domain = `${subdomain}.${DOMAIN}`;
 
     const zone = new route53.HostedZone(this,  disambiguator('PlatoZone', stage, region), {
       zoneName: DOMAIN
@@ -100,7 +101,6 @@ export class EcsStack extends cdk.Stack {
       validation: certificatemanager.CertificateValidation.fromDns(zone), // This will handle DNS validation automatically
     });
 
-    const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
