@@ -6,6 +6,7 @@ import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
+import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager'
 import { aws_logs } from 'aws-cdk-lib';
 import { VpcStack } from './vpc-stack';
 import { disambiguator } from './util/disambiguator';
@@ -123,7 +124,8 @@ export class EcsStack extends cdk.Stack {
        },
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true,
-      securityGroups: [securityGroup]
+      securityGroups: [securityGroup],
+      listenerPort: 443,  // Change the listener to HTTPS
     });
 
     fargateService.targetGroup.configureHealthCheck({
@@ -139,6 +141,11 @@ export class EcsStack extends cdk.Stack {
 
     const zone = new route53.HostedZone(this,  disambiguator('PlatoZone', stage, region), {
       zoneName: DOMAIN
+    });
+
+    const certificate = new certificatemanager.Certificate(this, 'ServiceCertificate', {
+      domainName: `${Subdomains.PROD}.${DOMAIN}`, // Adjust based on your subdomain and domain logic
+      validation: certificatemanager.CertificateValidation.fromDns(zone), // This will handle DNS validation automatically
     });
 
     const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
