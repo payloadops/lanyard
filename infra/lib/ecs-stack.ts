@@ -103,6 +103,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
+          "JWT_SECRET": "secret"
         },
         secrets: {
           "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
@@ -122,6 +123,10 @@ export class EcsStack extends cdk.Stack {
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true,
       securityGroups: [securityGroup]
+    });
+
+    fargateService.targetGroup.configureHealthCheck({
+      path: "/v1/health",
     });
 
     const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 1, maxCapacity: 10 });
