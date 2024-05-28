@@ -1,16 +1,23 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import {
+    CodeBuildStep,
+    CodePipeline,
+    CodePipelineSource,
+    ShellStep,
+    ManualApprovalStep,
+} from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import Accounts from './constants/accounts';
+import {Stage} from "./stage";
 
 const REPO = "payloadops/plato";
 
 export class PipelineStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, stages: cdk.Stage[], props?: cdk.StackProps) {
+    constructor(scope: Construct, id: string, stages: Stage[], props?: cdk.StackProps) {
       super(scope, id, props);
 
       const connection = new codestarconnections.CfnConnection(this, 'Connection', {
@@ -80,16 +87,42 @@ export class PipelineStack extends cdk.Stack {
           dockerBuildStep
         ]
       });
-      
+
       stages.forEach(stage => {
-        if (stage.account !== Accounts.PROD) {
-          pipeline.addStage(stage, {
+        let addedStage: cdk.pipelines.StageDeployment
+        if (stage.account === Accounts.DEV) {
+          addedStage = pipeline.addStage(stage, {
             post: [
-            // steps go here
-          ]})
+              new CodeBuildStep('RunE2ETests', {
+                commands: [
+                  'cd app',
+                  'go mod download',
+                  'go test -v ./e2e --tags=e2e'
+                ],
+                buildEnvironment: {
+                  buildImage: LinuxBuildImage.STANDARD_5_0
+                },
+                role: codeBuildRole, // Ensure the role has the necessary permissions
+                env: {
+                  ENDPOINT: `http://${stage.ecsStack.loadBalancerDnsName}`
+                }
+              }),
+              new ManualApprovalStep('OverrideE2ETests'),
+            ]
+          });
         } else {
-          pipeline.addStage(stage)
+          addedStage = pipeline.addStage(stage)
         }
+
+        if (stage.account === Accounts.PROD) {
+          return
+        }
+
+        addedStage.addPost(
+          new ShellStep('BakeTime', {
+            commands: ['sleep 1800'] // Simulate 30-minute bake time
+          }),
+          new ManualApprovalStep('OverrideBakeTime'));
       });
     }
   }
