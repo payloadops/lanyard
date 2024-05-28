@@ -17,7 +17,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 import { DOMAIN } from './constants/domain';
 import Subdomains from './constants/subdomains';
-import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationProtocol, ListenerAction } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 
 export class EcsStack extends cdk.Stack {
@@ -71,7 +71,6 @@ export class EcsStack extends cdk.Stack {
     });
 
     const securityGroup = new ec2.SecurityGroup(this, disambiguator('ServiceSecurityGroup', stage, region), { vpc });
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP traffic');
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
 
     const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('ServiceRepository', stage, region), `arn:aws:ecr:${Regions.US_EAST_1}:${Accounts.DEV}:repository/app`)
@@ -140,6 +139,7 @@ export class EcsStack extends cdk.Stack {
       domainName: domain,
       domainZone: zone,
       protocol: ApplicationProtocol.HTTPS,
+      listenerPort: 443
     });
 
     new route53.ARecord(this, 'ApiAliasRecord', {
@@ -160,5 +160,17 @@ export class EcsStack extends cdk.Stack {
     });
 
     fargateService.listener.addCertificates('ListenerCertificate', [certificate]);
+
+    const httpListener = fargateService.loadBalancer.addListener('HttpListener', {
+      port: 80,
+      open: true,
+    });
+    
+    httpListener.addAction('HttpToHttpsRedirect', {
+      action: ListenerAction.redirect({
+        protocol: 'HTTPS',
+        port: '443',
+      }),
+    });
   }
 }
