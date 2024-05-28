@@ -13,6 +13,8 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import Accounts from './constants/accounts';
 import {Stage} from "./stage";
+import Subdomains from './constants/subdomains';
+import { DOMAIN } from './constants/domain';
 
 const REPO = "payloadops/plato";
 
@@ -89,9 +91,8 @@ export class PipelineStack extends cdk.Stack {
       });
 
       stages.forEach(stage => {
-        let addedStage: cdk.pipelines.StageDeployment
         if (stage.account === Accounts.DEV) {
-          addedStage = pipeline.addStage(stage, {
+          pipeline.addStage(stage, {
             post: [
               new CodeBuildStep('RunE2ETests', {
                 commands: [
@@ -104,25 +105,15 @@ export class PipelineStack extends cdk.Stack {
                 },
                 role: codeBuildRole, // Ensure the role has the necessary permissions
                 env: {
-                  ENDPOINT: `http://`
+                  ENDPOINT: `http://${Subdomains.DEV}.${DOMAIN}`
                 }
               }),
-              new ManualApprovalStep('OverrideE2ETests'),
+              new ManualApprovalStep('Manual Approval'),
             ]
           });
         } else {
-          addedStage = pipeline.addStage(stage)
+          pipeline.addStage(stage)
         }
-
-        if (stage.account === Accounts.PROD) {
-          return
-        }
-
-        addedStage.addPost(
-          new ShellStep('BakeTime', {
-            commands: ['sleep 1800'] // Simulate 30-minute bake time
-          }),
-          new ManualApprovalStep('OverrideBakeTime'));
       });
     }
   }

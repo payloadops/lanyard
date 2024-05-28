@@ -12,9 +12,10 @@ import { disambiguator } from './util/disambiguator';
 import Stages from './constants/stages';
 import Regions from './constants/regions';
 import Accounts from './constants/accounts';
-import { Repository } from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
+import { DOMAIN } from './constants/domain';
+import Subdomains from './constants/subdomains';
 
 
 export class EcsStack extends cdk.Stack {
@@ -137,12 +138,10 @@ export class EcsStack extends cdk.Stack {
     });
 
     const zone = new route53.HostedZone(this,  disambiguator('PlatoZone', stage, region), {
-      zoneName: "payloadops.com"
+      zoneName: DOMAIN
     });
 
-    const SUBDOMAIN_PREFIX = "api";
-    const subdomain = stage === Stages.PROD ? SUBDOMAIN_PREFIX : `${stage}-${SUBDOMAIN_PREFIX}`;
-    // Create a subdomain A record for the API pointing to the ALB
+    const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
     new route53.ARecord(this, 'ApiAliasRecord', {
       zone: zone,
       recordName: subdomain,  // Subdomain
