@@ -104,7 +104,7 @@ export class PipelineStack extends cdk.Stack {
                 },
                 role: codeBuildRole, // Ensure the role has the necessary permissions
                 env: {
-                  ENDPOINT: `http://${stage.ecsStack.loadBalancerDnsName}`
+                  ENDPOINT: `http://`
                 }
               }),
               new ManualApprovalStep('OverrideE2ETests'),
