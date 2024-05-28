@@ -13,6 +13,8 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import Accounts from './constants/accounts';
 import {Stage} from "./stage";
+import Subdomains from './constants/subdomains';
+import { DOMAIN } from './constants/domain';
 
 const REPO = "payloadops/plato";
 
@@ -103,7 +105,7 @@ export class PipelineStack extends cdk.Stack {
                 },
                 role: codeBuildRole, // Ensure the role has the necessary permissions
                 env: {
-                  ENDPOINT: `http://`
+                  ENDPOINT: `http://${Subdomains.DEV}.${DOMAIN}`
                 }
               }),
               new ManualApprovalStep('Manual Approval'),
