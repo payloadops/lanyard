@@ -144,12 +144,6 @@ export class EcsStack extends cdk.Stack {
       redirectHTTP: true,
     });
 
-    // new route53.ARecord(this, 'ApiAliasRecord', {
-    //   zone: zone,
-    //   recordName: subdomain,  // Subdomain
-    //   target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
-    // });
-
     fargateService.targetGroup.configureHealthCheck({
       path: "/v1/health",
     });
