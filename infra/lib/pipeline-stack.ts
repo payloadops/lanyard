@@ -107,7 +107,7 @@ export class PipelineStack extends cdk.Stack {
                 },
                 role: codeBuildRole, // Ensure the role has the necessary permissions
                 env: {
-                  ENDPOINT: `http://${Subdomains.DEV}.${DOMAIN}`
+                  BASE_URL: `http://${Subdomains.DEV}.${DOMAIN}`
                 }
               }),
               new ManualApprovalStep('Manual Approval'),
