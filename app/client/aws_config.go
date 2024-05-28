@@ -38,17 +38,20 @@ func LoadAWSConfig(cfg *config.Config) (aws.Config, error) {
 		awsconfig.WithRegion(cfg.AWS.Region),
 	}
 
+	// Add credentials if provided (used for local development or specific scenarios)
 	if cfg.AWS.AccessKeyID != "" && cfg.AWS.SecretAccessKey != "" {
 		options = append(options, awsconfig.WithCredentialsProvider(
-			credentials.NewStaticCredentialsProvider(cfg.AWS.AccessKeyID, cfg.AWS.SecretAccessKey, ""),
+			aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(cfg.AWS.AccessKeyID, cfg.AWS.SecretAccessKey, "")),
 		))
 	}
 
+	// Add local endpoint resolver for local development environment
 	if cfg.Environment == config.Local {
 		options = append(options, awsconfig.WithEndpointResolverWithOptions(localEndpointResolver{
 			cfg: cfg,
 		}))
 	}
 
+	// Load default AWS config which includes support for ECS task roles
 	return awsconfig.LoadDefaultConfig(context.TODO(), options...)
 }
