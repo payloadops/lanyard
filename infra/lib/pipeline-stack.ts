@@ -6,7 +6,6 @@ import {
     CodePipelineSource,
     ShellStep,
     ManualApprovalStep,
-    Step
 } from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
@@ -91,12 +90,28 @@ export class PipelineStack extends cdk.Stack {
       stages.forEach(stage => {
         if (stage.account !== Accounts.PROD) {
           pipeline.addStage(stage, {
-            post: [
-                new ShellStep('BakeTime', {
-                    commands: ['sleep 3600'], // Simulate 1-hour bake time
-                }),
-                new ManualApprovalStep('ManualApproval'),
-            ],
+              pre: [
+                  new CodeBuildStep('RunE2ETests', {
+                      commands: [
+                          'export ENDPOINT=""',
+                          'cd app',
+                          'go mod download',
+                          'go test -v ./e2e --tags=e2e'
+                      ],
+                      buildEnvironment: {
+                          buildImage: LinuxBuildImage.STANDARD_5_0
+                      },
+                      role: codeBuildRole, // Ensure the role has the necessary permissions
+                  }),
+                  new ManualApprovalStep('OverrideE2ETests')
+              ],
+              post: [
+                  // I'm nervous that this might incur substantial costs.
+                  new ShellStep('BakeTime', {
+                      commands: ['sleep 3600'] // Simulate 1-hour bake time
+                  }),
+                  new ManualApprovalStep('OverrideBakeTime')
+              ]
           })
         } else {
           pipeline.addStage(stage)
