@@ -89,9 +89,8 @@ export class PipelineStack extends cdk.Stack {
       });
 
       stages.forEach(stage => {
-        let addedStage: cdk.pipelines.StageDeployment
         if (stage.account === Accounts.DEV) {
-          addedStage = pipeline.addStage(stage, {
+          pipeline.addStage(stage, {
             post: [
               new CodeBuildStep('RunE2ETests', {
                 commands: [
@@ -107,22 +106,12 @@ export class PipelineStack extends cdk.Stack {
                   ENDPOINT: `http://`
                 }
               }),
-              new ManualApprovalStep('OverrideE2ETests'),
+              new ManualApprovalStep('Manual Approval'),
             ]
           });
         } else {
-          addedStage = pipeline.addStage(stage)
+          pipeline.addStage(stage)
         }
-
-        if (stage.account === Accounts.PROD) {
-          return
-        }
-
-        addedStage.addPost(
-          new ShellStep('BakeTime', {
-            commands: ['sleep 1800'] // Simulate 30-minute bake time
-          }),
-          new ManualApprovalStep('OverrideBakeTime'));
       });
     }
   }
