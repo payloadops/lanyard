@@ -147,6 +147,8 @@ export class EcsStack extends cdk.Stack {
       validation: certificatemanager.CertificateValidation.fromDns(zone), // This will handle DNS validation automatically
     });
 
+    fargateService.listener.addCertificates('ListenerCertificate', [certificate]);
+
     const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
     new route53.ARecord(this, 'ApiAliasRecord', {
       zone: zone,
