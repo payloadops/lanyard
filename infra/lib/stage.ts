@@ -8,7 +8,6 @@ import Regions from '../lib/constants/regions';
 import { disambiguator } from '../lib/util/disambiguator';
 
 export class Stage extends cdk.Stage {
-    public readonly ecsStack: EcsStack
     constructor(scope: Construct, id: string, stage: string, props?: cdk.StageProps) {
       super(scope, id, props);
       const region = props?.env?.region!;
@@ -20,7 +19,7 @@ export class Stage extends cdk.Stage {
     //     env: { account: props?.env?.account, region: props?.env?.region },
     //   });
       
-      this.ecsStack = new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
+      new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
 

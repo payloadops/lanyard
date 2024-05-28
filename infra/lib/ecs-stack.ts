@@ -19,7 +19,6 @@ import Subdomains from './constants/subdomains';
 
 
 export class EcsStack extends cdk.Stack {
-  public readonly loadBalancerDnsName: string;
   constructor(scope: Construct, id: string, vpcStack: VpcStack, stage: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -147,7 +146,5 @@ export class EcsStack extends cdk.Stack {
       recordName: subdomain,  // Subdomain
       target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
     });
-
-    this.loadBalancerDnsName = fargateService.loadBalancer.loadBalancerDnsName
   }
 }
