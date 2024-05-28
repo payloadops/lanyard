@@ -5,7 +5,6 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
 import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager'
 import { aws_logs } from 'aws-cdk-lib';
 import { VpcStack } from './vpc-stack';
@@ -17,7 +16,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 import { DOMAIN } from './constants/domain';
 import Subdomains from './constants/subdomains';
-import { ApplicationProtocol, ListenerAction } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 
 export class EcsStack extends cdk.Stack {
