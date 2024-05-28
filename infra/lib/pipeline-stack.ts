@@ -96,12 +96,16 @@ export class PipelineStack extends cdk.Stack {
             post: [
               new CodeBuildStep('RunE2ETests', {
                 commands: [
+                  'cd $HOME/.goenv && git pull --ff-only && cd -',
+                  'goenv install 1.22 && goenv global 1.22',
                   'cd app',
                   'go mod download',
                   'go test -v ./e2e --tags=e2e'
                 ],
                 buildEnvironment: {
-                  buildImage: LinuxBuildImage.STANDARD_5_0
+                  buildImage: LinuxBuildImage.fromDockerRegistry(
+                    'public.ecr.aws/docker/library/golang:1.22-alpine',
+                  )
                 },
                 role: codeBuildRole, // Ensure the role has the necessary permissions
                 env: {
