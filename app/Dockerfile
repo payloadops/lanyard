@@ -1,5 +1,5 @@
 # Use the official Golang image as a build stage
-FROM golang:1.22-alpine AS builder
+FROM public.ecr.aws/docker/library/golang:1.22-alpine AS builder
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 # Start a new stage from scratch
-FROM alpine:latest
+FROM public.ecr.aws/docker/library/alpine:latest
 
 # Add Curl for health checks and CA Certificates for HTTPS connections.
 RUN apk --no-cache add curl ca-certificates
