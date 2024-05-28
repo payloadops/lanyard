@@ -1,6 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CodeBuildStep, CodePipeline, CodePipelineSource, ShellStep } from 'aws-cdk-lib/pipelines';
+import {
+    CodeBuildStep,
+    CodePipeline,
+    CodePipelineSource,
+    ShellStep,
+    ManualApprovalStep,
+    Step
+} from 'aws-cdk-lib/pipelines';
 import * as codestarconnections from 'aws-cdk-lib/aws-codestarconnections';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -85,8 +92,12 @@ export class PipelineStack extends cdk.Stack {
         if (stage.account !== Accounts.PROD) {
           pipeline.addStage(stage, {
             post: [
-            // steps go here
-          ]})
+                new ShellStep('BakeTime', {
+                    commands: ['sleep 3600'], // Simulate 1-hour bake time
+                }),
+                new ManualApprovalStep('ManualApproval'),
+            ],
+          })
         } else {
           pipeline.addStage(stage)
         }
