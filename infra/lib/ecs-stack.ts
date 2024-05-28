@@ -17,6 +17,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 import { DOMAIN } from './constants/domain';
 import Subdomains from './constants/subdomains';
+import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 
 export class EcsStack extends cdk.Stack {
@@ -110,7 +111,7 @@ export class EcsStack extends cdk.Stack {
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
-      desiredCount: 1, // Default is 1
+      desiredCount: 2, // Default is 1
       healthCheck: {
          command: [ "CMD-SHELL", "curl -f http://localhost:8080/v1/health || exit 1" ],
          interval: cdk.Duration.seconds(30),
@@ -143,13 +144,14 @@ export class EcsStack extends cdk.Stack {
       securityGroups: [securityGroup],
       domainName: domain,
       domainZone: zone,
+      protocol: ApplicationProtocol.HTTPS,
     });
 
     fargateService.targetGroup.configureHealthCheck({
       path: "/v1/health",
     });
 
-    const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 1, maxCapacity: 10 });
+    const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 2, maxCapacity: 10 });
     scaling.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 70,
       scaleInCooldown: cdk.Duration.minutes(10),
