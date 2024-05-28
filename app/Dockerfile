@@ -19,11 +19,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 # Start a new stage from scratch
 FROM alpine:latest
 
-# Add CA Certificates for HTTPS connections.
-RUN apk --no-cache add ca-certificates
-
-# Install curl since it's used for ECS health checks
-RUN apk add curl
+# Add Curl for health checks and CA Certificates for HTTPS connections.
+RUN apk --no-cache add curl ca-certificates
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
