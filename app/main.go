@@ -9,8 +9,10 @@ import (
 	"github.com/payloadops/plato/api/config"
 	"github.com/payloadops/plato/api/dal"
 	"github.com/payloadops/plato/api/logging"
+	"github.com/payloadops/plato/api/metrics"
 	"github.com/payloadops/plato/api/openapi"
 	"github.com/payloadops/plato/api/service"
+	"github.com/payloadops/plato/api/tracing"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -45,28 +47,26 @@ func main() {
 	// zap.ReplaceGlobals(logger)
 
 	// Set up OpenTelemetry tracing
-	/*
-		tp, err := tracing.NewTracer(context.Background(), cfg)
-		if err != nil {
-			logger.Fatal("Failed to initialize tracer", zap.Error(err))
-		}
+	tp, err := tracing.NewTracer(context.Background(), cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize tracer", zap.Error(err))
+	}
 
-		// Shut down tracing upon exiting
-		defer func() {
-			_ = tp.Shutdown(context.Background())
-		}()
+	// Shut down tracing upon exiting
+	defer func() {
+		_ = tp.Shutdown(context.Background())
+	}()
 
-		// Set up OpenTelemetry tracing
-		mp, err := metrics.NewMeter(context.Background(), cfg)
-		if err != nil {
-			logger.Fatal("Failed to initialize meter", zap.Error(err))
-		}
+	// Set up OpenTelemetry tracing
+	mp, err := metrics.NewMeter(context.Background(), cfg)
+	if err != nil {
+		logger.Fatal("Failed to initialize meter", zap.Error(err))
+	}
 
-		// Shut down meter upon exiting
-		defer func() {
-			_ = mp.Shutdown(context.Background())
-		}()
-	*/
+	// Shut down meter upon exiting
+	defer func() {
+		_ = mp.Shutdown(context.Background())
+	}()
 
 	// Load AWS/localstack config values
 	awsConfig, err := client.LoadAWSConfig(cfg)
