@@ -16,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.22.2" # Specify the Go version you are using
+          go-version: "1.22" # Specify the Go version you are using
 
       - name: Install dependencies
         run: go mod download
@@ -61,7 +61,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.22.2" # Specify the Go version you are using
+          go-version: "1.22" # Specify the Go version you are using
 
       - name: Install dependencies
         run: go mod download
@@ -127,7 +127,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.22.2" # Specify the Go version you are using
+          go-version: "1.22" # Specify the Go version you are using
 
       - name: Install goimports
         run: go install golang.org/x/tools/cmd/goimports@latest
