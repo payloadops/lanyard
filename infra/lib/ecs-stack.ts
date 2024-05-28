@@ -89,6 +89,23 @@ export class EcsStack extends cdk.Stack {
     // Allow the ecs task role to read JWT_SECRET
     ecsSecret.grantRead(ecsTaskRole)
 
+    const domain = `${Subdomains.PROD}.${DOMAIN}`;
+
+    const zone = new route53.HostedZone(this,  disambiguator('PlatoZone', stage, region), {
+      zoneName: DOMAIN
+    });
+
+    const certificate = new certificatemanager.Certificate(this, 'ServiceCertificate', {
+      domainName: domain, // Adjust based on your subdomain and domain logic
+      validation: certificatemanager.CertificateValidation.fromDns(zone), // This will handle DNS validation automatically
+    });
+
+    const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
+    new route53.ARecord(this, 'ApiAliasRecord', {
+      zone: zone,
+      recordName: subdomain,  // Subdomain
+      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
+    });
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
@@ -124,7 +141,8 @@ export class EcsStack extends cdk.Stack {
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true,
       securityGroups: [securityGroup],
-      listenerPort: 443,  // Change the listener to HTTPS
+      domainName: domain,
+      domainZone: zone,
     });
 
     fargateService.targetGroup.configureHealthCheck({
@@ -138,22 +156,6 @@ export class EcsStack extends cdk.Stack {
       scaleOutCooldown: cdk.Duration.minutes(10),
     });
 
-    const zone = new route53.HostedZone(this,  disambiguator('PlatoZone', stage, region), {
-      zoneName: DOMAIN
-    });
-
-    const certificate = new certificatemanager.Certificate(this, 'ServiceCertificate', {
-      domainName: `${Subdomains.PROD}.${DOMAIN}`, // Adjust based on your subdomain and domain logic
-      validation: certificatemanager.CertificateValidation.fromDns(zone), // This will handle DNS validation automatically
-    });
-
     fargateService.listener.addCertificates('ListenerCertificate', [certificate]);
-
-    const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
-    new route53.ARecord(this, 'ApiAliasRecord', {
-      zone: zone,
-      recordName: subdomain,  // Subdomain
-      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
-    });
   }
 }
