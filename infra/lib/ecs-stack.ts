@@ -147,5 +147,11 @@ export class EcsStack extends cdk.Stack {
       recordName: subdomain,  // Subdomain
       target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
     });
+
+    // Export the ALB DNS name
+    new cdk.CfnOutput(this, 'AlbDnsName', {
+      value: fargateService.loadBalancer.loadBalancerDnsName,
+      exportName: 'AlbDnsName',
+    });
   }
 }
