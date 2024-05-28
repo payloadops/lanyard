@@ -139,7 +139,9 @@ export class EcsStack extends cdk.Stack {
       domainName: domain,
       domainZone: zone,
       protocol: ApplicationProtocol.HTTPS,
+      listenerPort: 443,
       certificate: certificate,
+      redirectHTTP: true,
     });
 
     new route53.ARecord(this, 'ApiAliasRecord', {
@@ -157,18 +159,6 @@ export class EcsStack extends cdk.Stack {
       targetUtilizationPercent: 70,
       scaleInCooldown: cdk.Duration.minutes(10),
       scaleOutCooldown: cdk.Duration.minutes(10),
-    });
-
-    const httpListener = fargateService.loadBalancer.addListener('HttpListener', {
-      port: 80,
-      open: true,
-    });
-    
-    httpListener.addAction('HttpToHttpsRedirect', {
-      action: ListenerAction.redirect({
-        protocol: 'HTTPS',
-        port: '443',
-      }),
     });
   }
 }
