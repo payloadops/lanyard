@@ -91,6 +91,7 @@ export class PipelineStack extends cdk.Stack {
         if (stage.account !== Accounts.PROD) {
           pipeline.addStage(stage, {
               pre: [
+                  // ENDPOINT needs the alb uri or address of the ecs task at each stage
                   new CodeBuildStep('RunE2ETests', {
                       commands: [
                           'export ENDPOINT=""',
