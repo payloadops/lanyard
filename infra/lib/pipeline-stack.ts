@@ -86,37 +86,40 @@ export class PipelineStack extends cdk.Stack {
           dockerBuildStep
         ]
       });
-      
+
       stages.forEach(stage => {
-        if (stage.account !== Accounts.PROD) {
-          pipeline.addStage(stage, {
-              pre: [
-                  // ENDPOINT needs the alb uri or address of the ecs task at each stage
-                  new CodeBuildStep('RunE2ETests', {
-                      commands: [
-                          'export ENDPOINT=""',
-                          'cd app',
-                          'go mod download',
-                          'go test -v ./e2e --tags=e2e'
-                      ],
-                      buildEnvironment: {
-                          buildImage: LinuxBuildImage.STANDARD_5_0
-                      },
-                      role: codeBuildRole, // Ensure the role has the necessary permissions
-                  }),
-                  new ManualApprovalStep('OverrideE2ETests')
-              ],
-              post: [
-                  // I'm nervous that this might incur substantial costs.
-                  new ShellStep('BakeTime', {
-                      commands: ['sleep 3600'] // Simulate 1-hour bake time
-                  }),
-                  new ManualApprovalStep('OverrideBakeTime')
-              ]
-          })
-        } else {
+        if (stage.account === Accounts.PROD) {
           pipeline.addStage(stage)
+          return
         }
+
+        // TODO: update this to reflect the exported ALB name
+        const albDnsNameExport = cdk.Fn.importValue('AlbDnsName');
+        const stageWithE2ETests = pipeline.addStage(stage, {
+          post: [
+            new CodeBuildStep('RunE2ETests', {
+              commands: [
+                'cd app',
+                'go mod download',
+                'go test -v ./e2e --tags=e2e'
+              ],
+              buildEnvironment: {
+                buildImage: LinuxBuildImage.STANDARD_5_0
+              },
+              role: codeBuildRole, // Ensure the role has the necessary permissions
+              env: {
+                ENDPOINT: `http://${albDnsNameExport}`
+              }
+            }),
+            new ManualApprovalStep('OverrideE2ETests'),
+          ]
+        });
+
+        stageWithE2ETests.addPost(
+          new ShellStep('BakeTime', {
+            commands: ['sleep 1800'] // Simulate 30-minute bake time
+          }),
+          new ManualApprovalStep('OverrideBakeTime'));
       });
     }
   }
