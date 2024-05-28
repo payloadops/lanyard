@@ -20,11 +20,10 @@ export class Stage extends cdk.Stage {
     //     env: { account: props?.env?.account, region: props?.env?.region },
     //   });
       
-      let ecsStack = new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
+      this.ecsStack = new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
 
-      this.ecsStack = ecsStack
       if (props?.env?.region === Regions.US_EAST_1) {
         new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
             env: { account: props?.env?.account, region: props?.env?.region },
