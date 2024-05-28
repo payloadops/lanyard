@@ -89,32 +89,36 @@ export class PipelineStack extends cdk.Stack {
       });
 
       stages.forEach(stage => {
+        let addedStage: cdk.pipelines.StageDeployment
+        if (stage.account === Accounts.DEV) {
+          addedStage = pipeline.addStage(stage, {
+            post: [
+              new CodeBuildStep('RunE2ETests', {
+                commands: [
+                  'cd app',
+                  'go mod download',
+                  'go test -v ./e2e --tags=e2e'
+                ],
+                buildEnvironment: {
+                  buildImage: LinuxBuildImage.STANDARD_5_0
+                },
+                role: codeBuildRole, // Ensure the role has the necessary permissions
+                env: {
+                  ENDPOINT: `http://${stage.ecsStack.loadBalancerDnsName}`
+                }
+              }),
+              new ManualApprovalStep('OverrideE2ETests'),
+            ]
+          });
+        } else {
+          addedStage = pipeline.addStage(stage)
+        }
+
         if (stage.account === Accounts.PROD) {
-          pipeline.addStage(stage)
           return
         }
 
-        const stageWithE2ETests = pipeline.addStage(stage, {
-          post: [
-            new CodeBuildStep('RunE2ETests', {
-              commands: [
-                'cd app',
-                'go mod download',
-                'go test -v ./e2e --tags=e2e'
-              ],
-              buildEnvironment: {
-                buildImage: LinuxBuildImage.STANDARD_5_0
-              },
-              role: codeBuildRole, // Ensure the role has the necessary permissions
-              env: {
-                ENDPOINT: `http://${stage.ecsStack.loadBalancerDnsName}`
-              }
-            }),
-            new ManualApprovalStep('OverrideE2ETests'),
-          ]
-        });
-
-        stageWithE2ETests.addPost(
+        addedStage.addPost(
           new ShellStep('BakeTime', {
             commands: ['sleep 1800'] // Simulate 30-minute bake time
           }),
