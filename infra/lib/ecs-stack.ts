@@ -103,7 +103,6 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
-          "JWT_SECRET": "secret"
         },
         secrets: {
           "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
