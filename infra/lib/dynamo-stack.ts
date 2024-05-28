@@ -18,12 +18,12 @@ export class DynamoStack extends cdk.Stack {
       })
 
     new dynamodb.Table(this, 'PromptsTable', {
-    tableName: "prompts",
-    partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-    sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-    replicationRegions: REPLICATIONS_REGIONS,
-    billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-    tableClass: dynamodb.TableClass.STANDARD
+        tableName: "prompts",
+        partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
+        sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
+        replicationRegions: REPLICATIONS_REGIONS,
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        tableClass: dynamodb.TableClass.STANDARD
     })
 
     new dynamodb.Table(this, 'BranchesTable', {
@@ -36,12 +36,12 @@ export class DynamoStack extends cdk.Stack {
       })
 
     new dynamodb.Table(this, 'CommitsTable', {
-    tableName: "commits",
-    partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-    sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-    replicationRegions: REPLICATIONS_REGIONS,
-    billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-    tableClass: dynamodb.TableClass.STANDARD
+        tableName: "commits",
+        partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
+        sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
+        replicationRegions: REPLICATIONS_REGIONS,
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        tableClass: dynamodb.TableClass.STANDARD
     })
   }
 }

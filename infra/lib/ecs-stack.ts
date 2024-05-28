@@ -14,7 +14,7 @@ import Regions from './constants/regions';
 import Accounts from './constants/accounts';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
+import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 
 
 export class EcsStack extends cdk.Stack {
@@ -73,6 +73,20 @@ export class EcsStack extends cdk.Stack {
 
     const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('ServiceRepository', stage, region), `arn:aws:ecr:${Regions.US_EAST_1}:${Accounts.DEV}:repository/app`)
 
+    // Create a new Secrets Manager secret to store JWT_SECRET
+    const ecsSecret = new ssm.Secret(this, disambiguator('JwtSecret', stage, region), {
+      secretName: 'plato-secret',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          JWT_SECRET: 'CHANGE_ME',
+        }),
+        generateStringKey: 'unused',
+      },
+    });
+
+    // Allow the ecs task role to read JWT_SECRET
+    ecsSecret.grantRead(ecsTaskRole)
+
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
@@ -90,6 +104,9 @@ export class EcsStack extends cdk.Stack {
           "REGION": region,
           "STAGE": stage,
           "JWT_SECRET": "secret"
+        },
+        secrets: {
+          "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
         },
         taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
