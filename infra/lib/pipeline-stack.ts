@@ -12,11 +12,12 @@ import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import Accounts from './constants/accounts';
+import {Stage} from "./stage";
 
 const REPO = "payloadops/plato";
 
 export class PipelineStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, stages: cdk.Stage[], props?: cdk.StackProps) {
+    constructor(scope: Construct, id: string, stages: Stage[], props?: cdk.StackProps) {
       super(scope, id, props);
 
       const connection = new codestarconnections.CfnConnection(this, 'Connection', {
@@ -93,8 +94,6 @@ export class PipelineStack extends cdk.Stack {
           return
         }
 
-        // TODO: update this to reflect the exported ALB name
-        const albDnsNameExport = cdk.Fn.importValue('AlbDnsName');
         const stageWithE2ETests = pipeline.addStage(stage, {
           post: [
             new CodeBuildStep('RunE2ETests', {
@@ -108,7 +107,7 @@ export class PipelineStack extends cdk.Stack {
               },
               role: codeBuildRole, // Ensure the role has the necessary permissions
               env: {
-                ENDPOINT: `http://${albDnsNameExport}`
+                ENDPOINT: `http://${stage.ecsStack.loadBalancerDnsName}`
               }
             }),
             new ManualApprovalStep('OverrideE2ETests'),

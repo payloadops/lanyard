@@ -18,6 +18,7 @@ import * as ssm from 'aws-cdk-lib/aws-secretsmanager';
 
 
 export class EcsStack extends cdk.Stack {
+  public readonly loadBalancerDnsName: string;
   constructor(scope: Construct, id: string, vpcStack: VpcStack, stage: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -148,10 +149,6 @@ export class EcsStack extends cdk.Stack {
       target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
     });
 
-    // Export the ALB DNS name
-    new cdk.CfnOutput(this, 'AlbDnsName', {
-      value: fargateService.loadBalancer.loadBalancerDnsName,
-      exportName: 'AlbDnsName',
-    });
+    this.loadBalancerDnsName = fargateService.loadBalancer.loadBalancerDnsName
   }
 }
