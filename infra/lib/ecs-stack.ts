@@ -102,11 +102,6 @@ export class EcsStack extends cdk.Stack {
     });
 
     const subdomain = stage === Stages.PROD ? Subdomains.PROD : Subdomains.DEV;
-    new route53.ARecord(this, 'ApiAliasRecord', {
-      zone: zone,
-      recordName: subdomain,  // Subdomain
-      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
-    });
     // Create a load-balanced Fargate service and make it public
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', stage, region), {
       cluster: cluster, // Required
@@ -145,6 +140,12 @@ export class EcsStack extends cdk.Stack {
       domainName: domain,
       domainZone: zone,
       protocol: ApplicationProtocol.HTTPS,
+    });
+
+    new route53.ARecord(this, 'ApiAliasRecord', {
+      zone: zone,
+      recordName: subdomain,  // Subdomain
+      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(fargateService.loadBalancer)),
     });
 
     fargateService.targetGroup.configureHealthCheck({
