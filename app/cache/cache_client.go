@@ -17,6 +17,12 @@ type Cache interface {
 	Get(ctx context.Context, key string) (string, error)
 }
 
+// Ensure RedisCache implements the Cache interface
+var _ Cache = &RedisCache{}
+
+// Ensure NoopCache implements the Cache interface
+var _ Cache = &NoopCache{}
+
 // RedisCache implements the Cache interface using Redis.
 type RedisCache struct {
 	client redis.Cmdable
@@ -35,4 +41,24 @@ func (r *RedisCache) Set(ctx context.Context, key string, value string, expirati
 // Get retrieves a value from the cache.
 func (r *RedisCache) Get(ctx context.Context, key string) (string, error) {
 	return r.client.Get(ctx, key).Result()
+}
+
+// NoopCache implements the Cache interface as a no-op.
+type NoopCache struct{}
+
+// NewNoopCache creates a new NoopCache.
+func NewNoopCache() *NoopCache {
+	return &NoopCache{}
+}
+
+// Set is a no-op for NoopCache.
+func (n *NoopCache) Set(ctx context.Context, key string, value string, expiration time.Duration) error {
+	// No operation performed
+	return nil
+}
+
+// Get is a no-op for NoopCache.
+func (n *NoopCache) Get(ctx context.Context, key string) (string, error) {
+	// No operation performed, return an empty string and no error
+	return "", nil
 }

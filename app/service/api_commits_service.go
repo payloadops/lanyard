@@ -1,13 +1,12 @@
 package service
 
-/*
 import (
 	"context"
 	"fmt"
 	"net/http"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/openapi"
 )
 
 // CommitsAPIService is a service that implements the logic for the CommitsAPIServicer
@@ -68,12 +67,11 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId st
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commit := dal.Commit{
-		// ID:       commitInput.Id,
+	commit := &dal.Commit{
+		PromptID: promptId,
 		BranchID: branchId,
-		// UserID:   commitInput.UserId,
-		Message: commitInput.Message,
-		Content: commitInput.Content,
+		Message:  commitInput.Message,
+		Content:  commitInput.Content,
 	}
 
 	err = s.commitClient.CreateCommit(ctx, commit)
@@ -118,7 +116,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId strin
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commit, err := s.commitClient.GetCommit(ctx, commitId)
+	commit, err := s.commitClient.GetCommit(ctx, promptId, branchId, commitId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -163,11 +161,10 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId str
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commits, err := s.commitClient.ListCommitsByBranch(ctx, branchId)
+	commits, err := s.commitClient.ListCommitsByBranch(ctx, promptId, branchId)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
 	return openapi.Response(http.StatusOK, commits), nil
 }
-*/

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/payloadops/plato/app/cache"
 	"github.com/payloadops/plato/app/client"
 	"github.com/payloadops/plato/app/config"
 	"github.com/payloadops/plato/app/dal"
@@ -76,7 +77,7 @@ func main() {
 
 	// Create AWS clients
 	dynamoClient := dynamodb.NewFromConfig(awsConfig)
-	_ = s3.NewFromConfig(awsConfig)
+	s3Client := s3.NewFromConfig(awsConfig)
 
 	/*
 		// Create AWS clients
@@ -93,11 +94,14 @@ func main() {
 		// Create cache instance
 		cache := cache.NewRedisCache(redisClient)
 	*/
+	// TODO: Initialize a real redis cache, when elasticace is present...
+	cache := cache.NewNoopCache()
 
 	// Initialize database clients
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
 	promptDBClient := dal.NewPromptDBClient(dynamoClient)
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
+	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 	/*
 		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
@@ -118,6 +122,12 @@ func main() {
 		promptDBClient,
 		branchDBClient,
 	)
+	CommitsAPIService := service.NewCommitsAPIService(
+		projectDBClient,
+		promptDBClient,
+		branchDBClient,
+		commitDBClient,
+	)
 
 	// Initialize services with injected dependencies
 	/*
@@ -136,6 +146,7 @@ func main() {
 	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
 	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
 	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
+	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 	/*
 		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
@@ -153,6 +164,7 @@ func main() {
 		ProjectsAPIController,
 		PromptsAPIController,
 		BranchesAPIController,
+		CommitsAPIController,
 		/*
 			APIKeysAPIController,
 			BranchesAPIController,

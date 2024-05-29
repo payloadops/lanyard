@@ -64,3 +64,18 @@ func TestRedisCache_Get_NotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, redis.Nil, err)
 }
+
+func TestNoopCache_Set(t *testing.T) {
+	nc := cache.NewNoopCache()
+
+	err := nc.Set(context.Background(), "key", "value", 10*time.Minute)
+	assert.NoError(t, err, "Expected no error for NoopCache Set")
+}
+
+func TestNoopCache_Get(t *testing.T) {
+	nc := cache.NewNoopCache()
+
+	value, err := nc.Get(context.Background(), "key")
+	assert.NoError(t, err, "Expected no error for NoopCache Get")
+	assert.Equal(t, "", value, "Expected empty string value for NoopCache Get")
+}
