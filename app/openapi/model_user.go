@@ -17,7 +17,7 @@ import (
 
 type User struct {
 
-	// A K-sortable unique identifier (KSUID)
+	// Unique identifier for the user
 	Id string `json:"id,omitempty"`
 
 	// User's full name (optional)

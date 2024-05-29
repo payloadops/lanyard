@@ -1725,15 +1725,13 @@ components:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
         description: description
-        id: id
+        id: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the organization
         name:
           description: Name of the organization
           maxLength: 30
@@ -1774,16 +1772,14 @@ components:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
         description: description
-        id: id
-        orgId: orgId
+        id: ""
+        orgId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the team
         name:
           description: Name of the team
           maxLength: 30
@@ -1795,11 +1791,9 @@ components:
           minLength: 1
           type: string
         orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: The organization to which the team belongs
         createdAt:
           description: Timestamp of team creation
           format: date-time
@@ -1831,16 +1825,14 @@ components:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
-        id: id
+        id: ""
         email: email
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the user
         name:
           description: User's full name (optional)
           maxLength: 30
@@ -1878,19 +1870,15 @@ components:
     Project:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        teamId: teamId
         name: name
         description: description
-        id: id
-        orgId: orgId
+        id: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the project
         name:
           description: Name of the project
           maxLength: 30
@@ -1900,18 +1888,6 @@ components:
           description: A brief description of the project
           maxLength: 180
           minLength: 1
-          type: string
-        orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        teamId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when the project was created
@@ -1924,10 +1900,8 @@ components:
       type: object
     ProjectInput:
       example:
-        teamId: teamId
         name: name
         description: description
-        orgId: orgId
       properties:
         name:
           description: Name of the project
@@ -1939,39 +1913,25 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        teamId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
       required:
       - name
       type: object
     ApiKey:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        id: id
+        id: ""
+        secret: secret
         scopes:
         - scopes
         - scopes
-        projectId: projectId
-        key: key
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        key:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        secret:
           description: The API key token
           maxLength: 180
           minLength: 1
@@ -1982,11 +1942,9 @@ components:
             type: string
           type: array
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: The project ID this API key belongs to
         createdAt:
           description: Timestamp when the API key was created
           format: date-time
@@ -2015,17 +1973,15 @@ components:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
         description: description
-        id: id
+        id: ""
         prompt: prompt
-        projectId: projectId
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
         name:
           description: Name of the prompt
           maxLength: 30
@@ -2042,11 +1998,9 @@ components:
           minLength: 1
           type: string
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -2086,16 +2040,14 @@ components:
         name: name
         stub: stub
         description: description
-        id: id
-        projectId: projectId
+        id: ""
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
         name:
           description: Name of the prompt
           maxLength: 30
@@ -2112,11 +2064,9 @@ components:
           minLength: 1
           type: string
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -2157,17 +2107,15 @@ components:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         checksum: checksum
-        id: id
+        id: ""
         message: message
-        userId: userId
+        userId: ""
         content: content
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the commit of the branch
         content:
           description: Content of the prompt in this commit
           minLength: 1
@@ -2181,11 +2129,9 @@ components:
           description: SHA-256 checksum of the content in this commit
           type: string
         userId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the user that created this commit
         createdAt:
           description: Timestamp when this commit was created
           format: date-time

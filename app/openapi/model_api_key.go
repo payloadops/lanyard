@@ -17,16 +17,16 @@ import (
 
 type ApiKey struct {
 
-	// A K-sortable unique identifier (KSUID)
+	// Unique identifier for the API key
 	Id string `json:"id,omitempty"`
 
 	// The API key token
-	Key string `json:"key,omitempty"`
+	Secret string `json:"secret,omitempty"`
 
 	// List of scopes or permissions granted by this API key
 	Scopes []string `json:"scopes,omitempty"`
 
-	// A K-sortable unique identifier (KSUID)
+	// The project ID this API key belongs to
 	ProjectId string `json:"projectId,omitempty"`
 
 	// Timestamp when the API key was created

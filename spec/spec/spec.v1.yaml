@@ -1689,11 +1689,13 @@ components:
         minLength: 27
         maxLength: 27
         description: A K-sortable unique identifier (KSUID)
+
     Organization:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the organization
         name:
           type: string
@@ -1732,7 +1734,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the team
         name:
           type: string
@@ -1745,7 +1748,8 @@ components:
           maxLength: 180
           description: A brief description of the team
         orgId:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: The organization to which the team belongs
         createdAt:
           type: string
@@ -1776,7 +1780,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the user
         name:
           type: string
@@ -1814,7 +1819,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the project
         name:
           type: string
@@ -1826,12 +1832,6 @@ components:
           minLength: 1
           maxLength: 180
           description: A brief description of the project
-        orgId:
-          $ref: '#/components/schemas/KSUID'
-          description: Identifier for the organization to which the project belongs
-        teamId:
-          $ref: '#/components/schemas/KSUID'
-          description: Identifier for the team to which the project belongs
         createdAt:
           type: string
           format: date-time
@@ -1856,20 +1856,15 @@ components:
           minLength: 1
           maxLength: 180
           description: A brief description of the project
-        orgId:
-          $ref: '#/components/schemas/KSUID'
-          description: Identifier for the organization to which the project belongs
-        teamId:
-          $ref: '#/components/schemas/KSUID'
-          description: Identifier for the team to which the project belongs
 
     ApiKey:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the API key
-        key:
+        secret:
           type: string
           minLength: 1
           maxLength: 180
@@ -1880,7 +1875,8 @@ components:
             type: string
           description: List of scopes or permissions granted by this API key
         projectId:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: The project ID this API key belongs to
         createdAt:
           type: string
@@ -1906,7 +1902,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the prompt
         name:
           type: string
@@ -1924,7 +1921,8 @@ components:
           maxLength: 50000
           description: Contents of the prompt
         projectId:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Identifier of the project this prompt belongs to
         createdAt:
           type: string
@@ -1960,7 +1958,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the prompt
         name:
           type: string
@@ -1978,7 +1977,8 @@ components:
           maxLength: 180
           description: A 180 character preview of the prompt
         projectId:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Identifier of the project this prompt belongs to
         createdAt:
           type: string
@@ -2017,7 +2017,8 @@ components:
       type: object
       properties:
         id:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the commit of the branch
         content:
           type: string
@@ -2032,7 +2033,8 @@ components:
           type: string
           description: SHA-256 checksum of the content in this commit
         userId:
-          $ref: '#/components/schemas/KSUID'
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
           description: Identifier of the user that created this commit
         createdAt:
           type: string

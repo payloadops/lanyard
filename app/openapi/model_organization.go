@@ -17,7 +17,7 @@ import (
 
 type Organization struct {
 
-	// A K-sortable unique identifier (KSUID)
+	// Unique identifier for the organization
 	Id string `json:"id,omitempty"`
 
 	// Name of the organization

@@ -9,12 +9,11 @@
 // Package mocks is a generated GoMock package.
 package mocks
 
-/*
 import (
 	context "context"
 	reflect "reflect"
 
-	dal "github.com/payloadops/plato/api/dal"
+	dal "github.com/payloadops/plato/app/dal"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,7 +41,7 @@ func (m *MockCommitManager) EXPECT() *MockCommitManagerMockRecorder {
 }
 
 // CreateCommit mocks base method.
-func (m *MockCommitManager) CreateCommit(arg0 context.Context, arg1 dal.Commit) error {
+func (m *MockCommitManager) CreateCommit(arg0 context.Context, arg1 *dal.Commit) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCommit", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -56,47 +55,31 @@ func (mr *MockCommitManagerMockRecorder) CreateCommit(arg0, arg1 any) *gomock.Ca
 }
 
 // GetCommit mocks base method.
-func (m *MockCommitManager) GetCommit(arg0 context.Context, arg1 string) (*dal.Commit, error) {
+func (m *MockCommitManager) GetCommit(arg0 context.Context, arg1, arg2, arg3 string) (*dal.Commit, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCommit", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetCommit", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*dal.Commit)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCommit indicates an expected call of GetCommit.
-func (mr *MockCommitManagerMockRecorder) GetCommit(arg0, arg1 any) *gomock.Call {
+func (mr *MockCommitManagerMockRecorder) GetCommit(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommit", reflect.TypeOf((*MockCommitManager)(nil).GetCommit), arg0, arg1)
-}
-
-// ListCommits mocks base method.
-func (m *MockCommitManager) ListCommits(arg0 context.Context) ([]dal.Commit, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListCommits", arg0)
-	ret0, _ := ret[0].([]dal.Commit)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListCommits indicates an expected call of ListCommits.
-func (mr *MockCommitManagerMockRecorder) ListCommits(arg0 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommits", reflect.TypeOf((*MockCommitManager)(nil).ListCommits), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommit", reflect.TypeOf((*MockCommitManager)(nil).GetCommit), arg0, arg1, arg2, arg3)
 }
 
 // ListCommitsByBranch mocks base method.
-func (m *MockCommitManager) ListCommitsByBranch(arg0 context.Context, arg1 string) ([]dal.Commit, error) {
+func (m *MockCommitManager) ListCommitsByBranch(arg0 context.Context, arg1, arg2 string) ([]dal.Commit, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListCommitsByBranch", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListCommitsByBranch", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]dal.Commit)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListCommitsByBranch indicates an expected call of ListCommitsByBranch.
-func (mr *MockCommitManagerMockRecorder) ListCommitsByBranch(arg0, arg1 any) *gomock.Call {
+func (mr *MockCommitManagerMockRecorder) ListCommitsByBranch(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommitsByBranch", reflect.TypeOf((*MockCommitManager)(nil).ListCommitsByBranch), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommitsByBranch", reflect.TypeOf((*MockCommitManager)(nil).ListCommitsByBranch), arg0, arg1, arg2)
 }
-*/
