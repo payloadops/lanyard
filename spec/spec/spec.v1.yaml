@@ -1684,11 +1684,11 @@ components:
 
   schemas:
     KSUID:
-        type: string
-        pattern: '^[A-Za-z0-9]{27}$'
-        minLength: 27
-        maxLength: 27
-        description: A K-sortable unique identifier (KSUID)
+      type: string
+      pattern: '^[A-Za-z0-9]{27}$'
+      minLength: 27
+      maxLength: 27
+      description: A K-sortable unique identifier (KSUID)
 
     Organization:
       type: object
