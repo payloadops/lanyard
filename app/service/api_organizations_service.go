@@ -4,11 +4,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/payloadops/plato/api/utils"
+	"github.com/payloadops/plato/app/utils"
 	"net/http"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/openapi"
 )
 
 // OrganizationsAPIService is a service that implements the logic for the OrganizationsAPIServicer

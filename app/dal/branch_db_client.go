@@ -9,10 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/payloadops/plato/api/utils"
+	"github.com/payloadops/plato/app/utils"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_branch_db_client.go "github.com/payloadops/plato/api/dal" BranchManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_branch_db_client.go "github.com/payloadops/plato/app/dal" BranchManager
 
 // BranchManager defines the operations available for managing branches.
 type BranchManager interface {
@@ -35,11 +35,11 @@ type Branch struct {
 
 // BranchDBClient is a client for interacting with DynamoDB for branch-related operations.
 type BranchDBClient struct {
-	service *dynamodb.Client
+	service DynamoDBAPI
 }
 
 // NewBranchDBClient creates a new BranchDBClient.
-func NewBranchDBClient(service *dynamodb.Client) *BranchDBClient {
+func NewBranchDBClient(service DynamoDBAPI) *BranchDBClient {
 	return &BranchDBClient{
 		service: service,
 	}

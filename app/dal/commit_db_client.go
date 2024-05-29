@@ -1,11 +1,10 @@
 package dal
 
-/*
 import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/payloadops/plato/api/cache"
+	"github.com/payloadops/plato/app/cache"
 	"io"
 	"strings"
 	"time"
@@ -16,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_commit_db_client.go "github.com/payloadops/plato/api/dal" CommitManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_commit_db_client.go "github.com/payloadops/plato/app/dal" CommitManager
 
 // CommitManager defines the operations available for managing commits.
 type CommitManager interface {
@@ -203,4 +202,3 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, branchID strin
 
 	return commits, nil
 }
-*/

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/openapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

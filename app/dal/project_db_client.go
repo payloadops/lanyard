@@ -3,7 +3,7 @@ package dal
 import (
 	"context"
 	"fmt"
-	"github.com/payloadops/plato/api/utils"
+	"github.com/payloadops/plato/app/utils"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_project_db_client.go "github.com/payloadops/plato/api/dal" ProjectManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_project_db_client.go "github.com/payloadops/plato/app/dal" ProjectManager
 
 // ProjectManager defines the operations available for managing projects.
 type ProjectManager interface {
@@ -39,11 +39,11 @@ type Project struct {
 
 // ProjectDBClient is a client for interacting with DynamoDB for project-related operations.
 type ProjectDBClient struct {
-	service *dynamodb.Client
+	service DynamoDBAPI
 }
 
 // NewProjectDBClient creates a new ProjectDBClient.
-func NewProjectDBClient(service *dynamodb.Client) *ProjectDBClient {
+func NewProjectDBClient(service DynamoDBAPI) *ProjectDBClient {
 	return &ProjectDBClient{
 		service: service,
 	}

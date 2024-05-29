@@ -9,10 +9,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/payloadops/plato/api/utils"
+	"github.com/payloadops/plato/app/utils"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_prompt_db_client.go "github.com/payloadops/plato/api/dal" PromptManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_prompt_db_client.go "github.com/payloadops/plato/app/dal" PromptManager
 
 // PromptManager defines the operations available for managing prompts.
 type PromptManager interface {
@@ -39,11 +39,11 @@ type Prompt struct {
 
 // PromptDBClient is a client for interacting with DynamoDB for prompt-related operations.
 type PromptDBClient struct {
-	service *dynamodb.Client
+	service DynamoDBAPI
 }
 
 // NewPromptDBClient creates a new PromptDBClient.
-func NewPromptDBClient(service *dynamodb.Client) *PromptDBClient {
+func NewPromptDBClient(service DynamoDBAPI) *PromptDBClient {
 	return &PromptDBClient{
 		service: service,
 	}

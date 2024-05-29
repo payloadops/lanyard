@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/openapi"
 )
 
 // PromptsAPIService is a service that implements the logic for the PromptsAPIServicer

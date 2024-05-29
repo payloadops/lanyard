@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/openapi"
 	"net/http"
 )
 

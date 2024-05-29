@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/openapi"
 	"net/http"
 )
 
