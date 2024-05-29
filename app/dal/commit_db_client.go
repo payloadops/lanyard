@@ -1,12 +1,13 @@
 package dal
 
+/*
 import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/app/cache"
+	"github.com/payloadops/plato/app/utils"
 	"io"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -19,9 +20,8 @@ import (
 
 // CommitManager defines the operations available for managing commits.
 type CommitManager interface {
-	CreateCommit(ctx context.Context, commit Commit) error
-	GetCommit(ctx context.Context, id string) (*Commit, error)
-	ListCommits(ctx context.Context) ([]Commit, error)
+	CreateCommit(ctx context.Context, commit *Commit) error
+	GetCommit(ctx context.Context, branchID, commitID string) (*Commit, error)
 	ListCommitsByBranch(ctx context.Context, branchID string) ([]Commit, error)
 }
 
@@ -30,8 +30,8 @@ var _ CommitManager = &CommitDBClient{}
 
 // Commit represents a commit in the system.
 type Commit struct {
-	ID        string `json:"id"`
 	BranchID  string `json:"branchId"`
+	CommitID  string `json:"commitId"`
 	UserID    string `json:"userId"`
 	Message   string `json:"message"`
 	Content   string `json:"-"`
@@ -42,13 +42,13 @@ type Commit struct {
 
 // CommitDBClient is a client for interacting with DynamoDB for commit-related operations.
 type CommitDBClient struct {
-	dynamoDb *dynamodb.Client
-	s3       *s3.Client
+	dynamoDb DynamoDBAPI
+	s3       S3API
 	cache    cache.Cache
 }
 
 // NewCommitDBClient creates a new CommitDBClient with the AWS configuration.
-func NewCommitDBClient(dynamoDb *dynamodb.Client, s3 *s3.Client, cache cache.Cache) *CommitDBClient {
+func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache) *CommitDBClient {
 	return &CommitDBClient{
 		dynamoDb: dynamoDb,
 		s3:       s3,
@@ -56,25 +56,21 @@ func NewCommitDBClient(dynamoDb *dynamodb.Client, s3 *s3.Client, cache cache.Cac
 	}
 }
 
-// / CreateCommit creates a new commit in the DynamoDB table.
-func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error {
-	// Use the BranchID as the key, ensuring all commits on the same branch refer to the same object
-	key := "commits/" + commit.BranchID + ".txt"
-	obj, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String("your-bucket-name"),
-		Key:    aws.String(key),
-		Body:   strings.NewReader(commit.Content),
-	})
+// createCommitCompositeKeys generates the partition key (PK) and sort key (SK) for a commit.
+func createCommitCompositeKeys(branchID, commitID string) (string, string) {
+	return "Branch#" + branchID, "Commit#" + commitID
+}
+
+// CreateCommit creates a new commit in the DynamoDB table.
+func (d *CommitDBClient) CreateCommit(ctx context.Context, commit *Commit) error {
+	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
-		return fmt.Errorf("failed to upload commit content to S3: %v", err)
+		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
-	// Set version to commit so that we can retrieve it later, as well as the hash of the commit
-	commit.VersionID = aws.ToString(obj.VersionId)
-	commit.Checksum = aws.ToString(obj.ChecksumSHA256)
+	commit.CommitID = ksuid
+	pk, sk := createCommitCompositeKeys(commit.BranchID, commit.CommitID)
 
-	// Remove content from the commit before saving to DynamoDB
-	commit.Content = ""
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
 
@@ -83,9 +79,17 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error 
 		return fmt.Errorf("failed to marshal commit: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("Commits"),
-		Item:      av,
+		Item:      item,
 	}
 
 	_, err = d.dynamoDb.PutItem(ctx, input)
@@ -102,12 +106,15 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit Commit) error 
 	return nil
 }
 
-// GetCommit retrieves a commit by ID from the DynamoDB table.
-func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, error) {
+// GetCommit retrieves a commit by branch ID and commit ID from the DynamoDB table.
+func (d *CommitDBClient) GetCommit(ctx context.Context, branchID, commitID string) (*Commit, error) {
+	pk, sk := createCommitCompositeKeys(branchID, commitID)
+
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
 		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -127,8 +134,9 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 	}
 
 	// Try to get the content from the cache
-	cacheKey := fmt.Sprintf("commit:%s", commit.BranchID)
-	if err := d.cache.Get(ctx, cacheKey, &commit.Content); err == nil {
+	cacheKey := fmt.Sprintf("commit:%s", commit.CommitID)
+	content, err := d.cache.Get(ctx, cacheKey)
+	if err == nil {
 		return &commit, nil
 	}
 
@@ -159,39 +167,23 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, id string) (*Commit, err
 	return &commit, nil
 }
 
-// ListCommits retrieves all commits from the DynamoDB table.
-func (d *CommitDBClient) ListCommits(ctx context.Context) ([]Commit, error) {
-	input := &dynamodb.ScanInput{
-		TableName: aws.String("Commits"),
-	}
-
-	result, err := d.dynamoDb.Scan(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
-	}
-
-	var commits []Commit
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &commits)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
-	}
-
-	return commits, nil
-}
-
 // ListCommitsByBranch retrieves all commits belonging to a specific branch from the DynamoDB table.
 func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, branchID string) ([]Commit, error) {
-	input := &dynamodb.ScanInput{
-		TableName:        aws.String("Commits"),
-		FilterExpression: aws.String("branchId = :branchId"),
+	pk := "Branch#" + branchID
+
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("Commits"),
+		KeyConditionExpression: aws.String("PK = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":branchId": &types.AttributeValueMemberS{Value: branchID},
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
 		},
 	}
 
-	result, err := d.dynamoDb.Scan(ctx, input)
+	result, err := d.dynamoDb.Query(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
 	var commits []Commit
@@ -202,3 +194,4 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, branchID strin
 
 	return commits, nil
 }
+*/
