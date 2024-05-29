@@ -1,120 +1,66 @@
-package cache
+package cache_test
 
-/*
 import (
 	"context"
+	"github.com/go-redis/redis/v8"
+	"github.com/payloadops/plato/app/cache"
 	"testing"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/payloadops/plato/app/cache/mocks"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
-func setupTestRedis() *redis.Client {
-	// Setup the Redis client for testing (make sure Redis is running locally)
-	return redis.NewClient(&redis.Options{
-		Addr: "localhost:6379", // Default Redis address
-	})
-}
+func TestRedisCache_Set(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func TestRedisCache_SetAndGet(t *testing.T) {
-	client := setupTestRedis()
-	cache := NewRedisCache(client)
-
-	type TestData struct {
-		Value string `json:"value"`
-	}
+	mockClient := mocks.NewMockCmdable(ctrl)
+	cache := cache.NewRedisCache(mockClient)
 
 	ctx := context.Background()
-	key := "testKey"
-	value := TestData{Value: "testValue"}
+	key := "test-key"
+	value := "test-value"
+	expiration := time.Hour
 
-	// Set the value in the cache
-	err := cache.Set(ctx, key, value, 1*time.Hour)
+	mockClient.EXPECT().Set(ctx, key, value, expiration).Return(&redis.StatusCmd{})
+
+	err := cache.Set(ctx, key, value, expiration)
 	assert.NoError(t, err)
+}
 
-	// Get the value from the cache
-	var result TestData
-	err = cache.Get(ctx, key, &result)
+func TestRedisCache_Get(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockClient := mocks.NewMockCmdable(ctrl)
+	cache := cache.NewRedisCache(mockClient)
+
+	ctx := context.Background()
+	key := "test-key"
+	value := "test-value"
+
+	mockClient.EXPECT().Get(ctx, key).Return(redis.NewStringResult(value, nil))
+
+	result, err := cache.Get(ctx, key)
 	assert.NoError(t, err)
 	assert.Equal(t, value, result)
 }
 
-func TestRedisCache_GetNonExistentKey(t *testing.T) {
-	client := setupTestRedis()
-	cache := NewRedisCache(client)
+func TestRedisCache_Get_NotFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockClient := mocks.NewMockCmdable(ctrl)
+	cache := cache.NewRedisCache(mockClient)
 
 	ctx := context.Background()
-	key := "nonExistentKey"
+	key := "non-existent-key"
 
-	var result interface{}
-	err := cache.Get(ctx, key, &result)
+	mockClient.EXPECT().Get(ctx, key).Return(redis.NewStringResult("", redis.Nil))
+
+	_, err := cache.Get(ctx, key)
 	assert.Error(t, err)
 	assert.Equal(t, redis.Nil, err)
 }
-
-func TestRedisCache_SetWithExpiration(t *testing.T) {
-	client := setupTestRedis()
-	cache := NewRedisCache(client)
-
-	type TestData struct {
-		Value string `json:"value"`
-	}
-
-	ctx := context.Background()
-	key := "expiringKey"
-	value := TestData{Value: "expiringValue"}
-
-	// Set the value in the cache with a short expiration
-	err := cache.Set(ctx, key, value, 1*time.Second)
-	assert.NoError(t, err)
-
-	// Get the value from the cache immediately
-	var result TestData
-	err = cache.Get(ctx, key, &result)
-	assert.NoError(t, err)
-	assert.Equal(t, value, result)
-
-	// Wait for the expiration time to pass
-	time.Sleep(2 * time.Second)
-
-	// Try to get the value from the cache again
-	err = cache.Get(ctx, key, &result)
-	assert.Error(t, err)
-	assert.Equal(t, redis.Nil, err)
-}
-
-func TestRedisCache_SetInvalidValue(t *testing.T) {
-	client := setupTestRedis()
-	cache := NewRedisCache(client)
-
-	ctx := context.Background()
-	key := "invalidValueKey"
-	value := make(chan int) // Invalid value type for JSON marshalling
-
-	err := cache.Set(ctx, key, value, 1*time.Hour)
-	assert.Error(t, err)
-}
-
-func TestRedisCache_GetInvalidValue(t *testing.T) {
-	client := setupTestRedis()
-	cache := NewRedisCache(client)
-
-	type TestData struct {
-		Value string `json:"value"`
-	}
-
-	ctx := context.Background()
-	key := "invalidGetKey"
-	value := TestData{Value: "invalidGetValue"}
-
-	// Set a valid value in the cache
-	err := cache.Set(ctx, key, value, 1*time.Hour)
-	assert.NoError(t, err)
-
-	// Try to get the value into an invalid type
-	var result chan int
-	err = cache.Get(ctx, key, &result)
-	assert.Error(t, err)
-}
-*/
