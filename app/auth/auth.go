@@ -42,7 +42,7 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 					return nil, errors.New("unexpected signing method")
 				}
 
-				return []byte(cfg.JWTSecret), nil
+				return []byte("cfg.JWTSecret"), nil
 			})
 			if err != nil || !token.Valid {
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
