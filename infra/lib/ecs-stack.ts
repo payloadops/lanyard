@@ -23,6 +23,9 @@ export class EcsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, vpcStack: VpcStack, stage: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const MIN_CAPACITY = stage === Stages.PROD ? 2 : 0;
+    const MAX_CAPACITY = stage === Stages.PROD ? 10 : 10;
+
     const region = props?.env?.region!
     const vpc = vpcStack.vpc;
 
@@ -148,7 +151,7 @@ export class EcsStack extends cdk.Stack {
       path: "/v1/health",
     });
 
-    const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: 2, maxCapacity: 10 });
+    const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: MIN_CAPACITY, maxCapacity: MAX_CAPACITY});
     scaling.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 70,
       scaleInCooldown: cdk.Duration.minutes(10),
