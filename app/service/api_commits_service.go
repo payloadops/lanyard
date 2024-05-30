@@ -34,14 +34,19 @@ func NewCommitsAPIService(
 }
 
 // CreateBranchCommit - Create a new commit for a branch
-func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId string, promptId string, branchId string, commitInput openapi.CommitInput) (openapi.ImplResponse, error) {
-	orgId, ok := ctx.Value("orgId").(string)
+func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitInput openapi.CommitInput) (openapi.ImplResponse, error) {
+	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
 	}
 
+	userID, ok := ctx.Value("userID").(string)
+	if !ok {
+		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("user not found")
+	}
+
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -50,7 +55,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId st
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -59,7 +64,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId st
 	}
 
 	// Check if the branch exists
-	branch, err := s.branchClient.GetBranch(ctx, promptId, branchId)
+	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -68,13 +73,12 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId st
 	}
 
 	commit := &dal.Commit{
-		PromptID: promptId,
-		BranchID: branchId,
-		Message:  commitInput.Message,
-		Content:  commitInput.Content,
+		UserID:  userID,
+		Message: commitInput.Message,
+		Content: commitInput.Content,
 	}
 
-	err = s.commitClient.CreateCommit(ctx, commit)
+	err = s.commitClient.CreateCommit(ctx, orgID, promptID, branchName, commit)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -83,14 +87,14 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectId st
 }
 
 // GetBranchCommit - Retrieve a specific commit or the latest commit of a branch
-func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId string, promptId string, branchId string, commitId string) (openapi.ImplResponse, error) {
-	orgId, ok := ctx.Value("orgId").(string)
+func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitID string) (openapi.ImplResponse, error) {
+	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
 	}
 
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -99,7 +103,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId strin
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -108,7 +112,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId strin
 	}
 
 	// Check if the branch exists
-	branch, err := s.branchClient.GetBranch(ctx, promptId, branchId)
+	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -116,11 +120,11 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId strin
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commit, err := s.commitClient.GetCommit(ctx, promptId, branchId, commitId)
+	commit, err := s.commitClient.GetCommit(ctx, orgID, promptID, branchName, commitID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
-	if commit == nil || commit.BranchID != branchId {
+	if commit == nil {
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("commit not found")
 	}
 
@@ -128,14 +132,14 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectId strin
 }
 
 // ListBranchCommits - List all commits of a specific branch
-func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId string, promptId string, branchId string) (openapi.ImplResponse, error) {
-	orgId, ok := ctx.Value("orgId").(string)
+func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectID string, promptID string, branchName string) (openapi.ImplResponse, error) {
+	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
 	}
 
 	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgId, projectId)
+	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -144,7 +148,7 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId str
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, projectId, promptId)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -153,7 +157,7 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId str
 	}
 
 	// Check if the branch exists
-	branch, err := s.branchClient.GetBranch(ctx, promptId, branchId)
+	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -161,7 +165,7 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectId str
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commits, err := s.commitClient.ListCommitsByBranch(ctx, promptId, branchId)
+	commits, err := s.commitClient.ListCommitsByBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
