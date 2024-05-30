@@ -1,150 +1,127 @@
-package dal
+package dal_test
 
-/*
 import (
 	"context"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
-
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-// mockedDynamoDB is a mock of the DynamoDBAPI
-type mockedDynamoDB struct {
-	mock.Mock
-	dynamodbiface.DynamoDBAPI
-}
-
-func (m *mockedDynamoDB) PutItemWithContext(ctx context.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error) {
-	args := m.Called(ctx, input)
-	return nil, args.Error(1)
-}
-
-func (m *mockedDynamoDB) GetItemWithContext(ctx context.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error) {
-	args := m.Called(ctx, input)
-	return args.Get(0).(*dynamodb.GetItemOutput), args.Error(1)
-}
-
-func (m *mockedDynamoDB) DeleteItemWithContext(ctx context.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error) {
-	args := m.Called(ctx, input)
-	return nil, args.Error(1)
-}
-
-func (m *mockedDynamoDB) ScanWithContext(ctx context.Context, input *dynamodb.ScanInput, opts ...request.Option) (*dynamodb.ScanOutput, error) {
-	args := m.Called(ctx, input)
-	return args.Get(0).(*dynamodb.ScanOutput), args.Error(1)
-}
-
-// TestCreateAPIKey tests the CreateAPIKey method
 func TestCreateAPIKey(t *testing.T) {
-	mockSvc := new(mockedDynamoDB)
-	client := APIKeyDBClient{service: mockSvc}
-	ctx := context.TODO()
-	apiKey := APIKey{
-		ID:        "abc123",
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewAPIKeyDBClient(mockSvc)
+
+	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
-		Key:       "key123",
-		Scopes:    []string{"scope1", "scope2", "scope3"},
+		Key:       "key1",
+		Scopes:    []string{"scope1", "scope2"},
 	}
 
-	now := time.Now().UTC().Format(time.RFC3339)
-	apiKey.CreatedAt = now
-	apiKey.UpdatedAt = now
+	mockSvc.EXPECT().
+		PutItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.PutItemOutput{}, nil)
 
-	av, _ := dynamodbattribute.MarshalMap(apiKey)
-	mockSvc.On("PutItemWithContext", ctx, mock.AnythingOfType("*dynamodb.PutItemInput")).Return(nil)
-
-	err := client.CreateAPIKey(ctx, apiKey)
+	err := client.CreateAPIKey(context.Background(), "org1", apiKey)
 	assert.NoError(t, err)
-	mockSvc.AssertExpectations(t)
 }
 
-// TestGetAPIKey tests the GetAPIKey method
 func TestGetAPIKey(t *testing.T) {
-	mockSvc := new(mockedDynamoDB)
-	client := APIKeyDBClient{service: mockSvc}
-	ctx := context.TODO()
-	apiKey := APIKey{
-		ID:        "abc123",
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewAPIKeyDBClient(mockSvc)
+
+	apiKey := dal.APIKey{
 		ProjectID: "proj1",
-		Key:       "key123",
-		Scopes:    []string{"scope1", "scope2", "scope3"},
+		APIKeyID:  "key1",
+		Key:       "key1",
+		Scopes:    []string{"scope1", "scope2"},
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
 
-	av, _ := dynamodbattribute.MarshalMap(apiKey)
-	mockSvc.On("GetItemWithContext", ctx, mock.AnythingOfType("*dynamodb.GetItemInput")).Return(&dynamodb.GetItemOutput{
-		Item: av,
-	}, nil)
+	item, _ := attributevalue.MarshalMap(apiKey)
+	mockSvc.EXPECT().
+		GetItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetAPIKey(ctx, "abc123")
+	result, err := client.GetAPIKey(context.Background(), "org1", "proj1", "key1")
 	assert.NoError(t, err)
-	assert.Equal(t, &apiKey, result)
-	mockSvc.AssertExpectations(t)
+	assert.NotNil(t, result)
+	assert.Equal(t, "key1", result.Key)
 }
 
-// TestUpdateAPIKey tests the UpdateAPIKey method
 func TestUpdateAPIKey(t *testing.T) {
-	mockSvc := new(mockedDynamoDB)
-	client := APIKeyDBClient{service: mockSvc}
-	ctx := context.TODO()
-	apiKey := APIKey{
-		ID:        "abc123",
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewAPIKeyDBClient(mockSvc)
+
+	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
-		Scopes:    []string{"scope1", "scope2", "scope3"},
-		Key:       "key123Updated",
+		APIKeyID:  "key1",
+		Key:       "key1",
+		Scopes:    []string{"scope1", "scope2"},
 	}
 
-	now := time.Now().UTC().Format(time.RFC3339)
-	apiKey.UpdatedAt = now
+	mockSvc.EXPECT().
+		PutItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.PutItemOutput{}, nil)
 
-	av, _ := dynamodbattribute.MarshalMap(apiKey)
-	mockSvc.On("PutItemWithContext", ctx, mock.AnythingOfType("*dynamodb.PutItemInput")).Return(nil)
-
-	err := client.UpdateAPIKey(ctx, apiKey)
+	err := client.UpdateAPIKey(context.Background(), "org1", apiKey)
 	assert.NoError(t, err)
-	mockSvc.AssertExpectations(t)
 }
 
-// TestDeleteAPIKey tests the DeleteAPIKey method
 func TestDeleteAPIKey(t *testing.T) {
-	mockSvc := new(mockedDynamoDB)
-	client := APIKeyDBClient{service: mockSvc}
-	ctx := context.TODO()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	mockSvc.On("DeleteItemWithContext", ctx, mock.AnythingOfType("*dynamodb.DeleteItemInput")).Return(nil)
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewAPIKeyDBClient(mockSvc)
 
-	err := client.DeleteAPIKey(ctx, "abc123")
+	mockSvc.EXPECT().
+		UpdateItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.UpdateItemOutput{}, nil)
+
+	err := client.DeleteAPIKey(context.Background(), "org1", "proj1", "key1")
 	assert.NoError(t, err)
-	mockSvc.AssertExpectations(t)
 }
 
-// TestListAPIKeys tests the ListAPIKeys method
-func TestListAPIKeys(t *testing.T) {
-	mockSvc := new(mockedDynamoDB)
-	client := APIKeyDBClient{service: mockSvc}
-	ctx := context.TODO()
-	apiKeys := []APIKey{
-		{
-			ID:        "abc123",
-			ProjectID: "proj1",
-			Scopes:    []string{"scope1", "scope2", "scope3"},
-			Key:       "key123",
-		},
+func TestListAPIKeysByProject(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewAPIKeyDBClient(mockSvc)
+
+	apiKey := dal.APIKey{
+		ProjectID: "proj1",
+		APIKeyID:  "key1",
+		Key:       "key1",
+		Scopes:    []string{"scope1", "scope2"},
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
 
-	av, _ := dynamodbattribute.MarshalList(apiKeys)
-	mockSvc.On("ScanWithContext", ctx, mock.AnythingOfType("*dynamodb.ScanInput")).Return(&dynamodb.ScanOutput{
-		Items: av,
-	}, nil)
+	item, _ := attributevalue.MarshalMap(apiKey)
+	mockSvc.EXPECT().
+		Query(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListAPIKeys(ctx)
+	result, err := client.ListAPIKeysByProject(context.Background(), "org1", "proj1")
 	assert.NoError(t, err)
-	assert.Equal(t, apiKeys, result)
-	mockSvc.AssertExpectations(t)
+	assert.NotNil(t, result)
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, "key1", result[0].Key)
 }
-*/

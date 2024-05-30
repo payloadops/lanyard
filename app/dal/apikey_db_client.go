@@ -1,27 +1,26 @@
 package dal
 
-/*
 import (
 	"context"
 	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/payloadops/plato/app/utils"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_apikey_db_client.go "github.com/payloadops/plato/api/dal" APIKeyManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_apikey_db_client.go "github.com/payloadops/plato/app/dal" APIKeyManager
 
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {
-	CreateAPIKey(ctx context.Context, apiKey APIKey) error
-	GetAPIKey(ctx context.Context, id string) (*APIKey, error)
-	UpdateAPIKey(ctx context.Context, apiKey APIKey) error
-	DeleteAPIKey(ctx context.Context, id string) error
-	ListAPIKeys(ctx context.Context, projectId string) ([]APIKey, error)
+	CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
+	UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
+	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
 }
 
 // Ensure APIKeyDBClient implements the APIKeyManager interface
@@ -29,8 +28,8 @@ var _ APIKeyManager = &APIKeyDBClient{}
 
 // APIKey represents an API key associated with a project.
 type APIKey struct {
-	ID        string   `json:"id"`
 	ProjectID string   `json:"projectId"`
+	APIKeyID  string   `json:"apiKeyId"`
 	Key       string   `json:"key"`
 	Scopes    []string `json:"scopes"`
 	CreatedAt string   `json:"createdAt"`
@@ -39,23 +38,31 @@ type APIKey struct {
 
 // APIKeyDBClient is a client for interacting with DynamoDB for API key-related operations.
 type APIKeyDBClient struct {
-	service *dynamodb.Client
+	service DynamoDBAPI
 }
 
-// NewAPIKeyDBClient creates a new APIKeyDBClient with the given AWS configuration.
-func NewAPIKeyDBClient() (*APIKeyDBClient, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-	svc := dynamodb.NewFromConfig(cfg)
+// NewAPIKeyDBClient creates a new APIKeyDBClient.
+func NewAPIKeyDBClient(service DynamoDBAPI) *APIKeyDBClient {
 	return &APIKeyDBClient{
-		service: svc,
-	}, nil
+		service: service,
+	}
+}
+
+// createAPIKeyCompositeKeys generates the partition key (PK) and sort key (SK) for an API key.
+func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, string) {
+	return "Org#" + orgID + "Project#" + projectID, "APIKey#" + apiKeyID
 }
 
 // CreateAPIKey creates a new API key in the DynamoDB table.
-func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey APIKey) error {
+func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
+	ksuid, err := utils.GenerateKSUID()
+	if err != nil {
+		return fmt.Errorf("failed to create ksuid: %v", err)
+	}
+
+	apiKey.APIKeyID = ksuid
+	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
 	apiKey.UpdatedAt = now
@@ -65,9 +72,17 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey APIKey) error 
 		return fmt.Errorf("failed to marshal API key: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("APIKeys"),
-		Item:      av,
+		Item:      item,
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -78,12 +93,14 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey APIKey) error 
 	return nil
 }
 
-// GetAPIKey retrieves an API key by ID from the DynamoDB table.
-func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, id string) (*APIKey, error) {
+// GetAPIKey retrieves an API key by org ID, project ID and API key ID from the DynamoDB table.
+func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) (*APIKey, error) {
+	pk, sk := createAPIKeyCompositeKeys(orgID, projectID, apiKeyID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -106,7 +123,8 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, id string) (*APIKey, err
 }
 
 // UpdateAPIKey updates an existing API key in the DynamoDB table.
-func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey APIKey) error {
+func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
+	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
 	apiKey.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(apiKey)
@@ -114,9 +132,17 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey APIKey) error 
 		return fmt.Errorf("failed to marshal API key: %v", err)
 	}
 
+	item := map[string]types.AttributeValue{
+		"PK": &types.AttributeValueMemberS{Value: pk},
+		"SK": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("APIKeys"),
-		Item:      av,
+		Item:      item,
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -127,36 +153,54 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey APIKey) error 
 	return nil
 }
 
-// DeleteAPIKey deletes an API key by ID from the DynamoDB table.
-func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, id string) error {
-	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String("APIKeys"),
-		Key: map[string]types.AttributeValue{
-			"id": &types.AttributeValueMemberS{Value: id},
+// DeleteAPIKey marks an API key as deleted by org ID, project ID, and API key ID in the DynamoDB table.
+func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error {
+	pk, sk := createAPIKeyCompositeKeys(orgID, projectID, apiKeyID)
+	update := map[string]types.AttributeValueUpdate{
+		"Deleted": {
+			Value:  &types.AttributeValueMemberBOOL{Value: true},
+			Action: types.AttributeActionPut,
+		},
+		"UpdatedAt": {
+			Value:  &types.AttributeValueMemberS{Value: time.Now().UTC().Format(time.RFC3339)},
+			Action: types.AttributeActionPut,
 		},
 	}
 
-	_, err := d.service.DeleteItem(ctx, input)
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("APIKeys"),
+		Key: map[string]types.AttributeValue{
+			"PK": &types.AttributeValueMemberS{Value: pk},
+			"SK": &types.AttributeValueMemberS{Value: sk},
+		},
+		AttributeUpdates:    update,
+		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
-		return fmt.Errorf("failed to delete item from DynamoDB: %v", err)
+		return fmt.Errorf("failed to delete item in DynamoDB: %v", err)
 	}
 
 	return nil
 }
 
-// ListAPIKeys retrieves all API keys for a specific project from the DynamoDB table.
-func (d *APIKeyDBClient) ListAPIKeys(ctx context.Context, projectId string) ([]APIKey, error) {
-	input := &dynamodb.ScanInput{
-		TableName:        aws.String("APIKeys"),
-		FilterExpression: aws.String("projectId = :projectId"),
+// ListAPIKeysByProject retrieves all API keys for a specific project from the DynamoDB table.
+func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error) {
+	pk, _ := createAPIKeyCompositeKeys(orgID, projectID, "")
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("APIKeys"),
+		KeyConditionExpression: aws.String("PK = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":projectId": &types.AttributeValueMemberS{Value: projectId},
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
 		},
 	}
 
-	result, err := d.service.Scan(ctx, input)
+	result, err := d.service.Query(ctx, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to scan items in DynamoDB: %v", err)
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
 	var apiKeys []APIKey
@@ -167,4 +211,3 @@ func (d *APIKeyDBClient) ListAPIKeys(ctx context.Context, projectId string) ([]A
 
 	return apiKeys, nil
 }
-*/
