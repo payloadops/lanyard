@@ -59,13 +59,33 @@ export class EcsStack extends cdk.Stack {
       description: 'Role for ECS tasks to interact with ECR and other AWS services',
     });
     
-    // Add ECR related permissions to the role
     ecsTaskRole.addToPolicy(new iam.PolicyStatement({
       actions: [
-        's3:*',
-        'dynamo:*'
+        'dynamodb:Query',
+        'dynamodb:GetItem',
+        'dynamodb:Scan',
+        'dynamodb:PutItem',
+        'dynamodb:UpdateItem',
+        'dynamodb:DeleteItem'
       ],
       resources: ['*'],
+    }));
+
+    ecsTaskRole.addToPolicy(new iam.PolicyStatement({
+      actions: [
+        's3:ListBucket',
+        's3:GetBucketLocation',
+        's3:GetObject',
+        's3:PutObject',
+        's3:DeleteObject',
+        's3:ListBucketMultipartUploads',
+        's3:AbortMultipartUpload',
+        's3:ListMultipartUploadParts'
+      ],
+      resources: [
+        `arn:aws:s3:::${stage}-${region}-s3stack-*`, // Bucket-level actions
+        `arn:aws:s3:::${stage}-${region}-s3stack-*/*` // Object-level actions
+      ],
     }));
     
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', stage, region), {
