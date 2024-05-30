@@ -31,11 +31,11 @@ func TestCreateCommit(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := &dal.Commit{
-		PromptID: "prompt1",
-		BranchID: "branch1",
-		UserID:   "user1",
-		Message:  "Initial commit",
-		Content:  "This is the commit content.",
+		PromptID:   "prompt1",
+		BranchName: "branch1",
+		UserID:     "user1",
+		Message:    "Initial commit",
+		Content:    "This is the commit content.",
 	}
 
 	mockS3.EXPECT().
@@ -68,12 +68,12 @@ func TestGetCommit(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := dal.Commit{
-		PromptID:  "prompt1",
-		BranchID:  "branch1",
-		CommitID:  "commit1",
-		VersionID: "1",
-		Checksum:  "abc123",
-		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		PromptID:   "prompt1",
+		BranchName: "branch1",
+		CommitID:   "commit1",
+		VersionID:  "1",
+		Checksum:   "abc123",
+		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
 	}
 
 	item, _ := attributevalue.MarshalMap(commit)
@@ -111,12 +111,12 @@ func TestListCommitsByBranch(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := dal.Commit{
-		PromptID:  "prompt1",
-		BranchID:  "branch1",
-		CommitID:  "commit1",
-		VersionID: "1",
-		Checksum:  "abc123",
-		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+		PromptID:   "prompt1",
+		BranchName: "branch1",
+		CommitID:   "commit1",
+		VersionID:  "1",
+		Checksum:   "abc123",
+		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
 	}
 
 	item, _ := attributevalue.MarshalMap(commit)
