@@ -53,17 +53,6 @@ type HealthCheckAPIRouter interface {
 	HealthCheck(http.ResponseWriter, *http.Request)
 }
 
-// OrganizationsAPIRouter defines the required methods for binding the api requests to a responses for the OrganizationsAPI
-// The OrganizationsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a OrganizationsAPIServicer to perform the required actions, then write the service results to the http response.
-type OrganizationsAPIRouter interface {
-	CreateOrganization(http.ResponseWriter, *http.Request)
-	DeleteOrganization(http.ResponseWriter, *http.Request)
-	GetOrganization(http.ResponseWriter, *http.Request)
-	ListOrganizations(http.ResponseWriter, *http.Request)
-	UpdateOrganization(http.ResponseWriter, *http.Request)
-}
-
 // ProjectsAPIRouter defines the required methods for binding the api requests to a responses for the ProjectsAPI
 // The ProjectsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a ProjectsAPIServicer to perform the required actions, then write the service results to the http response.
@@ -84,28 +73,6 @@ type PromptsAPIRouter interface {
 	GetPrompt(http.ResponseWriter, *http.Request)
 	ListPrompts(http.ResponseWriter, *http.Request)
 	UpdatePrompt(http.ResponseWriter, *http.Request)
-}
-
-// TeamsAPIRouter defines the required methods for binding the api requests to a responses for the TeamsAPI
-// The TeamsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a TeamsAPIServicer to perform the required actions, then write the service results to the http response.
-type TeamsAPIRouter interface {
-	CreateTeam(http.ResponseWriter, *http.Request)
-	DeleteTeam(http.ResponseWriter, *http.Request)
-	GetTeam(http.ResponseWriter, *http.Request)
-	ListTeams(http.ResponseWriter, *http.Request)
-	UpdateTeam(http.ResponseWriter, *http.Request)
-}
-
-// UsersAPIRouter defines the required methods for binding the api requests to a responses for the UsersAPI
-// The UsersAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a UsersAPIServicer to perform the required actions, then write the service results to the http response.
-type UsersAPIRouter interface {
-	CreateUser(http.ResponseWriter, *http.Request)
-	DeleteUser(http.ResponseWriter, *http.Request)
-	GetUser(http.ResponseWriter, *http.Request)
-	ListUsers(http.ResponseWriter, *http.Request)
-	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
 // APIKeysAPIServicer defines the api actions for the APIKeysAPI service
@@ -149,18 +116,6 @@ type HealthCheckAPIServicer interface {
 	HealthCheck(context.Context) (ImplResponse, error)
 }
 
-// OrganizationsAPIServicer defines the api actions for the OrganizationsAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type OrganizationsAPIServicer interface {
-	CreateOrganization(context.Context, OrganizationInput) (ImplResponse, error)
-	DeleteOrganization(context.Context, string) (ImplResponse, error)
-	GetOrganization(context.Context, string) (ImplResponse, error)
-	ListOrganizations(context.Context) (ImplResponse, error)
-	UpdateOrganization(context.Context, string, OrganizationInput) (ImplResponse, error)
-}
-
 // ProjectsAPIServicer defines the api actions for the ProjectsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
@@ -183,28 +138,4 @@ type PromptsAPIServicer interface {
 	GetPrompt(context.Context, string, string) (ImplResponse, error)
 	ListPrompts(context.Context, string) (ImplResponse, error)
 	UpdatePrompt(context.Context, string, string, PromptInput) (ImplResponse, error)
-}
-
-// TeamsAPIServicer defines the api actions for the TeamsAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type TeamsAPIServicer interface {
-	CreateTeam(context.Context, string, TeamInput) (ImplResponse, error)
-	DeleteTeam(context.Context, string, string) (ImplResponse, error)
-	GetTeam(context.Context, string, string) (ImplResponse, error)
-	ListTeams(context.Context, string) (ImplResponse, error)
-	UpdateTeam(context.Context, string, string, TeamInput) (ImplResponse, error)
-}
-
-// UsersAPIServicer defines the api actions for the UsersAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type UsersAPIServicer interface {
-	CreateUser(context.Context, UserInput) (ImplResponse, error)
-	DeleteUser(context.Context, string) (ImplResponse, error)
-	GetUser(context.Context, string) (ImplResponse, error)
-	ListUsers(context.Context) (ImplResponse, error)
-	UpdateUser(context.Context, string, UserInput) (ImplResponse, error)
 }

@@ -43,6 +43,7 @@ func TestGetPrompt(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := dal.Prompt{
+		OrgID:       "org1",
 		ProjectID:   "project1",
 		PromptID:    "prompt1",
 		Name:        "Prompt1",
@@ -57,7 +58,7 @@ func TestGetPrompt(t *testing.T) {
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetPrompt(context.Background(), "project1", "prompt1")
+	result, err := client.GetPrompt(context.Background(), "org1", "project1", "prompt1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "Prompt1", result.Name)
@@ -96,7 +97,7 @@ func TestDeletePrompt(t *testing.T) {
 		UpdateItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.UpdateItemOutput{}, nil)
 
-	err := client.DeletePrompt(context.Background(), "project1", "prompt1")
+	err := client.DeletePrompt(context.Background(), "org1", "project1", "prompt1")
 	assert.NoError(t, err)
 }
 
@@ -108,6 +109,7 @@ func TestListPromptsByProject(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := dal.Prompt{
+		OrgID:       "orgId",
 		ProjectID:   "project1",
 		PromptID:    "prompt1",
 		Name:        "Prompt1",
@@ -122,7 +124,7 @@ func TestListPromptsByProject(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListPromptsByProject(context.Background(), "project1")
+	result, err := client.ListPromptsByProject(context.Background(), "org1", "project1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))

@@ -4,11 +4,8 @@ openapi/api_api_keys.go
 openapi/api_branches.go
 openapi/api_commits.go
 openapi/api_health_check.go
-openapi/api_organizations.go
 openapi/api_projects.go
 openapi/api_prompts.go
-openapi/api_teams.go
-openapi/api_users.go
 openapi/error.go
 openapi/helpers.go
 openapi/impl.go
@@ -22,14 +19,8 @@ openapi/model_commit_input.go
 openapi/model_create_project_400_response.go
 openapi/model_health_check_200_response.go
 openapi/model_health_check_500_response.go
-openapi/model_organization.go
-openapi/model_organization_input.go
 openapi/model_project.go
 openapi/model_project_input.go
 openapi/model_prompt.go
 openapi/model_prompt_input.go
 openapi/model_prompt_stub.go
-openapi/model_team.go
-openapi/model_team_input.go
-openapi/model_user.go
-openapi/model_user_input.go
