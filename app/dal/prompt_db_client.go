@@ -48,7 +48,7 @@ func NewPromptDBClient(service DynamoDBAPI) *PromptDBClient {
 	}
 }
 
-// createProjectCompositeKeys generates the partition key (PK) and sort key (SK) for a prompt.
+// createProjectCompositeKeys generates the partition key (pk) and sort key (SK) for a prompt.
 func createPromptCompositeKeys(orgID, projectID, promptID string) (string, string) {
 	return "Org#" + orgID + "Project#" + projectID, "Prompt#" + promptID
 }
@@ -73,7 +73,7 @@ func (d *PromptDBClient) CreatePrompt(ctx context.Context, orgID, projectID stri
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
 		"SK": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
@@ -100,7 +100,7 @@ func (d *PromptDBClient) GetPrompt(ctx context.Context, orgID, projectID, prompt
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Prompts"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
 			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
@@ -138,7 +138,7 @@ func (d *PromptDBClient) UpdatePrompt(ctx context.Context, orgID string, project
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
 		"SK": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
@@ -148,7 +148,7 @@ func (d *PromptDBClient) UpdatePrompt(ctx context.Context, orgID string, project
 	input := &dynamodb.PutItemInput{
 		TableName:           aws.String("Prompts"),
 		Item:                item,
-		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(SK)"),
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -178,11 +178,11 @@ func (d *PromptDBClient) DeletePrompt(ctx context.Context, orgID, projectID, pro
 	input := &dynamodb.UpdateItemInput{
 		TableName: aws.String("Prompts"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
 			"SK": &types.AttributeValueMemberS{Value: sk},
 		},
 		AttributeUpdates:    update,
-		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(SK)"),
 	}
 
 	_, err := d.service.UpdateItem(ctx, input)
@@ -198,7 +198,7 @@ func (d *PromptDBClient) ListPromptsByProject(ctx context.Context, orgID string,
 	pk, _ := createPromptCompositeKeys(orgID, projectID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Prompts"),
-		KeyConditionExpression: aws.String("PK = :pk"),
+		KeyConditionExpression: aws.String("pk = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{
 				Value: pk,
