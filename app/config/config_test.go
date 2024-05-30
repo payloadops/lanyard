@@ -33,6 +33,7 @@ func TestLoadConfig(t *testing.T) {
 	setEnv("OTEL_EXPORTER_OTLP_CA_CERT", "test-ca-cert")
 	setEnv("BIND_ADDRESS", ":8080")
 	setEnv("JWT_SECRET", "test-jwt-secret")
+	setEnv("PROMPT_BUCKET", "test-prompt-bucket")
 
 	defer unsetEnv("AWS_DEFAULT_REGION")
 	defer unsetEnv("AWS_ACCESS_KEY_ID")
@@ -44,6 +45,7 @@ func TestLoadConfig(t *testing.T) {
 	defer unsetEnv("OTEL_EXPORTER_OTLP_CA_CERT")
 	defer unsetEnv("BIND_ADDRESS")
 	defer unsetEnv("JWT_SECRET")
+	defer unsetEnv("PROMPT_BUCKET")
 
 	cfg, err := LoadConfig()
 
@@ -61,6 +63,7 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "test-jwt-secret", cfg.JWTSecret)
 	assert.Equal(t, "http://localhost:4317", cfg.OpenTelemetry.ProviderEndpoint)
 	assert.Equal(t, "test-ca-cert", cfg.OpenTelemetry.CACert)
+	assert.Equal(t, "test-prompt-bucket", cfg.PromptBucket)
 }
 
 func TestLoadConfigMissingEnvVars(t *testing.T) {
@@ -75,6 +78,7 @@ func TestLoadConfigMissingEnvVars(t *testing.T) {
 	unsetEnv("OTEL_EXPORTER_OTLP_CA_CERT")
 	unsetEnv("BIND_ADDRESS")
 	unsetEnv("JWT_SECRET")
+	unsetEnv("PROMPT_BUCKET")
 
 	cfg, err := LoadConfig()
 
@@ -88,6 +92,7 @@ func TestLoadConfigDefaultValues(t *testing.T) {
 	setEnv("AWS_ACCESS_KEY_ID", "test-access-key-id")
 	setEnv("AWS_SECRET_ACCESS_KEY", "test-secret-access-key")
 	setEnv("JWT_SECRET", "test-jwt-secret")
+	setEnv("PROMPT_BUCKET", "test-prompt-bucket")
 
 	defer unsetEnv("AWS_DEFAULT_REGION")
 	defer unsetEnv("AWS_ACCESS_KEY_ID")

@@ -101,7 +101,7 @@ func main() {
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
 	promptDBClient := dal.NewPromptDBClient(dynamoClient)
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
-	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
+	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg.PromptBucket)
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
@@ -131,6 +131,7 @@ func main() {
 
 	// Initialize router
 	router := openapi.NewRouter(
+		cfg,
 		HealthCheckAPIController,
 		ProjectsAPIController,
 		PromptsAPIController,

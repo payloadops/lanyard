@@ -38,17 +38,19 @@ type Commit struct {
 
 // CommitDBClient is a client for interacting with DynamoDB for commit-related operations.
 type CommitDBClient struct {
-	dynamoDb DynamoDBAPI
-	s3       S3API
-	cache    cache.Cache
+	dynamoDb   DynamoDBAPI
+	s3         S3API
+	cache      cache.Cache
+	bucketName string
 }
 
 // NewCommitDBClient creates a new CommitDBClient with the AWS configuration.
-func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache) *CommitDBClient {
+func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache, bucketName string) *CommitDBClient {
 	return &CommitDBClient{
-		dynamoDb: dynamoDb,
-		s3:       s3,
-		cache:    cache,
+		dynamoDb:   dynamoDb,
+		s3:         s3,
+		cache:      cache,
+		bucketName: bucketName,
 	}
 }
 
@@ -65,9 +67,9 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, promptID, bran
 	commit.CreatedAt = now
 
 	// Upload the commit content to S3 and get the version ID
-	s3Key := fmt.Sprintf("commits/%s/%s/%s.txt", orgID, promptID, branchName)
+	s3Key := fmt.Sprintf("prompts/%s/%s/%s.txt", orgID, promptID, branchName)
 	putObjectOutput, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String("your-bucket-name"),
+		Bucket: aws.String(d.bucketName),
 		Key:    aws.String(s3Key),
 		Body:   strings.NewReader(commit.Content),
 	})
@@ -144,10 +146,10 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchN
 	}
 
 	// Retrieve the content from S3 using the branchName and VersionID if not in cache
-	key := fmt.Sprintf("commits/%s/%s/%s.txt", orgID, promptID, branchName)
+	s3Key := fmt.Sprintf("branches/%s/%s/%s.txt", orgID, promptID, branchName)
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
-		Bucket:    aws.String("your-bucket-name"),
-		Key:       aws.String(key),
+		Bucket:    aws.String(d.bucketName),
+		Key:       aws.String(s3Key),
 		VersionId: aws.String(commit.CommitID),
 	})
 	if err != nil {

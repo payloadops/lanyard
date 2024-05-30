@@ -28,7 +28,7 @@ func TestCreateCommit(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
 
 	commit := &dal.Commit{
 		UserID:  "user1",
@@ -62,7 +62,7 @@ func TestGetCommit(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
 
 	commit := dal.Commit{
 		CommitID:  "commit1",
@@ -101,7 +101,7 @@ func TestListCommitsByBranch(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
 
 	commit := dal.Commit{
 		CommitID:  "1",
