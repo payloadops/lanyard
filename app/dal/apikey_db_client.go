@@ -12,6 +12,9 @@ import (
 	"github.com/payloadops/plato/app/utils"
 )
 
+// SecretLength represents the length of the secret to generate for API keys.
+const SecretLength = 32
+
 //go:generate mockgen -package=mocks -destination=mocks/mock_apikey_db_client.go "github.com/payloadops/plato/app/dal" APIKeyManager
 
 // APIKeyManager defines the operations available for managing API keys.
@@ -67,6 +70,12 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey 
 	apiKey.CreatedAt = now
 	apiKey.UpdatedAt = now
 
+	key, err := utils.GenerateSecret(SecretLength)
+	if err != nil {
+		return err
+	}
+
+	apiKey.Key = key
 	av, err := attributevalue.MarshalMap(apiKey)
 	if err != nil {
 		return fmt.Errorf("failed to marshal API key: %v", err)
