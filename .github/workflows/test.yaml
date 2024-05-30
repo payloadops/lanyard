@@ -8,8 +8,6 @@ on:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
-    needs: [openapi-diff]
-
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -29,8 +27,6 @@ jobs:
 
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: [unit-tests, openapi-diff, cdk-checks]
-
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -78,8 +74,6 @@ jobs:
 
   cdk-checks:
     runs-on: ubuntu-latest
-    needs: unit-tests
-
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
