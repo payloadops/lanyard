@@ -36,7 +36,7 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 
 			// Parse and validate the token
 			claims := &Claims{}
-			jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 				// Ensure the token method conforms to "alg" expected value
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, errors.New("unexpected signing method")
@@ -44,14 +44,14 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 
 				return []byte(cfg.JWTSecret), nil
 			})
-			// if err != nil || !token.Valid {
-			// 	http.Error(w, "Invalid token", http.StatusUnauthorized)
-			// 	return
-			// }
+			if err != nil || !token.Valid {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
 
 			// Set the user and org context
-			ctx := context.WithValue(r.Context(), "OrgID", claims.OrgID)
-			ctx = context.WithValue(ctx, "UserID", claims.Subject)
+			ctx := context.WithValue(r.Context(), "orgID", claims.OrgID)
+			ctx = context.WithValue(ctx, "userID", claims.Subject)
 
 			// Call the next handler with the new context
 			next.ServeHTTP(w, r.WithContext(ctx))
