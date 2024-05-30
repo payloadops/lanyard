@@ -6,6 +6,7 @@ import { EcsStack } from '../lib/ecs-stack';
 import { ElastiCacheStack } from '../lib/elasticache-stack';
 import Regions from '../lib/constants/regions';
 import { disambiguator } from '../lib/util/disambiguator';
+import { S3Stack } from './s3-stack';
 
 export class Stage extends cdk.Stage {
     constructor(scope: Construct, id: string, stage: string, props?: cdk.StageProps) {
@@ -27,6 +28,10 @@ export class Stage extends cdk.Stage {
         new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
             env: { account: props?.env?.account, region: props?.env?.region },
           })
+
+          new S3Stack(this, disambiguator('S3Stack', stage, region), stage, {
+            env: { account: props?.env?.account, region: props?.env?.region },
+          });
       }
     }
 }
