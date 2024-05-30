@@ -120,7 +120,6 @@ export class EcsStack extends cdk.Stack {
           "REGION": region,
           "STAGE": stage,
           "PROMPT_BUCKET": bucketName,
-          "TEST": "test"
         },
         secrets: {
           "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
