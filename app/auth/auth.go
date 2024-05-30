@@ -49,6 +49,7 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 				return
 			}
 
+			// Set the user and org context
 			ctx := context.WithValue(r.Context(), "OrgID", claims.OrgID)
 			ctx = context.WithValue(ctx, "UserID", claims.Subject)
 
