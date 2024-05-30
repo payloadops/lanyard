@@ -12,6 +12,11 @@ export class S3Stack extends cdk.Stack {
         // removalPolicy: cdk.RemovalPolicy.RETAIN
       })
 
+      new cdk.CfnOutput(this, 'BucketNameOutput', {
+        value: bucket.bucketName,
+        exportName: `BucketName-${this.region}`,
+      });
+
       this.bucketName = bucket.bucketName
     }
 }
