@@ -43,7 +43,7 @@ func NewBranchDBClient(service DynamoDBAPI) *BranchDBClient {
 	}
 }
 
-// createBranchCompositeKeys generates the partition key (PK) and sort key (SK) for a branch.
+// createBranchCompositeKeys generates the partition key (pk) and sort key (sk) for a branch.
 func createBranchCompositeKeys(orgID, promptID, branchName string) (string, string) {
 	return "Org#" + orgID + "Prompt#" + promptID, "Branch#" + branchName
 }
@@ -61,8 +61,8 @@ func (d *BranchDBClient) CreateBranch(ctx context.Context, orgID, promptID strin
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -87,8 +87,8 @@ func (d *BranchDBClient) GetBranch(ctx context.Context, orgID, promptID, branchN
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Branches"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -123,11 +123,11 @@ func (d *BranchDBClient) DeleteBranch(ctx context.Context, orgID, promptID, bran
 	input := &dynamodb.UpdateItemInput{
 		TableName: aws.String("Branches"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 		AttributeUpdates:    update,
-		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
 	}
 
 	_, err := d.service.UpdateItem(ctx, input)
@@ -143,7 +143,7 @@ func (d *BranchDBClient) ListBranchesByPrompt(ctx context.Context, orgID, prompt
 	pk, _ := createBranchCompositeKeys(orgID, promptID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Branches"),
-		KeyConditionExpression: aws.String("PK = :pk"),
+		KeyConditionExpression: aws.String("pk = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{
 				Value: pk,

@@ -49,7 +49,7 @@ func NewProjectDBClient(service DynamoDBAPI) *ProjectDBClient {
 	}
 }
 
-// createProjectCompositeKeys generates the partition key (pk) and sort key (SK) for a project.
+// createProjectCompositeKeys generates the partition key (pk) and sort key (sk) for a project.
 func createProjectCompositeKeys(orgID, projectID string) (string, string) {
 	return "Org#" + orgID, "Project#" + projectID
 }
@@ -75,7 +75,7 @@ func (d *ProjectDBClient) CreateProject(ctx context.Context, orgID string, proje
 
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -101,7 +101,7 @@ func (d *ProjectDBClient) GetProject(ctx context.Context, orgID, projectID strin
 		TableName: aws.String("Projects"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -139,7 +139,7 @@ func (d *ProjectDBClient) UpdateProject(ctx context.Context, orgID string, proje
 
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -148,7 +148,7 @@ func (d *ProjectDBClient) UpdateProject(ctx context.Context, orgID string, proje
 	input := &dynamodb.PutItemInput{
 		TableName:           aws.String("Projects"),
 		Item:                item,
-		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
 	}
 
 	_, err = d.service.PutItem(ctx, input)
@@ -179,10 +179,10 @@ func (d *ProjectDBClient) DeleteProject(ctx context.Context, orgID, projectID st
 		TableName: aws.String("Projects"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 		AttributeUpdates:    update,
-		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
 	}
 
 	_, err := d.service.UpdateItem(ctx, input)

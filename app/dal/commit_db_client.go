@@ -3,12 +3,13 @@ package dal
 import (
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/payloadops/plato/app/cache"
-	"github.com/payloadops/plato/app/config"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/payloadops/plato/app/cache"
+	"github.com/payloadops/plato/app/config"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -55,7 +56,7 @@ func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache, config
 	}
 }
 
-// createCommitCompositeKeys generates the partition key (PK) and sort key (SK) for a commit.
+// createCommitCompositeKeys generates the partition key (pk) and sort key (sk) for a commit.
 func createCommitCompositeKeys(orgID, promptID, branchName, commitID string) (string, string) {
 	return fmt.Sprintf("Org#%sPrompt#%s#Branch#%s", orgID, promptID, branchName), fmt.Sprintf("Commit#%s", commitID)
 }
@@ -87,8 +88,8 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, promptID, bran
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -119,8 +120,8 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchN
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -178,7 +179,7 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, orgID, promptI
 	pk, _ := createCommitCompositeKeys(orgID, promptID, branchName, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Commits"),
-		KeyConditionExpression: aws.String("PK = :pk"),
+		KeyConditionExpression: aws.String("pk = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{
 				Value: pk,

@@ -52,7 +52,7 @@ func NewAPIKeyDBClient(service DynamoDBAPI) *APIKeyDBClient {
 	}
 }
 
-// createAPIKeyCompositeKeys generates the partition key (PK) and sort key (SK) for an API key.
+// createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
 func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, string) {
 	return "Org#" + orgID + "Project#" + projectID, "APIKey#" + apiKeyID
 }
@@ -77,8 +77,8 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey 
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -103,8 +103,8 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
@@ -137,8 +137,8 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, orgID string, apiKey 
 	}
 
 	item := map[string]types.AttributeValue{
-		"PK": &types.AttributeValueMemberS{Value: pk},
-		"SK": &types.AttributeValueMemberS{Value: sk},
+		"pk": &types.AttributeValueMemberS{Value: pk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -174,11 +174,11 @@ func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, api
 	input := &dynamodb.UpdateItemInput{
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
-			"PK": &types.AttributeValueMemberS{Value: pk},
-			"SK": &types.AttributeValueMemberS{Value: sk},
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 		AttributeUpdates:    update,
-		ConditionExpression: aws.String("attribute_exists(PK) AND attribute_exists(SK)"),
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
 	}
 
 	_, err := d.service.UpdateItem(ctx, input)
@@ -194,7 +194,7 @@ func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projec
 	pk, _ := createAPIKeyCompositeKeys(orgID, projectID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("APIKeys"),
-		KeyConditionExpression: aws.String("PK = :pk"),
+		KeyConditionExpression: aws.String("pk = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{
 				Value: pk,
