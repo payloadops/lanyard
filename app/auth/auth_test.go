@@ -15,9 +15,9 @@ import (
 // generateTestToken generates a JWT token for testing with the specified secret, user ID, and organization ID.
 func generateTestToken(secret, userID, orgID string) string {
 	claims := &Claims{
-		UserID: userID,
-		OrgID:  orgID,
+		OrgID: orgID,
 		StandardClaims: jwt.StandardClaims{
+			Subject:   userID,
 			ExpiresAt: time.Now().Add(time.Hour).Unix(),
 		},
 	}

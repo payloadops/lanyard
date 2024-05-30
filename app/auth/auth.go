@@ -12,8 +12,7 @@ import (
 // Claims represents the JWT claims containing the standard claims, user ID, and organization ID.
 type Claims struct {
 	jwt.StandardClaims
-	UserID string `json:"user_id"`
-	OrgID  string `json:"org_id"`
+	OrgID string `json:"org"`
 }
 
 // AuthMiddleware returns a middleware function that validates the JWT token from the Authorization header.
@@ -46,7 +45,7 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 
 			// Set the user and org context
 			ctx := context.WithValue(r.Context(), "OrgID", claims.OrgID)
-			ctx = context.WithValue(ctx, "UserID", claims.UserID)
+			ctx = context.WithValue(ctx, "UserID", claims.Subject)
 
 			// Call the next handler with the new context
 			next.ServeHTTP(w, r.WithContext(ctx))
