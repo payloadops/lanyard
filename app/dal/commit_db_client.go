@@ -21,9 +21,9 @@ import (
 
 // CommitManager defines the operations available for managing commits.
 type CommitManager interface {
-	CreateCommit(ctx context.Context, orgID, promptID, branchName string, commit *Commit) error
-	GetCommit(ctx context.Context, orgID, promptID, branchName, commitID string) (*Commit, error)
-	ListCommitsByBranch(ctx context.Context, orgID, promptID, branchName string) ([]Commit, error)
+	CreateCommit(ctx context.Context, orgID, projectID, promptID, branchName string, commit *Commit) error
+	GetCommit(ctx context.Context, orgID, projectID, promptID, branchName, commitID string) (*Commit, error)
+	ListCommitsByBranch(ctx context.Context, orgID, projectID, promptID, branchName string) ([]Commit, error)
 }
 
 // Ensure CommitDBClient implements the CommitManager interface
@@ -62,14 +62,14 @@ func createCommitCompositeKeys(orgID, promptID, branchName, commitID string) (st
 }
 
 // CreateCommit creates a new commit in the DynamoDB table.
-func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, promptID, branchName string, commit *Commit) error {
+func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, promptID, branchName string, commit *Commit) error {
 	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
 
 	// Upload the commit content to S3 and get the version ID
-	s3Key := fmt.Sprintf("prompts/%s/%s/%s.txt", orgID, promptID, branchName)
+	s3Key := fmt.Sprintf("prompts/%s/%/%s/%s.txt", orgID, projectID, promptID, branchName)
 	putObjectOutput, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(d.bucketName),
 		Key:    aws.String(s3Key),
@@ -115,7 +115,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, promptID, bran
 }
 
 // GetCommit retrieves a commit by prompt ID, branch ID, and commit ID from the DynamoDB table.
-func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchName, commitID string) (*Commit, error) {
+func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, promptID, branchName, commitID string) (*Commit, error) {
 	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commitID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
@@ -148,7 +148,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchN
 	}
 
 	// Retrieve the content from S3 using the branchName and VersionID if not in cache
-	s3Key := fmt.Sprintf("branches/%s/%s/%s.txt", orgID, promptID, branchName)
+	s3Key := fmt.Sprintf("branches/%s/%s/%s/%s.txt", orgID, projectId, promptID, branchName)
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
 		Bucket:    aws.String(d.bucketName),
 		Key:       aws.String(s3Key),
@@ -175,7 +175,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchN
 }
 
 // ListCommitsByBranch retrieves all commits belonging to a specific branch from the DynamoDB table.
-func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, orgID, promptID, branchName string) ([]Commit, error) {
+func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, orgID, projectID, promptID, branchName string) ([]Commit, error) {
 	pk, _ := createCommitCompositeKeys(orgID, promptID, branchName, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Commits"),

@@ -76,8 +76,8 @@ func TestAuthMiddleware(t *testing.T) {
 			r := chi.NewRouter()
 			r.Use(AuthMiddleware(cfg))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				userID := r.Context().Value("UserID").(string)
-				orgID := r.Context().Value("OrgID").(string)
+				userID := r.Context().Value("userID").(string)
+				orgID := r.Context().Value("orgID").(string)
 
 				assert.Equal(t, tt.expectedUserID, userID)
 				assert.Equal(t, tt.expectedOrgID, orgID)

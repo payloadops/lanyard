@@ -51,7 +51,7 @@ func TestCreateCommit(t *testing.T) {
 		Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
-	err := client.CreateCommit(context.Background(), "org1", "prompt1", "branch1", commit)
+	err := client.CreateCommit(context.Background(), "org1", "project1", "prompt1", "branch1", commit)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, commit.CommitID)
 	assert.Equal(t, "1", commit.CommitID)
@@ -91,7 +91,7 @@ func TestGetCommit(t *testing.T) {
 		Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
-	result, err := client.GetCommit(context.Background(), "org1", "prompt1", "branch1", "1")
+	result, err := client.GetCommit(context.Background(), "org1", "project1", "prompt1", "branch1", "1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "commit1", result.CommitID)
@@ -120,7 +120,7 @@ func TestListCommitsByBranch(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	results, err := client.ListCommitsByBranch(context.Background(), "org1", "prompt1", "branch1")
+	results, err := client.ListCommitsByBranch(context.Background(), "org1", "project1", "prompt1", "branch1")
 	assert.NoError(t, err)
 	assert.NotNil(t, results)
 	assert.Len(t, results, 1)

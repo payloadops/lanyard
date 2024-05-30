@@ -79,7 +79,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 		Content: commitInput.Content,
 	}
 
-	err = s.commitClient.CreateCommit(ctx, orgID, promptID, branchName, commit)
+	err = s.commitClient.CreateCommit(ctx, orgID, projectID, promptID, branchName, commit)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -134,7 +134,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID strin
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commit, err := s.commitClient.GetCommit(ctx, orgID, promptID, branchName, commitID)
+	commit, err := s.commitClient.GetCommit(ctx, orgID, projectID, promptID, branchName, commitID)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
@@ -192,7 +192,7 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectID str
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	commits, err := s.commitClient.ListCommitsByBranch(ctx, orgID, promptID, branchName)
+	commits, err := s.commitClient.ListCommitsByBranch(ctx, orgID, projectID, promptID, branchName)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
