@@ -8,12 +8,14 @@ import { Stage } from '../lib/stage';
 import { PipelineStack } from '../lib/pipeline-stack';
 
 
+const imageTag = process.env.CODEBUILD_RESOLVED_SOURCE_VERSION!;
+
 const app = new cdk.App();
 
 const stages = [
   new Stage(app, `${Stages.DEV}-${Regions.US_EAST_1}`, Stages.DEV, {
     env: {account: Accounts.DEV, region: Regions.US_EAST_1},
-    imageTag: '$CODEBUILD_RESOLVED_SOURCE_VERSION'
+    imageTag: imageTag
   })
 ]
 

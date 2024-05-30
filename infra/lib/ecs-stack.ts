@@ -152,7 +152,7 @@ export class EcsStack extends cdk.Stack {
         },
         taskRole: ecsTaskRole,
         executionRole: ecsExecutionRole,
-        image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag()),
+        image: ecs.ContainerImage.fromRegistry(ecrRepository.repositoryUriForTag(props.imageTag)),
         containerPort: 8080,
         logDriver: ecs.LogDrivers.awsLogs({
           streamPrefix: "ecs",
