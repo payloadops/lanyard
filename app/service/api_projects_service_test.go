@@ -1,208 +1,144 @@
 package service
 
-/*
 import (
 	"context"
-	"net/http"
+	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/plato/app/openapi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"net/http"
 )
 
-// MockProjectManager is a mock implementation of the ProjectManager interface
-type MockProjectManager struct {
-	mock.Mock
-}
+func TestProjectsAPIService_CreateProject(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func (m *MockProjectManager) CreateProject(ctx context.Context, project dal.Project) error {
-	args := m.Called(ctx, project)
-	return args.Error(0)
-}
+	mockClient := mocks.NewMockProjectManager(ctrl)
+	service := NewProjectsAPIService(mockClient)
 
-func (m *MockProjectManager) GetProject(ctx context.Context, id string) (*dal.Project, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*dal.Project), args.Error(1)
-}
-
-func (m *MockProjectManager) UpdateProject(ctx context.Context, project dal.Project) error {
-	args := m.Called(ctx, project)
-	return args.Error(0)
-}
-
-func (m *MockProjectManager) DeleteProject(ctx context.Context, id string) error {
-	args := m.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (m *MockProjectManager) ListProjects(ctx context.Context) ([]dal.Project, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]dal.Project), args.Error(1)
-}
-
-func (m *MockProjectManager) ListProjectsByOrganization(ctx context.Context, organizationID string) ([]dal.Project, error) {
-	args := m.Called(ctx, organizationID)
-	return args.Get(0).([]dal.Project), args.Error(1)
-}
-
-func (m *MockProjectManager) ListProjectsByTeam(ctx context.Context, teamID string) ([]dal.Project, error) {
-	args := m.Called(ctx, teamID)
-	return args.Get(0).([]dal.Project), args.Error(1)
-}
-
-func TestCreateProject(t *testing.T) {
-	mockProjectClient := new(MockProjectManager)
-	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
-
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectInput := openapi.ProjectInput{
-		OrgId:       "org1",
-		TeamId:      "team1",
-		Name:        "Test Project",
-		Description: "Test Description",
+		Name:        "Project1",
+		Description: "Description1",
 	}
 
-	expectedProject := dal.Project{
-		ID:          "foo",
-		OrgID:       projectInput.OrgId,
-		TeamID:      projectInput.TeamId,
-		Name:        projectInput.Name,
-		Description: projectInput.Description,
-	}
+	mockClient.EXPECT().CreateProject(ctx, "org1", gomock.Any()).Return(nil)
 
-	mockOrgClient.On("GetOrganization", mock.Anything, projectInput.OrgId).Return(&dal.Organization{}, nil)
-	mockProjectClient.On("CreateProject", mock.Anything, expectedProject).Return(nil)
-
-	resp, err := service.CreateProject(context.Background(), projectInput)
+	response, err := service.CreateProject(ctx, projectInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.Code)
-	mockOrgClient.AssertExpectations(t)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.NotNil(t, response.Body)
+	project, ok := response.Body.(openapi.Project)
+	assert.True(t, ok)
+	assert.Equal(t, projectInput.Name, project.Name)
+	assert.Equal(t, projectInput.Description, project.Description)
 }
 
-func TestDeleteProject(t *testing.T) {
-	mockProjectClient := new(MockProjectManager)
-	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
+func TestProjectsAPIService_DeleteProject(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "1"
+	mockClient := mocks.NewMockProjectManager(ctrl)
+	service := NewProjectsAPIService(mockClient)
 
-	// Test case where project exists
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{ID: projectId, OrgID: "org1"}, nil)
-	mockProjectClient.On("DeleteProject", mock.Anything, projectId).Return(nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
 
-	resp, err := service.DeleteProject(context.Background(), projectId)
+	mockClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockClient.EXPECT().DeleteProject(ctx, "org1", projectID).Return(nil)
+
+	response, err := service.DeleteProject(ctx, projectID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNoContent, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.DeleteProject(context.Background(), projectId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 }
 
-func TestGetProject(t *testing.T) {
-	mockProjectClient := new(MockProjectManager)
-	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
+func TestProjectsAPIService_GetProject(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "1"
-	project := &dal.Project{
-		ID:          projectId,
-		OrgID:       "org1",
-		TeamID:      "team1",
-		Name:        "Test Project",
-		Description: "Test Description",
-	}
+	mockClient := mocks.NewMockProjectManager(ctrl)
+	service := NewProjectsAPIService(mockClient)
 
-	// Test case where project exists
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(project, nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
 
-	resp, err := service.GetProject(context.Background(), projectId)
+	mockClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{
+		ProjectID:   projectID,
+		Name:        "Project1",
+		Description: "Description1",
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+
+	response, err := service.GetProject(ctx, projectID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.GetProject(context.Background(), projectId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	project, ok := response.Body.(openapi.Project)
+	assert.True(t, ok)
+	assert.Equal(t, projectID, project.Id)
 }
 
-func TestListProjects(t *testing.T) {
-	mockProjectClient := new(MockProjectManager)
-	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
+func TestProjectsAPIService_ListProjects(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockClient := mocks.NewMockProjectManager(ctrl)
+	service := NewProjectsAPIService(mockClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
 
 	projects := []dal.Project{
-		{ID: "1", OrgID: "org1", TeamID: "team1", Name: "Project1", Description: "Description1"},
-		{ID: "2", OrgID: "org1", TeamID: "team1", Name: "Project2", Description: "Description2"},
+		{ProjectID: "proj1", Name: "Project1", Description: "Description1", CreatedAt: time.Now().UTC().Format(time.RFC3339), UpdatedAt: time.Now().UTC().Format(time.RFC3339)},
+		{ProjectID: "proj2", Name: "Project2", Description: "Description2", CreatedAt: time.Now().UTC().Format(time.RFC3339), UpdatedAt: time.Now().UTC().Format(time.RFC3339)},
 	}
 
-	mockProjectClient.On("ListProjects", mock.Anything).Return(projects, nil)
+	mockClient.EXPECT().ListProjectsByOrganization(ctx, "org1").Return(projects, nil)
 
-	resp, err := service.ListProjects(context.Background())
+	response, err := service.ListProjects(ctx)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	listedProjects, ok := response.Body.([]openapi.Project)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(listedProjects))
+	assert.Equal(t, "proj1", listedProjects[0].Id)
+	assert.Equal(t, "proj2", listedProjects[1].Id)
 }
 
-func TestUpdateProject(t *testing.T) {
-	mockProjectClient := new(MockProjectManager)
-	mockOrgClient := new(MockOrganizationManager)
-	service := ProjectsAPIService{client: mockProjectClient, orgClient: mockOrgClient}
+func TestProjectsAPIService_UpdateProject(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "1"
+	mockClient := mocks.NewMockProjectManager(ctrl)
+	service := NewProjectsAPIService(mockClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
 	projectInput := openapi.ProjectInput{
-		Name:        "Updated Project",
-		Description: "Updated Description",
-		OrgId:       "org1",
-		TeamId:      "team1",
-	}
-	project := &dal.Project{
-		ID:          projectId,
-		OrgID:       projectInput.OrgId,
-		TeamID:      projectInput.TeamId,
-		Name:        projectInput.Name,
-		Description: projectInput.Description,
+		Name:        "UpdatedProject",
+		Description: "UpdatedDescription",
 	}
 
-	// Test case where organization and project exist
-	mockOrgClient.On("GetOrganization", mock.Anything, projectInput.OrgId).Return(&dal.Organization{}, nil)
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{ID: projectId, OrgID: projectInput.OrgId}, nil)
-	mockProjectClient.On("UpdateProject", mock.Anything, *project).Return(nil)
+	mockClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{
+		ProjectID:   projectID,
+		Name:        "Project1",
+		Description: "Description1",
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+	mockClient.EXPECT().UpdateProject(ctx, "org1", gomock.Any()).Return(nil)
 
-	resp, err := service.UpdateProject(context.Background(), projectId, projectInput)
+	response, err := service.UpdateProject(ctx, projectID, projectInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockOrgClient.AssertExpectations(t)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where organization does not exist
-	mockOrgClient.On("GetOrganization", mock.Anything, projectInput.OrgId).Return((*dal.Organization)(nil), nil)
-
-	resp, err = service.UpdateProject(context.Background(), projectId, projectInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockOrgClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockOrgClient.On("GetOrganization", mock.Anything, projectInput.OrgId).Return(&dal.Organization{}, nil)
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.UpdateProject(context.Background(), projectId, projectInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockOrgClient.AssertExpectations(t)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	updatedProject, ok := response.Body.(openapi.Project)
+	assert.True(t, ok)
+	assert.Equal(t, projectInput.Name, updatedProject.Name)
+	assert.Equal(t, projectInput.Description, updatedProject.Description)
 }
-*/

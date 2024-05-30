@@ -1,141 +1,122 @@
 package service
 
-/*
 import (
 	"context"
-	"net/http"
+	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/plato/app/openapi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"net/http"
 )
 
-// MockCommitManager is a mock implementation of the CommitManager interface
-type MockCommitManager struct {
-	mock.Mock
-}
+func TestCommitsAPIService_CreateBranchCommit(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func (m *MockCommitManager) CreateCommit(ctx context.Context, commit dal.Commit) error {
-	args := m.Called(ctx, commit)
-	return args.Error(0)
-}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	mockCommitClient := mocks.NewMockCommitManager(ctrl)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
 
-func (m *MockCommitManager) GetCommit(ctx context.Context, id string) (*dal.Commit, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*dal.Commit), args.Error(1)
-}
-
-func (m *MockCommitManager) ListCommits(ctx context.Context) ([]dal.Commit, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]dal.Commit), args.Error(1)
-}
-
-func (m *MockCommitManager) ListCommitsByBranch(ctx context.Context, branchID string) ([]dal.Commit, error) {
-	args := m.Called(ctx, branchID)
-	return args.Get(0).([]dal.Commit), args.Error(1)
-}
-
-func TestCreateBranchCommit(t *testing.T) {
-	mockCommitClient := new(MockCommitManager)
-	mockBranchClient := new(MockBranchManager)
-	service := CommitsAPIService{commitClient: mockCommitClient, branchClient: mockBranchClient}
-
-	promptId := "prompt1"
-	branchId := "branch1"
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	ctx = context.WithValue(ctx, "userID", "user1")
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchName := "branch1"
 	commitInput := openapi.CommitInput{
 		Message: "Initial commit",
-		Content: "Commit content",
-	}
-	expectedCommit := dal.Commit{
-		ID:       "id",
-		Name: branchId,
-		UserID:   "user_id",
-		Message:  commitInput.Message,
-		Content:  commitInput.Content,
+		Content: "This is the first commit",
 	}
 
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(&dal.Branch{}, nil)
-	mockCommitClient.On("CreateCommit", mock.Anything, expectedCommit).Return(nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
+	mockCommitClient.EXPECT().CreateCommit(ctx, "org1", promptID, branchName, gomock.Any()).Return(nil)
 
-	resp, err := service.CreateBranchCommit(context.Background(), promptId, branchId, commitInput)
+	response, err := service.CreateBranchCommit(ctx, projectID, promptID, branchName, commitInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.Code)
-	mockBranchClient.AssertExpectations(t)
-	mockCommitClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.NotNil(t, response.Body)
+	commit, ok := response.Body.(openapi.Commit)
+	assert.True(t, ok)
+	assert.Equal(t, commitInput.Message, commit.Message)
+	assert.Equal(t, commitInput.Content, commit.Content)
 }
 
-func TestGetBranchCommit(t *testing.T) {
-	mockCommitClient := new(MockCommitManager)
-	mockBranchClient := new(MockBranchManager)
-	service := CommitsAPIService{commitClient: mockCommitClient, branchClient: mockBranchClient}
+func TestCommitsAPIService_GetBranchCommit(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	promptId := "prompt1"
-	branchId := "branch1"
-	commitId := "commit1"
-	commit := &dal.Commit{
-		ID:       commitId,
-		Name: branchId,
-	}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	mockCommitClient := mocks.NewMockCommitManager(ctrl)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
 
-	// Test case where branch and commit exist and belong to the branch
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(&dal.Branch{}, nil)
-	mockCommitClient.On("GetCommit", mock.Anything, commitId).Return(commit, nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchName := "branch1"
+	commitID := "commit1"
 
-	resp, err := service.GetBranchCommit(context.Background(), promptId, branchId, commitId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
+	mockCommitClient.EXPECT().GetCommit(ctx, "org1", promptID, branchName, commitID).Return(&dal.Commit{
+		CommitID:  commitID,
+		Message:   "Initial commit",
+		Content:   "This is the first commit",
+		UserID:    "user1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+
+	response, err := service.GetBranchCommit(ctx, projectID, promptID, branchName, commitID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockBranchClient.AssertExpectations(t)
-	mockCommitClient.AssertExpectations(t)
-
-	// Test case where branch does not exist
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return((*dal.Branch)(nil), nil)
-
-	resp, err = service.GetBranchCommit(context.Background(), promptId, branchId, commitId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockBranchClient.AssertExpectations(t)
-
-	// Test case where commit does not exist
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(&dal.Branch{}, nil)
-	mockCommitClient.On("GetCommit", mock.Anything, commitId).Return((*dal.Commit)(nil), nil)
-
-	resp, err = service.GetBranchCommit(context.Background(), promptId, branchId, commitId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockBranchClient.AssertExpectations(t)
-	mockCommitClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	commit, ok := response.Body.(openapi.Commit)
+	assert.True(t, ok)
+	assert.Equal(t, commitID, commit.Id)
+	assert.Equal(t, "Initial commit", commit.Message)
 }
 
-func TestListBranchCommits(t *testing.T) {
-	mockCommitClient := new(MockCommitManager)
-	mockBranchClient := new(MockBranchManager)
-	service := CommitsAPIService{commitClient: mockCommitClient, branchClient: mockBranchClient}
+func TestCommitsAPIService_ListBranchCommits(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	promptId := "prompt1"
-	branchId := "branch1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	mockCommitClient := mocks.NewMockCommitManager(ctrl)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchName := "branch1"
+
 	commits := []dal.Commit{
-		{ID: "1", Name: branchId},
-		{ID: "2", Name: branchId},
+		{CommitID: "commit1", Message: "Initial commit", Content: "This is the first commit", UserID: "user1", CreatedAt: time.Now().UTC().Format(time.RFC3339)},
+		{CommitID: "commit2", Message: "Second commit", Content: "This is the second commit", UserID: "user2", CreatedAt: time.Now().UTC().Format(time.RFC3339)},
 	}
 
-	// Test case where branch exists
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(&dal.Branch{}, nil)
-	mockCommitClient.On("ListCommitsByBranch", mock.Anything, branchId).Return(commits, nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
+	mockCommitClient.EXPECT().ListCommitsByBranch(ctx, "org1", promptID, branchName).Return(commits, nil)
 
-	resp, err := service.ListBranchCommits(context.Background(), promptId, branchId)
+	response, err := service.ListBranchCommits(ctx, projectID, promptID, branchName)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockBranchClient.AssertExpectations(t)
-	mockCommitClient.AssertExpectations(t)
-
-	// Test case where branch does not exist
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return((*dal.Branch)(nil), nil)
-
-	resp, err = service.ListBranchCommits(context.Background(), promptId, branchId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockBranchClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	listedCommits, ok := response.Body.([]openapi.Commit)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(listedCommits))
+	assert.Equal(t, "commit1", listedCommits[0].Id)
+	assert.Equal(t, "commit2", listedCommits[1].Id)
 }
-*/

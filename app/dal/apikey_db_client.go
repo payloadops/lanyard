@@ -33,10 +33,11 @@ var _ APIKeyManager = &APIKeyDBClient{}
 type APIKey struct {
 	ProjectID string   `json:"projectId"`
 	APIKeyID  string   `json:"apiKeyId"`
-	Key       string   `json:"key"`
+	Secret    string   `json:"secret"`
 	Scopes    []string `json:"scopes"`
-	CreatedAt string   `json:"createdAt"`
-	UpdatedAt string   `json:"updatedAt"`
+	Deleted   bool
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 // APIKeyDBClient is a client for interacting with DynamoDB for API key-related operations.

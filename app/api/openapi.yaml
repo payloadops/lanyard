@@ -1348,7 +1348,6 @@ components:
     Commit:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        checksum: checksum
         id: ""
         message: message
         userId: ""
@@ -1366,9 +1365,6 @@ components:
           description: Message describing the changes in this commit
           maxLength: 180
           minLength: 1
-          type: string
-        checksum:
-          description: SHA-256 checksum of the content in this commit
           type: string
         userId:
           allOf:

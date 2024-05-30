@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/payloadops/plato/app/utils"
 	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
@@ -83,7 +84,20 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusCreated, commit), nil
+	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.Commit{
+		Id:        commit.CommitID,
+		Content:   commit.Content,
+		Message:   commit.Message,
+		UserId:    commit.UserID,
+		CreatedAt: createdAt,
+	}
+
+	return openapi.Response(http.StatusCreated, response), nil
 }
 
 // GetBranchCommit - Retrieve a specific commit or the latest commit of a branch
@@ -128,7 +142,20 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID strin
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("commit not found")
 	}
 
-	return openapi.Response(http.StatusOK, commit), nil
+	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.Commit{
+		Id:        commit.CommitID,
+		Content:   commit.Content,
+		Message:   commit.Message,
+		UserId:    commit.UserID,
+		CreatedAt: createdAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }
 
 // ListBranchCommits - List all commits of a specific branch
@@ -170,5 +197,21 @@ func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectID str
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, commits), nil
+	responses := make([]openapi.Commit, len(commits))
+	for i, commit := range commits {
+		createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		responses[i] = openapi.Commit{
+			Id:        commit.CommitID,
+			Content:   commit.Content,
+			Message:   commit.Message,
+			UserId:    commit.UserID,
+			CreatedAt: createdAt,
+		}
+	}
+
+	return openapi.Response(http.StatusOK, responses), nil
 }

@@ -1,236 +1,159 @@
 package service
 
-/*
 import (
 	"context"
-	"net/http"
+	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/plato/app/openapi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"net/http"
 )
 
-// MockPromptManager is a mock implementation of the PromptManager interface
-type MockPromptManager struct {
-	mock.Mock
-}
+func TestPromptsAPIService_CreatePrompt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func (m *MockPromptManager) CreatePrompt(ctx context.Context, prompt dal.Prompt) error {
-	args := m.Called(ctx, prompt)
-	return args.Error(0)
-}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
 
-func (m *MockPromptManager) GetPrompt(ctx context.Context, id string) (*dal.Prompt, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*dal.Prompt), args.Error(1)
-}
-
-func (m *MockPromptManager) UpdatePrompt(ctx context.Context, prompt dal.Prompt) error {
-	args := m.Called(ctx, prompt)
-	return args.Error(0)
-}
-
-func (m *MockPromptManager) DeletePrompt(ctx context.Context, id string) error {
-	args := m.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (m *MockPromptManager) ListPrompts(ctx context.Context) ([]dal.Prompt, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]dal.Prompt), args.Error(1)
-}
-
-func (m *MockPromptManager) ListPromptsByProject(ctx context.Context, projectID string) ([]dal.Prompt, error) {
-	args := m.Called(ctx, projectID)
-	return args.Get(0).([]dal.Prompt), args.Error(1)
-}
-
-func TestCreatePrompt(t *testing.T) {
-	mockPromptClient := new(MockPromptManager)
-	mockProjectClient := new(MockProjectManager)
-	service := PromptsAPIService{promptClient: mockPromptClient, projectClient: mockProjectClient}
-
-	projectId := "project1"
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
 	promptInput := openapi.PromptInput{
-		Name:        "Test Prompt",
-		Description: "Test Description",
+		Name:        "Prompt1",
+		Description: "Description1",
 	}
 
-	expectedPrompt := dal.Prompt{
-		ID:          "foo",
-		ProjectID:   projectId,
-		Name:        promptInput.Name,
-		Description: promptInput.Description,
-	}
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().CreatePrompt(ctx, "org1", projectID, gomock.Any()).Return(nil)
 
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("CreatePrompt", mock.Anything, expectedPrompt).Return(nil)
-
-	resp, err := service.CreatePrompt(context.Background(), projectId, promptInput)
+	response, err := service.CreatePrompt(ctx, projectID, promptInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.NotNil(t, response.Body)
+	prompt, ok := response.Body.(openapi.Prompt)
+	assert.True(t, ok)
+	assert.Equal(t, promptInput.Name, prompt.Name)
+	assert.Equal(t, promptInput.Description, prompt.Description)
 }
 
-func TestDeletePrompt(t *testing.T) {
-	mockPromptClient := new(MockPromptManager)
-	mockProjectClient := new(MockProjectManager)
-	service := PromptsAPIService{promptClient: mockPromptClient, projectClient: mockProjectClient}
+func TestPromptsAPIService_DeletePrompt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
-	promptId := "prompt1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
 
-	// Test case where project and prompt exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{ID: promptId, ProjectID: projectId}, nil)
-	mockPromptClient.On("DeletePrompt", mock.Anything, promptId).Return(nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
 
-	resp, err := service.DeletePrompt(context.Background(), projectId, promptId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockPromptClient.EXPECT().DeletePrompt(ctx, "org1", projectID, promptID).Return(nil)
+
+	response, err := service.DeletePrompt(ctx, projectID, promptID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNoContent, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.DeletePrompt(context.Background(), projectId, promptId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.DeletePrompt(context.Background(), projectId, promptId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 }
 
-func TestGetPrompt(t *testing.T) {
-	mockPromptClient := new(MockPromptManager)
-	mockProjectClient := new(MockProjectManager)
-	service := PromptsAPIService{promptClient: mockPromptClient, projectClient: mockProjectClient}
+func TestPromptsAPIService_GetPrompt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
-	promptId := "prompt1"
-	prompt := &dal.Prompt{
-		ID:          promptId,
-		ProjectID:   projectId,
-		Name:        "Test Prompt",
-		Description: "Test Description",
-	}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
 
-	// Test case where project and prompt exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(prompt, nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
 
-	resp, err := service.GetPrompt(context.Background(), projectId, promptId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{
+		PromptID:    promptID,
+		Name:        "Prompt1",
+		Description: "Description1",
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+
+	response, err := service.GetPrompt(ctx, projectID, promptID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.GetPrompt(context.Background(), projectId, promptId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.GetPrompt(context.Background(), projectId, promptId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	prompt, ok := response.Body.(openapi.Prompt)
+	assert.True(t, ok)
+	assert.Equal(t, promptID, prompt.Id)
 }
 
-func TestListPrompts(t *testing.T) {
-	mockPromptClient := new(MockPromptManager)
-	mockProjectClient := new(MockProjectManager)
-	service := PromptsAPIService{promptClient: mockPromptClient, projectClient: mockProjectClient}
+func TestPromptsAPIService_ListPrompts(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+
 	prompts := []dal.Prompt{
-		{ID: "1", ProjectID: projectId, Name: "Prompt1", Description: "Description1"},
-		{ID: "2", ProjectID: projectId, Name: "Prompt2", Description: "Description2"},
+		{PromptID: "prompt1", Name: "Prompt1", Description: "Description1", CreatedAt: time.Now().UTC().Format(time.RFC3339), UpdatedAt: time.Now().UTC().Format(time.RFC3339)},
+		{PromptID: "prompt2", Name: "Prompt2", Description: "Description2", CreatedAt: time.Now().UTC().Format(time.RFC3339), UpdatedAt: time.Now().UTC().Format(time.RFC3339)},
 	}
 
-	// Test case where project exists
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("ListPromptsByProject", mock.Anything, projectId).Return(prompts, nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().ListPromptsByProject(ctx, "org1", projectID).Return(prompts, nil)
 
-	resp, err := service.ListPrompts(context.Background(), projectId)
+	response, err := service.ListPrompts(ctx, projectID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.ListPrompts(context.Background(), projectId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	listedPrompts, ok := response.Body.([]openapi.Prompt)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(listedPrompts))
+	assert.Equal(t, "prompt1", listedPrompts[0].Id)
+	assert.Equal(t, "prompt2", listedPrompts[1].Id)
 }
 
-func TestUpdatePrompt(t *testing.T) {
-	mockPromptClient := new(MockPromptManager)
-	mockProjectClient := new(MockProjectManager)
-	service := PromptsAPIService{promptClient: mockPromptClient, projectClient: mockProjectClient}
+func TestPromptsAPIService_UpdatePrompt(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
-	promptId := "prompt1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
 	promptInput := openapi.PromptInput{
-		Name:        "Updated Prompt",
-		Description: "Updated Description",
-	}
-	prompt := &dal.Prompt{
-		ID:          promptId,
-		ProjectID:   projectId,
-		Name:        promptInput.Name,
-		Description: promptInput.Description,
+		Name:        "UpdatedPrompt",
+		Description: "UpdatedDescription",
 	}
 
-	// Test case where project and prompt exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{ID: promptId, ProjectID: projectId}, nil)
-	mockPromptClient.On("UpdatePrompt", mock.Anything, *prompt).Return(nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{
+		PromptID:    promptID,
+		Name:        "Prompt1",
+		Description: "Description1",
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+	mockPromptClient.EXPECT().UpdatePrompt(ctx, "org1", projectID, gomock.Any()).Return(nil)
 
-	resp, err := service.UpdatePrompt(context.Background(), projectId, promptId, promptInput)
+	response, err := service.UpdatePrompt(ctx, projectID, promptID, promptInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.UpdatePrompt(context.Background(), projectId, promptId, promptInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.UpdatePrompt(context.Background(), projectId, promptId, promptInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockPromptClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	updatedPrompt, ok := response.Body.(openapi.Prompt)
+	assert.True(t, ok)
+	assert.Equal(t, promptInput.Name, updatedPrompt.Name)
+	assert.Equal(t, promptInput.Description, updatedPrompt.Description)
 }
-*/

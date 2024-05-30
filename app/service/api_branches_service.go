@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/payloadops/plato/app/utils"
 	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
@@ -60,7 +61,17 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, projectID s
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusCreated, branch), nil
+	createdAt, err := utils.ParseTimestamp(branch.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := &openapi.Branch{
+		Name:      branch.Name,
+		CreatedAt: createdAt,
+	}
+
+	return openapi.Response(http.StatusCreated, response), nil
 }
 
 // DeleteBranch - Delete a specific branch
@@ -138,7 +149,17 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, projectID string, pr
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
 	}
 
-	return openapi.Response(http.StatusOK, branch), nil
+	createdAt, err := utils.ParseTimestamp(branch.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := &openapi.Branch{
+		Name:      branch.Name,
+		CreatedAt: createdAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }
 
 // ListPromptBranches - List all branches of a specific prompt
@@ -171,5 +192,18 @@ func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, projectID s
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, branches), nil
+	responses := make([]openapi.Branch, len(branches))
+	for i, branch := range branches {
+		createdAt, err := utils.ParseTimestamp(branch.CreatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		responses[i] = openapi.Branch{
+			Name:      branch.Name,
+			CreatedAt: createdAt,
+		}
+	}
+
+	return openapi.Response(http.StatusOK, responses), nil
 }

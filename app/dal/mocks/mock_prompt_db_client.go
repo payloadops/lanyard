@@ -9,7 +9,6 @@
 // Package mocks is a generated GoMock package.
 package mocks
 
-/*
 import (
 	context "context"
 	reflect "reflect"
@@ -42,17 +41,17 @@ func (m *MockPromptManager) EXPECT() *MockPromptManagerMockRecorder {
 }
 
 // CreatePrompt mocks base method.
-func (m *MockPromptManager) CreatePrompt(arg0 context.Context, arg1 *dal.Prompt) error {
+func (m *MockPromptManager) CreatePrompt(arg0 context.Context, arg1, arg2 string, arg3 *dal.Prompt) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreatePrompt", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreatePrompt", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreatePrompt indicates an expected call of CreatePrompt.
-func (mr *MockPromptManagerMockRecorder) CreatePrompt(arg0, arg1 any) *gomock.Call {
+func (mr *MockPromptManagerMockRecorder) CreatePrompt(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePrompt", reflect.TypeOf((*MockPromptManager)(nil).CreatePrompt), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePrompt", reflect.TypeOf((*MockPromptManager)(nil).CreatePrompt), arg0, arg1, arg2, arg3)
 }
 
 // DeletePrompt mocks base method.
@@ -100,16 +99,15 @@ func (mr *MockPromptManagerMockRecorder) ListPromptsByProject(arg0, arg1, arg2 a
 }
 
 // UpdatePrompt mocks base method.
-func (m *MockPromptManager) UpdatePrompt(arg0 context.Context, arg1 *dal.Prompt) error {
+func (m *MockPromptManager) UpdatePrompt(arg0 context.Context, arg1, arg2 string, arg3 *dal.Prompt) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePrompt", arg0, arg1)
+	ret := m.ctrl.Call(m, "UpdatePrompt", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdatePrompt indicates an expected call of UpdatePrompt.
-func (mr *MockPromptManagerMockRecorder) UpdatePrompt(arg0, arg1 any) *gomock.Call {
+func (mr *MockPromptManagerMockRecorder) UpdatePrompt(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePrompt", reflect.TypeOf((*MockPromptManager)(nil).UpdatePrompt), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePrompt", reflect.TypeOf((*MockPromptManager)(nil).UpdatePrompt), arg0, arg1, arg2, arg3)
 }
-*/

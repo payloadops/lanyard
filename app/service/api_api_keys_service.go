@@ -3,11 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
+	"net/http"
 )
 
 const (
@@ -76,20 +75,14 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
 	}
 
-	ksuid, err := utils.GenerateKSUID()
-	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
-	}
-
 	keySecret, err := utils.GenerateSecret(ApiKeyLength)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
 	apiKey := dal.APIKey{
-		APIKeyID:  ksuid,
 		ProjectID: projectId,
-		Key:       keySecret,
+		Secret:    keySecret,
 		Scopes:    apiKeyInput.Scopes,
 	}
 
@@ -98,7 +91,26 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusCreated, apiKey), nil
+	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.ApiKey{
+		Id:        apiKey.APIKeyID,
+		Secret:    apiKey.Secret,
+		Scopes:    apiKey.Scopes,
+		ProjectId: apiKey.ProjectID,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}
+
+	return openapi.Response(http.StatusCreated, response), nil
 }
 
 // GetApiKey - Retrieve a specific API key
@@ -125,7 +137,26 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("API key not found")
 	}
 
-	return openapi.Response(http.StatusOK, apiKey), nil
+	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.ApiKey{
+		Id:        apiKey.APIKeyID,
+		Secret:    apiKey.Secret,
+		Scopes:    apiKey.Scopes,
+		ProjectId: apiKey.ProjectID,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }
 
 // ListApiKeys - List all API keys for a project
@@ -149,7 +180,29 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, apiKeys), nil
+	responses := make([]openapi.ApiKey, len(apiKeys))
+	for i, apiKey := range apiKeys {
+		createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		responses[i] = openapi.ApiKey{
+			Id:        apiKey.APIKeyID,
+			Secret:    apiKey.Secret,
+			Scopes:    apiKey.Scopes,
+			ProjectId: apiKey.ProjectID,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
+		}
+	}
+
+	return openapi.Response(http.StatusOK, responses), nil
 }
 
 // UpdateApiKey - Update an API key's scopes
@@ -179,12 +232,29 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 
 	// Update the API key with the new values
 	apiKey.Scopes = apiKeyInput.Scopes
-	apiKey.ProjectID = projectId
-
 	err = s.apiKeyClient.UpdateAPIKey(ctx, orgID, apiKey)
 	if err != nil {
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, apiKey), nil
+	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.ApiKey{
+		Id:        apiKey.APIKeyID,
+		Secret:    apiKey.Secret,
+		Scopes:    apiKey.Scopes,
+		ProjectId: apiKey.ProjectID,
+		CreatedAt: createdAt,
+		UpdatedAt: updatedAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }

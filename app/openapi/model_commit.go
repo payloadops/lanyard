@@ -26,9 +26,6 @@ type Commit struct {
 	// Message describing the changes in this commit
 	Message string `json:"message,omitempty"`
 
-	// SHA-256 checksum of the content in this commit
-	Checksum string `json:"checksum,omitempty"`
-
 	// Identifier of the user that created this commit
 	UserId string `json:"userId,omitempty"`
 

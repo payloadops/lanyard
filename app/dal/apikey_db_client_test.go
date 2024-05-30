@@ -22,7 +22,7 @@ func TestCreateAPIKey(t *testing.T) {
 
 	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
-		Key:       "key1",
+		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 	}
 
@@ -44,7 +44,7 @@ func TestGetAPIKey(t *testing.T) {
 	apiKey := dal.APIKey{
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
-		Key:       "key1",
+		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
@@ -58,7 +58,7 @@ func TestGetAPIKey(t *testing.T) {
 	result, err := client.GetAPIKey(context.Background(), "org1", "proj1", "key1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "key1", result.Key)
+	assert.Equal(t, "key1", result.Secret)
 }
 
 func TestUpdateAPIKey(t *testing.T) {
@@ -71,7 +71,7 @@ func TestUpdateAPIKey(t *testing.T) {
 	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
-		Key:       "key1",
+		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 	}
 
@@ -108,7 +108,7 @@ func TestListAPIKeysByProject(t *testing.T) {
 	apiKey := dal.APIKey{
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
-		Key:       "key1",
+		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
@@ -123,5 +123,5 @@ func TestListAPIKeysByProject(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, "key1", result[0].Key)
+	assert.Equal(t, "key1", result[0].Secret)
 }

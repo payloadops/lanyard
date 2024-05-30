@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
+	"github.com/payloadops/plato/app/utils"
 	"net/http"
 )
 
@@ -36,7 +37,25 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ope
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusCreated, project), nil
+	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.Project{
+		Id:          project.ProjectID,
+		Name:        project.Name,
+		Description: project.Description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}
+
+	return openapi.Response(http.StatusCreated, response), nil
 }
 
 // DeleteProject - Delete a project
@@ -78,7 +97,25 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (
 		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
 	}
 
-	return openapi.Response(http.StatusOK, project), nil
+	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.Project{
+		Id:          project.ProjectID,
+		Name:        project.Name,
+		Description: project.Description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }
 
 // ListProjects - List all projects
@@ -93,7 +130,28 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResp
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, projects), nil
+	responses := make([]openapi.Project, len(projects))
+	for i, project := range projects {
+		createdAt, err := utils.ParseTimestamp(project.CreatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
+		if err != nil {
+			return openapi.Response(http.StatusInternalServerError, nil), err
+		}
+
+		responses[i] = openapi.Project{
+			Id:          project.ProjectID,
+			Name:        project.Name,
+			Description: project.Description,
+			CreatedAt:   createdAt,
+			UpdatedAt:   updatedAt,
+		}
+	}
+
+	return openapi.Response(http.StatusOK, responses), nil
 }
 
 // UpdateProject - Update a project
@@ -121,5 +179,23 @@ func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectID string
 		return openapi.Response(http.StatusInternalServerError, nil), err
 	}
 
-	return openapi.Response(http.StatusOK, project), nil
+	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+
+	response := openapi.Project{
+		Id:          project.ProjectID,
+		Name:        project.Name,
+		Description: project.Description,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updatedAt,
+	}
+
+	return openapi.Response(http.StatusOK, response), nil
 }
