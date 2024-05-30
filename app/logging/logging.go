@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"github.com/payloadops/plato/api/config"
+	"github.com/payloadops/plato/app/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

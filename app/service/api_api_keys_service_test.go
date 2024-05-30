@@ -1,229 +1,150 @@
-package service
+package service_test
 
-/*
 import (
 	"context"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/plato/app/openapi"
+	"github.com/payloadops/plato/app/service"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 	"net/http"
 	"testing"
-
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-// MockAPIKeyManager is a mock implementation of the APIKeyManager interface
-type MockAPIKeyManager struct {
-	mock.Mock
-}
+func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func (m *MockAPIKeyManager) CreateAPIKey(ctx context.Context, apiKey dal.APIKey) error {
-	args := m.Called(ctx, apiKey)
-	return args.Error(0)
-}
+	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
 
-func (m *MockAPIKeyManager) GetAPIKey(ctx context.Context, id string) (*dal.APIKey, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*dal.APIKey), args.Error(1)
-}
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	keyID := "key1"
 
-func (m *MockAPIKeyManager) UpdateAPIKey(ctx context.Context, apiKey dal.APIKey) error {
-	args := m.Called(ctx, apiKey)
-	return args.Error(0)
-}
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
+	mockAPIKeyClient.EXPECT().DeleteAPIKey(ctx, "org1", projectID, keyID).Return(nil)
 
-func (m *MockAPIKeyManager) DeleteAPIKey(ctx context.Context, id string) error {
-	args := m.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (m *MockAPIKeyManager) ListAPIKeys(ctx context.Context, projectId string) ([]dal.APIKey, error) {
-	args := m.Called(ctx, projectId)
-	return args.Get(0).([]dal.APIKey), args.Error(1)
-}
-
-func TestDeleteApiKey(t *testing.T) {
-	mockAPIKeyClient := new(MockAPIKeyManager)
-	mockProjectClient := new(MockProjectManager)
-	service := APIKeysAPIService{apiKeyClient: mockAPIKeyClient, projectClient: mockProjectClient}
-
-	projectId := "project1"
-	keyId := "key1"
-
-	// Test case where project and API key exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return(&dal.APIKey{ID: keyId, ProjectID: projectId}, nil)
-	mockAPIKeyClient.On("DeleteAPIKey", mock.Anything, keyId).Return(nil)
-
-	resp, err := service.DeleteApiKey(context.Background(), projectId, keyId)
+	response, err := service.DeleteApiKey(ctx, projectID, keyID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNoContent, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.DeleteApiKey(context.Background(), projectId, keyId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where API key does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return((*dal.APIKey)(nil), nil)
-
-	resp, err = service.DeleteApiKey(context.Background(), projectId, keyId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 }
 
-func TestGenerateApiKey(t *testing.T) {
-	mockAPIKeyClient := new(MockAPIKeyManager)
-	mockProjectClient := new(MockProjectManager)
-	service := APIKeysAPIService{apiKeyClient: mockAPIKeyClient, projectClient: mockProjectClient}
+func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
+	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
 	apiKeyInput := openapi.ApiKeyInput{
-		Scopes: []string{"read", "write"},
+		Scopes: []string{"scope1", "scope2"},
 	}
 
-	expectedAPIKey := dal.APIKey{
-		ID:        "id",
-		ProjectID: projectId,
-		Key:       "key",
-		Scopes:    apiKeyInput.Scopes,
-	}
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockAPIKeyClient.EXPECT().CreateAPIKey(ctx, "org1", gomock.Any()).Return(nil)
 
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("CreateAPIKey", mock.Anything, expectedAPIKey).Return(nil)
-
-	resp, err := service.GenerateApiKey(context.Background(), projectId, apiKeyInput)
+	response, err := service.GenerateApiKey(ctx, projectID, apiKeyInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.NotNil(t, response.Body)
+	apiKey, ok := response.Body.(openapi.ApiKey)
+	assert.True(t, ok)
+	assert.Equal(t, projectID, apiKey.ProjectId)
+	assert.Equal(t, apiKeyInput.Scopes, apiKey.Scopes)
 }
 
-func TestGetApiKey(t *testing.T) {
-	mockAPIKeyClient := new(MockAPIKeyManager)
-	mockProjectClient := new(MockProjectManager)
-	service := APIKeysAPIService{apiKeyClient: mockAPIKeyClient, projectClient: mockProjectClient}
+func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
-	keyId := "key1"
-	apiKey := &dal.APIKey{
-		ID:        keyId,
-		ProjectID: projectId,
-		Key:       "secret-key",
-		Scopes:    []string{"read", "write"},
-	}
+	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
 
-	// Test case where project and API key exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return(apiKey, nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	keyID := "key1"
 
-	resp, err := service.GetApiKey(context.Background(), projectId, keyId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
+
+	response, err := service.GetApiKey(ctx, projectID, keyID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.GetApiKey(context.Background(), projectId, keyId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where API key does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return((*dal.APIKey)(nil), nil)
-
-	resp, err = service.GetApiKey(context.Background(), projectId, keyId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	apiKey, ok := response.Body.(openapi.ApiKey)
+	assert.True(t, ok)
+	assert.Equal(t, projectID, apiKey.ProjectId)
 }
 
-func TestListApiKeys(t *testing.T) {
-	mockAPIKeyClient := new(MockAPIKeyManager)
-	mockProjectClient := new(MockProjectManager)
-	service := APIKeysAPIService{apiKeyClient: mockAPIKeyClient, projectClient: mockProjectClient}
+func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
+	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+
 	apiKeys := []dal.APIKey{
-		{ID: "key1", ProjectID: projectId, Key: "key1-secret", Scopes: []string{"read"}},
-		{ID: "key2", ProjectID: projectId, Key: "key2-secret", Scopes: []string{"write"}},
+		{APIKeyID: "key1", ProjectID: projectID},
+		{APIKeyID: "key2", ProjectID: projectID},
 	}
 
-	// Test case where project exists
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("ListAPIKeys", mock.Anything, projectId).Return(apiKeys, nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockAPIKeyClient.EXPECT().ListAPIKeysByProject(ctx, "org1", projectID).Return(apiKeys, nil)
 
-	resp, err := service.ListApiKeys(context.Background(), projectId)
+	response, err := service.ListApiKeys(ctx, projectID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.ListApiKeys(context.Background(), projectId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	keys, ok := response.Body.([]openapi.ApiKey)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(keys))
+	assert.Equal(t, "key1", keys[0].Id)
+	assert.Equal(t, "key2", keys[1].Id)
 }
 
-func TestUpdateApiKey(t *testing.T) {
-	mockAPIKeyClient := new(MockAPIKeyManager)
-	mockProjectClient := new(MockProjectManager)
-	service := APIKeysAPIService{apiKeyClient: mockAPIKeyClient, projectClient: mockProjectClient}
+func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	projectId := "project1"
-	keyId := "key1"
+	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	keyID := "key1"
 	apiKeyInput := openapi.ApiKeyInput{
-		Scopes: []string{"read", "write"},
+		Scopes: []string{"new-scope1", "new-scope2"},
 	}
+
 	apiKey := &dal.APIKey{
-		ID:        keyId,
-		ProjectID: projectId,
-		Key:       "key",
-		Scopes:    apiKeyInput.Scopes,
+		APIKeyID:  keyID,
+		ProjectID: projectID,
+		Scopes:    []string{"old-scope1", "old-scope2"},
 	}
 
-	// Test case where project and API key exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return(&dal.APIKey{ID: keyId, ProjectID: projectId}, nil)
-	mockAPIKeyClient.On("UpdateAPIKey", mock.Anything, *apiKey).Return(nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(apiKey, nil)
+	mockAPIKeyClient.EXPECT().UpdateAPIKey(ctx, "org1", gomock.Any()).Return(nil)
 
-	resp, err := service.UpdateApiKey(context.Background(), projectId, keyId, apiKeyInput)
+	response, err := service.UpdateApiKey(ctx, projectID, keyID, apiKeyInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
-
-	// Test case where project does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return((*dal.Project)(nil), nil)
-
-	resp, err = service.UpdateApiKey(context.Background(), projectId, keyId, apiKeyInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-
-	// Test case where API key does not exist
-	mockProjectClient.On("GetProject", mock.Anything, projectId).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.On("GetAPIKey", mock.Anything, keyId).Return((*dal.APIKey)(nil), nil)
-
-	resp, err = service.UpdateApiKey(context.Background(), projectId, keyId, apiKeyInput)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockProjectClient.AssertExpectations(t)
-	mockAPIKeyClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	updatedKey, ok := response.Body.(openapi.ApiKey)
+	assert.True(t, ok)
+	assert.Equal(t, apiKeyInput.Scopes, updatedKey.Scopes)
+	assert.Equal(t, projectID, updatedKey.ProjectId)
 }
-*/

@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dal "github.com/payloadops/plato/api/dal"
+	dal "github.com/payloadops/plato/app/dal"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,59 +41,59 @@ func (m *MockBranchManager) EXPECT() *MockBranchManagerMockRecorder {
 }
 
 // CreateBranch mocks base method.
-func (m *MockBranchManager) CreateBranch(arg0 context.Context, arg1 *dal.Branch) error {
+func (m *MockBranchManager) CreateBranch(arg0 context.Context, arg1, arg2 string, arg3 *dal.Branch) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateBranch", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateBranch", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateBranch indicates an expected call of CreateBranch.
-func (mr *MockBranchManagerMockRecorder) CreateBranch(arg0, arg1 any) *gomock.Call {
+func (mr *MockBranchManagerMockRecorder) CreateBranch(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBranch", reflect.TypeOf((*MockBranchManager)(nil).CreateBranch), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBranch", reflect.TypeOf((*MockBranchManager)(nil).CreateBranch), arg0, arg1, arg2, arg3)
 }
 
 // DeleteBranch mocks base method.
-func (m *MockBranchManager) DeleteBranch(arg0 context.Context, arg1, arg2 string) error {
+func (m *MockBranchManager) DeleteBranch(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteBranch", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "DeleteBranch", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteBranch indicates an expected call of DeleteBranch.
-func (mr *MockBranchManagerMockRecorder) DeleteBranch(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockBranchManagerMockRecorder) DeleteBranch(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBranch", reflect.TypeOf((*MockBranchManager)(nil).DeleteBranch), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBranch", reflect.TypeOf((*MockBranchManager)(nil).DeleteBranch), arg0, arg1, arg2, arg3)
 }
 
 // GetBranch mocks base method.
-func (m *MockBranchManager) GetBranch(arg0 context.Context, arg1, arg2 string) (*dal.Branch, error) {
+func (m *MockBranchManager) GetBranch(arg0 context.Context, arg1, arg2, arg3 string) (*dal.Branch, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBranch", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetBranch", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*dal.Branch)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetBranch indicates an expected call of GetBranch.
-func (mr *MockBranchManagerMockRecorder) GetBranch(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockBranchManagerMockRecorder) GetBranch(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBranch", reflect.TypeOf((*MockBranchManager)(nil).GetBranch), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBranch", reflect.TypeOf((*MockBranchManager)(nil).GetBranch), arg0, arg1, arg2, arg3)
 }
 
 // ListBranchesByPrompt mocks base method.
-func (m *MockBranchManager) ListBranchesByPrompt(arg0 context.Context, arg1 string) ([]dal.Branch, error) {
+func (m *MockBranchManager) ListBranchesByPrompt(arg0 context.Context, arg1, arg2 string) ([]dal.Branch, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListBranchesByPrompt", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListBranchesByPrompt", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]dal.Branch)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListBranchesByPrompt indicates an expected call of ListBranchesByPrompt.
-func (mr *MockBranchManagerMockRecorder) ListBranchesByPrompt(arg0, arg1 any) *gomock.Call {
+func (mr *MockBranchManagerMockRecorder) ListBranchesByPrompt(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBranchesByPrompt", reflect.TypeOf((*MockBranchManager)(nil).ListBranchesByPrompt), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBranchesByPrompt", reflect.TypeOf((*MockBranchManager)(nil).ListBranchesByPrompt), arg0, arg1, arg2)
 }

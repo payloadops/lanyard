@@ -17,7 +17,7 @@ import (
 
 type Prompt struct {
 
-	// A K-sortable unique identifier (KSUID)
+	// Unique identifier for the prompt
 	Id string `json:"id,omitempty"`
 
 	// Name of the prompt
@@ -29,7 +29,7 @@ type Prompt struct {
 	// Contents of the prompt
 	Prompt string `json:"prompt,omitempty"`
 
-	// A K-sortable unique identifier (KSUID)
+	// Identifier of the project this prompt belongs to
 	ProjectId string `json:"projectId,omitempty"`
 
 	// Timestamp when the prompt was created

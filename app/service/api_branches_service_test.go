@@ -1,177 +1,130 @@
 package service
 
-/*
 import (
 	"context"
-	"net/http"
+	"go.uber.org/mock/gomock"
 	"testing"
+	"time"
 
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/openapi"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/plato/app/openapi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"net/http"
 )
 
-// MockBranchManager is a mock implementation of the BranchManager interface
-type MockBranchManager struct {
-	mock.Mock
-}
+func TestBranchesAPIService_CreatePromptBranch(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-func (m *MockBranchManager) CreateBranch(ctx context.Context, branch dal.Branch) error {
-	args := m.Called(ctx, branch)
-	return args.Error(0)
-}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
 
-func (m *MockBranchManager) GetBranch(ctx context.Context, id string) (*dal.Branch, error) {
-	args := m.Called(ctx, id)
-	return args.Get(0).(*dal.Branch), args.Error(1)
-}
-
-func (m *MockBranchManager) DeleteBranch(ctx context.Context, id string) error {
-	args := m.Called(ctx, id)
-	return args.Error(0)
-}
-
-func (m *MockBranchManager) ListBranches(ctx context.Context) ([]dal.Branch, error) {
-	args := m.Called(ctx)
-	return args.Get(0).([]dal.Branch), args.Error(1)
-}
-
-func (m *MockBranchManager) ListBranchesByPrompt(ctx context.Context, promptID string) ([]dal.Branch, error) {
-	args := m.Called(ctx, promptID)
-	return args.Get(0).([]dal.Branch), args.Error(1)
-}
-
-func TestCreatePromptBranch(t *testing.T) {
-	mockBranchClient := new(MockBranchManager)
-	mockPromptClient := new(MockPromptManager)
-	service := BranchesAPIService{branchClient: mockBranchClient, promptClient: mockPromptClient}
-
-	promptId := "prompt1"
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
 	branchInput := openapi.BranchInput{
-		Id: "branch1",
-	}
-	expectedBranch := dal.Branch{
-		ID:       branchInput.Id,
-		PromptID: promptId,
+		Name: "branch1",
 	}
 
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("CreateBranch", mock.Anything, expectedBranch).Return(nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().CreateBranch(ctx, "org1", promptID, gomock.Any()).Return(nil)
 
-	resp, err := service.CreatePromptBranch(context.Background(), promptId, branchInput)
+	response, err := service.CreatePromptBranch(ctx, projectID, promptID, branchInput)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.NotNil(t, response.Body)
+	branch, ok := response.Body.(*openapi.Branch)
+	assert.True(t, ok)
+	assert.Equal(t, branchInput.Name, branch.Name)
 }
 
-func TestDeleteBranch(t *testing.T) {
-	mockBranchClient := new(MockBranchManager)
-	mockPromptClient := new(MockPromptManager)
-	service := BranchesAPIService{branchClient: mockBranchClient, promptClient: mockPromptClient}
+func TestBranchesAPIService_DeleteBranch(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	promptId := "prompt1"
-	branchId := "branch1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
 
-	// Test case where prompt and branch exist and belong to the prompt
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(&dal.Branch{ID: branchId, PromptID: promptId}, nil)
-	mockBranchClient.On("DeleteBranch", mock.Anything, branchId).Return(nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchName := "branch1"
 
-	resp, err := service.DeleteBranch(context.Background(), promptId, branchId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
+	mockBranchClient.EXPECT().DeleteBranch(ctx, "org1", promptID, branchName).Return(nil)
+
+	response, err := service.DeleteBranch(ctx, projectID, promptID, branchName)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNoContent, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.DeleteBranch(context.Background(), promptId, branchId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where branch does not exist
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return((*dal.Branch)(nil), nil)
-
-	resp, err = service.DeleteBranch(context.Background(), promptId, branchId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusNoContent, response.Code)
 }
 
-func TestGetBranch(t *testing.T) {
-	mockBranchClient := new(MockBranchManager)
-	mockPromptClient := new(MockPromptManager)
-	service := BranchesAPIService{branchClient: mockBranchClient, promptClient: mockPromptClient}
+func TestBranchesAPIService_GetBranch(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	promptId := "prompt1"
-	branchId := "branch1"
-	branch := &dal.Branch{
-		ID:       branchId,
-		PromptID: promptId,
-	}
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
 
-	// Test case where prompt and branch exist and belong to the prompt
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return(branch, nil)
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchID := "branch1"
 
-	resp, err := service.GetBranch(context.Background(), promptId, branchId)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchID).Return(&dal.Branch{
+		Name:      "branch1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+
+	response, err := service.GetBranch(ctx, projectID, promptID, branchID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.GetBranch(context.Background(), promptId, branchId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-
-	// Test case where branch does not exist
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("GetBranch", mock.Anything, branchId).Return((*dal.Branch)(nil), nil)
-
-	resp, err = service.GetBranch(context.Background(), promptId, branchId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	branch, ok := response.Body.(*openapi.Branch)
+	assert.True(t, ok)
+	assert.Equal(t, "branch1", branch.Name)
 }
 
-func TestListPromptBranches(t *testing.T) {
-	mockBranchClient := new(MockBranchManager)
-	mockPromptClient := new(MockPromptManager)
-	service := BranchesAPIService{branchClient: mockBranchClient, promptClient: mockPromptClient}
+func TestBranchesAPIService_ListPromptBranches(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	promptId := "prompt1"
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	projectID := "proj1"
+	promptID := "prompt1"
+
 	branches := []dal.Branch{
-		{ID: "1", PromptID: promptId},
-		{ID: "2", PromptID: promptId},
+		{Name: "branch1", CreatedAt: time.Now().UTC().Format(time.RFC3339)},
+		{Name: "branch2", CreatedAt: time.Now().UTC().Format(time.RFC3339)},
 	}
 
-	// Test case where prompt exists
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return(&dal.Prompt{}, nil)
-	mockBranchClient.On("ListBranchesByPrompt", mock.Anything, promptId).Return(branches, nil)
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().ListBranchesByPrompt(ctx, "org1", promptID).Return(branches, nil)
 
-	resp, err := service.ListPromptBranches(context.Background(), promptId)
+	response, err := service.ListPromptBranches(ctx, projectID, promptID)
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.Code)
-	mockPromptClient.AssertExpectations(t)
-	mockBranchClient.AssertExpectations(t)
-
-	// Test case where prompt does not exist
-	mockPromptClient.On("GetPrompt", mock.Anything, promptId).Return((*dal.Prompt)(nil), nil)
-
-	resp, err = service.ListPromptBranches(context.Background(), promptId)
-	assert.Error(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.Code)
-	mockPromptClient.AssertExpectations(t)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	listedBranches, ok := response.Body.([]openapi.Branch)
+	assert.True(t, ok)
+	assert.Equal(t, 2, len(listedBranches))
+	assert.Equal(t, "branch1", listedBranches[0].Name)
+	assert.Equal(t, "branch2", listedBranches[1].Name)
 }
-*/

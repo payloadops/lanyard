@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"context"
-	"github.com/payloadops/plato/api/config"
+	"github.com/payloadops/plato/app/config"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

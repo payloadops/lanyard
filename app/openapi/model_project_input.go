@@ -18,12 +18,6 @@ type ProjectInput struct {
 
 	// A brief description of the project
 	Description string `json:"description,omitempty"`
-
-	// A K-sortable unique identifier (KSUID)
-	OrgId string `json:"orgId,omitempty"`
-
-	// A K-sortable unique identifier (KSUID)
-	TeamId string `json:"teamId,omitempty"`
 }
 
 // AssertProjectInputRequired checks if the required fields are not zero-ed

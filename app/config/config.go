@@ -35,6 +35,7 @@ type Config struct {
 	Environment   EnvironmentType `envconfig:"ENVIRONMENT"`
 	BindAddress   string          `envconfig:"BIND_ADDRESS" default:":8080"`
 	JWTSecret     string          `envconfig:"JWT_SECRET" required:"true"`
+	PromptBucket  string          `envconfig:"PROMPT_BUCKET" required:"true"`
 	AWS           AWSConfig
 	OpenTelemetry OpenTelemetryConfig
 }

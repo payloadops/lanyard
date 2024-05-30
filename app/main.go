@@ -5,14 +5,15 @@ import (
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/payloadops/plato/api/client"
-	"github.com/payloadops/plato/api/config"
-	"github.com/payloadops/plato/api/dal"
-	"github.com/payloadops/plato/api/logging"
-	"github.com/payloadops/plato/api/metrics"
-	"github.com/payloadops/plato/api/openapi"
-	"github.com/payloadops/plato/api/service"
-	"github.com/payloadops/plato/api/tracing"
+	"github.com/payloadops/plato/app/cache"
+	"github.com/payloadops/plato/app/client"
+	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/logging"
+	"github.com/payloadops/plato/app/metrics"
+	"github.com/payloadops/plato/app/openapi"
+	"github.com/payloadops/plato/app/service"
+	"github.com/payloadops/plato/app/tracing"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
@@ -76,7 +77,7 @@ func main() {
 
 	// Create AWS clients
 	dynamoClient := dynamodb.NewFromConfig(awsConfig)
-	_ = s3.NewFromConfig(awsConfig)
+	s3Client := s3.NewFromConfig(awsConfig)
 
 	/*
 		// Create AWS clients
@@ -93,21 +94,15 @@ func main() {
 		// Create cache instance
 		cache := cache.NewRedisCache(redisClient)
 	*/
+	// TODO: Initialize a real redis cache, when elasticace is present...
+	cache := cache.NewNoopCache()
 
 	// Initialize database clients
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
 	promptDBClient := dal.NewPromptDBClient(dynamoClient)
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
-	/*
-		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
-		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
-		orgDBClient := &dal.OrgDBClient{service: dynamoClient}
-		projectDBClient := &dal.ProjectDBClient{service: dynamoClient}
-		promptDBClient := &dal.PromptDBClient{service: dynamoClient}
-		teamDBClient := &dal.TeamDBClient{service: dynamoClient}
-		userDBClient := &dal.UserDBClient{service: dynamoClient}
-		apiKeyDBClient := &dal.APIKeyDBClient{service: dynamoClient}
-	*/
+	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg)
+	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService()
@@ -118,51 +113,31 @@ func main() {
 		promptDBClient,
 		branchDBClient,
 	)
-
-	// Initialize services with injected dependencies
-	/*
-		APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
-		BranchesAPIService := service.NewBranchesAPIService(branchDBClient, promptDBClient)
-		CommitsAPIService := service.NewCommitsAPIService(commitDBClient, branchDBClient)
-		OrganizationsAPIService := service.NewOrganizationsAPIService(orgDBClient)
-		ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, orgDBClient)
-		PromptsAPIService := service.NewPromptsAPIService(promptDBClient, projectDBClient)
-		TeamsAPIService := service.NewTeamsAPIService(teamDBClient, orgDBClient)
-		UsersAPIService := service.NewUsersAPIService(userDBClient)
-	*/
+	CommitsAPIService := service.NewCommitsAPIService(
+		projectDBClient,
+		promptDBClient,
+		branchDBClient,
+		commitDBClient,
+	)
+	APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
 	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
 	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
 	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
-	/*
-		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
-		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
-		CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
-		OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
-		ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
-		PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
-		TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
-		UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
-	*/
+	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
+	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
 
 	// Initialize router
 	router := openapi.NewRouter(
+		cfg,
 		HealthCheckAPIController,
 		ProjectsAPIController,
 		PromptsAPIController,
 		BranchesAPIController,
-		/*
-			APIKeysAPIController,
-			BranchesAPIController,
-			CommitsAPIController,
-			OrganizationsAPIController,
-			ProjectsAPIController,
-			PromptsAPIController,
-			TeamsAPIController,
-			UsersAPIController,
-		*/
+		CommitsAPIController,
+		APIKeysAPIController,
 	)
 
 	// Initialize server

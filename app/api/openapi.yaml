@@ -53,617 +53,6 @@ paths:
       summary: Health Check Endpoint
       tags:
       - Health Check
-  /organizations:
-    get:
-      description: |
-        Retrieves a comprehensive list of all organizations registered in the system. This operation is essential for stakeholders, administrators, or system integrators who need to manage or interact with multiple organizations. It provides a broad overview of each organization, including essential details like organization ID, name, and contact information.
-
-        **Key Features**:
-        - **Broad Overview**: Offers a snapshot of all organizations, facilitating management decisions and oversight.
-        - **Strategic Planning**: Supports strategic analysis and planning by providing access to a list of potential partners, clients, or entities within the system.
-
-        **Use Cases**:
-        - System administrators conducting audits or reviews of organizational entities.
-        - Third-party service providers integrating or offering services across multiple organizations.
-      operationId: listOrganizations
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Organization'
-                type: array
-          description: "Successfully retrieved a list of all organizations, each presented\
-            \ with key details for easy reference."
-        "500":
-          description: "A server error occurred, preventing the listing of organizations."
-      security:
-      - BearerAuth: []
-      summary: List all organizations
-      tags:
-      - Organizations
-    post:
-      description: |
-        Creates a new organization based on the provided details. This endpoint allows users to add new organizational entities to the system, facilitating the expansion and diversification of business operations. It is crucial for dynamically growing environments where new organizations are frequently established.
-
-        **Key Features**:
-        - **Organization Creation**: Enables the setup of new organizational profiles, including specifying their structure, purpose, and operational details.
-        - **Customizable Setup**: Allows for detailed customization of organization parameters such as name, contact information, and operational settings.
-
-        **Use Cases**:
-        - Business administrators setting up new entities as part of corporate expansion or restructuring.
-        - Start-ups and new businesses registering their organization within industry platforms or networks.
-      operationId: createOrganization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationInput'
-        description: "Contains all necessary attributes for creating a new organization,\
-          \ such as the organization's name, description, and contact details."
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: "The organization was created successfully, with detailed information\
-            \ about the new entity included in the response."
-        "400":
-          description: "Invalid input, typically due to missing required fields, non-conformity\
-            \ to expected formats, or improper data values."
-        "500":
-          description: "A server error occurred, preventing the creation of the organization."
-      security:
-      - BearerAuth: []
-      summary: Create a new organization
-      tags:
-      - Organizations
-  /organizations/{orgId}:
-    delete:
-      description: |
-        Permanently deletes an organization from the system, including all related data. This operation is critical for managing organizational lifecycle, especially when an organization ceases operations or merges with another entity.
-
-        **Key Features**:
-        - **Complete Removal**: Ensures that all information pertaining to the organization is thoroughly removed from the system.
-        - **Compliance and Security**: Aids in compliance with legal and regulatory requirements by allowing for the secure deletion of sensitive data.
-
-        **Use Cases**:
-        - Removing organizational records to comply with data retention policies.
-        - Deleting entities that are no longer active to maintain system hygiene and security.
-      operationId: deleteOrganization
-      parameters:
-      - description: The unique identifier of the organization to be deleted.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: "Organization deleted successfully, with no remaining data\
-            \ stored."
-        "404":
-          description: No organization found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the deletion of the organization."
-      security:
-      - BearerAuth: []
-      summary: Delete a specific organization
-      tags:
-      - Organizations
-    get:
-      description: |
-        Retrieves detailed information about an organization identified by its unique ID. This operation is crucial for stakeholders and administrators who need to understand the structure, operational scope, and strategic data of the organization. It provides essential insights into the organization’s profile, operational units, and management hierarchies.
-
-        **Key Features**:
-        - **Comprehensive Overview**: Delivers a full profile of the organization, including its mission, operational scope, and key contacts.
-        - **Strategic Insight**: Facilitates strategic planning and decision-making by providing essential organizational data.
-
-        **Use Cases**:
-        - Executives and managers reviewing organizational details for reporting or strategic planning.
-        - External partners or regulatory bodies verifying organizational information for compliance or collaboration purposes.
-      operationId: getOrganization
-      parameters:
-      - description: The unique identifier of the organization to retrieve.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: Successfully retrieved detailed information about the organization.
-        "404":
-          description: No organization found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the retrieval of the organization."
-      security:
-      - BearerAuth: []
-      summary: Get a specific organization
-      tags:
-      - Organizations
-    put:
-      description: |
-        Updates the detailed information of an organization based on the provided input. This endpoint allows for modifications to the organization's name, contact details, and structural data, ensuring that organizational records remain current and accurate.
-
-        **Key Features**:
-        - **Dynamic Update Capabilities**: Supports updates to various aspects of the organization's profile, helping to keep data relevant and up-to-date.
-        - **Adaptive Changes**: Facilitates organizational changes such as rebranding, leadership shifts, or operational adjustments.
-
-        **Use Cases**:
-        - Administrators updating organizational information following structural changes or policy updates.
-        - Compliance officers ensuring that organizational data meets regulatory standards.
-      operationId: updateOrganization
-      parameters:
-      - description: The unique identifier of the organization to update.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationInput'
-        description: Contains the updated information for the organization.
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: Organization information updated successfully.
-        "400":
-          description: "Invalid input, such as missing required fields or unsupported\
-            \ format."
-        "404":
-          description: No organization found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the update of the organization."
-      security:
-      - BearerAuth: []
-      summary: Update a specific organization
-      tags:
-      - Organizations
-  /organizations/{orgId}/teams:
-    get:
-      description: |
-        Retrieves a comprehensive list of all teams within a specified organization. This endpoint is essential for administrators and organizational leaders to view and manage team structures, understand team compositions, and plan resource allocation effectively.
-
-        **Key Features**:
-        - **Comprehensive Overview**: Provides detailed views of all teams, including their names, descriptions, and member counts.
-        - **Management and Planning**: Supports strategic planning and management by offering insights into team distributions and roles within the organization.
-
-        **Use Cases**:
-        - Executives and managers reviewing team structures for strategic planning.
-        - HR departments managing resource allocations and internal audits of team distributions.
-      operationId: listTeams
-      parameters:
-      - description: The identifier of the organization whose teams are being listed.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Team'
-                type: array
-          description: "Successfully retrieved a list of all teams within the organization,\
-            \ each entry containing details such as team ID, name, and member list."
-        "500":
-          description: "A server error occurred, preventing the retrieval of team\
-            \ information."
-      security:
-      - BearerAuth: []
-      summary: List all teams in an organization
-      tags:
-      - Teams
-    post:
-      description: |
-        Creates a new team within an organization based on the provided details such as team name, description, and intended members. This operation facilitates the expansion and structuring of an organization's teams to meet evolving business needs and project demands.
-
-        **Key Features**:
-        - **Team Formation**: Enables the formation of new teams tailored to specific projects or organizational functions.
-        - **Customizable Setup**: Allows for detailed definition of team characteristics including leadership roles and member responsibilities.
-
-        **Use Cases**:
-        - Forming new project teams as part of business expansion or new project initiation.
-        - Restructuring existing departments to enhance efficiency or focus on new strategic areas.
-      operationId: createTeam
-      parameters:
-      - description: The identifier of the organization where the new team will be
-          created.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeamInput'
-        description: "Contains the necessary attributes for creating a new team, including\
-          \ name, description, and initial members if applicable."
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Team'
-          description: "The team was created successfully and is now part of the organization,\
-            \ with detailed information about the new team provided."
-        "400":
-          description: "Invalid input, typically due to missing required fields or\
-            \ improperly formatted data."
-        "500":
-          description: "A server error occurred, preventing the creation of the new\
-            \ team."
-      security:
-      - BearerAuth: []
-      summary: Create a new team for an organization
-      tags:
-      - Teams
-  /organizations/{orgId}/teams/{teamId}:
-    delete:
-      description: |
-        Deletes a specific team from an organization based on its team ID. This operation is critical for managing organizational structure, particularly when a team is dissolved or merged with another.
-
-        **Key Features**:
-        - **Streamlined Organizational Structure**: Helps maintain a clean and efficient organizational hierarchy by removing outdated or unnecessary teams.
-        - **Security and Compliance**: Ensures that all related data is securely handled and removed in compliance with data protection policies.
-
-        **Use Cases**:
-        - Removing teams that are no longer active or have been restructured.
-        - Ensuring that team data does not persist in the system unnecessarily, particularly in sensitive environments.
-      operationId: deleteTeam
-      parameters:
-      - description: The identifier of the organization from which the team will be
-          deleted.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the team to be deleted.
-        explode: false
-        in: path
-        name: teamId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: "Team deleted successfully, with no remaining data stored."
-        "404":
-          description: Either the specified team or the organization was not found.
-        "500":
-          description: "A server error occurred, preventing the deletion of the team."
-      security:
-      - BearerAuth: []
-      summary: Delete a specific team
-      tags:
-      - Teams
-    get:
-      description: |
-        Retrieves detailed information about a specific team within an organization, using its unique team ID. This operation is crucial for administrators who need to manage team settings, understand team composition, and review team-specific roles and permissions.
-
-        **Key Features**:
-        - **Comprehensive Team Details**: Provides complete information about the team, including its members, roles, projects, and operational statistics.
-        - **Management and Oversight**: Essential for overseeing team configurations and ensuring that team setups align with organizational policies and goals.
-
-        **Use Cases**:
-        - Team leaders reviewing team composition and roles for project assignments.
-        - HR and management accessing team details for planning and resource allocation.
-      operationId: getTeam
-      parameters:
-      - description: The identifier of the organization to which the team belongs.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the team to retrieve.
-        explode: false
-        in: path
-        name: teamId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Team'
-          description: Successfully retrieved detailed information about the team.
-        "404":
-          description: The specified team or organization was not found.
-        "500":
-          description: "A server error occurred, preventing the retrieval of the team."
-      security:
-      - BearerAuth: []
-      summary: Get a specific team by ID
-      tags:
-      - Teams
-    put:
-      description: |
-        Updates the details of a specific team within an organization. This endpoint allows for the modification of team data such as name, description, and member roles. It supports dynamic team management and ensures that team information remains current and relevant to organizational needs.
-
-        **Key Features**:
-        - **Dynamic Team Management**: Enables changes to team structure, roles, and project assignments.
-        - **Adaptable to Changing Needs**: Facilitates quick updates to team details in response to project shifts or strategic realignments.
-
-        **Use Cases**:
-        - Administrators adjusting team roles and permissions to reflect new project requirements.
-        - Team leaders modifying team descriptions or details to better define the team’s purpose or objectives.
-      operationId: updateTeam
-      parameters:
-      - description: The identifier of the organization where the team is registered.
-        explode: false
-        in: path
-        name: orgId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the team to be updated.
-        explode: false
-        in: path
-        name: teamId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeamInput'
-        description: Contains the updated information for the team.
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Team'
-          description: "Team information updated successfully, reflecting new settings\
-            \ and configurations."
-        "400":
-          description: "Invalid input, such as missing required data or unsupported\
-            \ modifications."
-        "404":
-          description: Either the specified team or the organization was not found.
-        "500":
-          description: "A server error occurred, preventing the update of the team."
-      security:
-      - BearerAuth: []
-      summary: Update a specific team
-      tags:
-      - Teams
-  /users:
-    get:
-      description: |
-        Retrieves a comprehensive list of all users registered in the system. This operation is essential for administrators and systems that need to manage user access, monitor user activity, or gather user data for reporting purposes.
-
-        **Key Features**:
-        - **Broad Overview**: Provides a detailed view of all user profiles, including their roles, status, and basic information.
-        - **User Management Support**: Facilitates the administration and oversight of user accounts, supporting tasks such as auditing, role assignment, and access reviews.
-
-        **Use Cases**:
-        - System administrators needing to monitor user activities or manage user permissions.
-        - Automated systems that integrate user data for analytics or marketing purposes.
-      operationId: listUsers
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/User'
-                type: array
-          description: "Successfully retrieved a list of user profiles, each including\
-            \ essential details such as names, email addresses, and roles."
-        "500":
-          description: "A server error occurred, preventing the listing of users."
-      security:
-      - BearerAuth: []
-      summary: List all users
-      tags:
-      - Users
-    post:
-      description: |
-        Creates a new user with specified details such as name, email, and role. This endpoint is crucial for adding new users to the system, facilitating controlled access to applications and services based on predefined roles and permissions.
-
-        **Key Features**:
-        - **Flexible User Creation**: Allows for the dynamic creation of user accounts with configurable roles and permissions.
-        - **Security and Compliance**: Adheres to security best practices by ensuring that all new users are created with appropriate access levels and data validation.
-
-        **Use Cases**:
-        - Onboarding new employees by creating user accounts as part of organizational access provisioning.
-        - Registering new customers or clients on platforms requiring user authentication and personalization.
-
-        **Requirements**:
-        - Input data must include essential user details such as name, email, and a predefined role. Additional data such as department or group might also be required based on system configuration.
-      operationId: createUser
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserInput'
-        description: "Contains the necessary attributes for creating a new user, including\
-          \ name, email, role, and any additional relevant information."
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: "User created successfully, with the user's profile details\
-            \ returned including identifiers and status."
-        "400":
-          description: "Invalid input, typically due to missing required fields, non-conformity\
-            \ to data formats, or invalid values."
-        "500":
-          description: "A server error occurred, preventing the creation of a new\
-            \ user."
-      security:
-      - BearerAuth: []
-      summary: Create a new user
-      tags:
-      - Users
-  /users/{userId}:
-    delete:
-      description: |
-        Permanently deletes a user from the system based on their unique ID. This operation is crucial for managing user lifecycle, particularly in cases where users need to be removed due to security concerns or upon user request.
-
-        **Key Features**:
-        - **Secure User Management**: Ensures that user data can be permanently removed in compliance with data protection regulations.
-        - **Lifecycle Management**: Supports the management of user accounts by facilitating the complete removal of user profiles when necessary.
-
-        **Use Cases**:
-        - Administrators needing to remove user access permanently, either at the user's request or due to policy requirements.
-        - Managing user deactivation and data deletion in compliance with privacy laws and regulations.
-      operationId: deleteUser
-      parameters:
-      - description: The unique identifier of the user to be deleted.
-        explode: false
-        in: path
-        name: userId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: "User deleted successfully, no content returned."
-        "404":
-          description: No user found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the deletion of the user."
-      security:
-      - BearerAuth: []
-      summary: Delete a specific user
-      tags:
-      - Users
-    get:
-      description: |
-        Retrieves detailed information about a user, identified by their unique ID. This operation is essential for system administrators and applications requiring user data validation, profile management, or access rights verification.
-
-        **Key Features**:
-        - **Detailed User Profiles**: Provides comprehensive details about the user, including contact information, roles, and permissions.
-        - **Security and Compliance**: Supports security processes by enabling identity verification and user management.
-
-        **Use Cases**:
-        - Administrators managing user access and permissions within a system.
-        - Services integrating user information for personalization or configuration.
-      operationId: getUser
-      parameters:
-      - description: The unique identifier of the user to retrieve.
-        explode: false
-        in: path
-        name: userId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: Successfully retrieved detailed information about the user.
-        "404":
-          description: No user found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the retrieval of user\
-            \ information."
-      security:
-      - BearerAuth: []
-      summary: Get a specific user by ID
-      tags:
-      - Users
-    put:
-      description: |
-        Updates the profile or settings of a user identified by their unique ID. This endpoint allows for the modification of user details such as names, contact information, or roles, supporting ongoing management of user data.
-
-        **Key Features**:
-        - **Profile Updates**: Enables changes to user profiles, supporting dynamic updates to contact details, preferences, and roles.
-        - **Access Control Adjustments**: Facilitates updates to user permissions and access controls, essential for maintaining security and operational integrity.
-
-        **Use Cases**:
-        - Administrators updating user roles or permissions in response to organizational changes.
-        - Users updating their own profiles as part of regular account maintenance.
-      operationId: updateUser
-      parameters:
-      - description: The unique identifier of the user to update.
-        explode: false
-        in: path
-        name: userId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserInput'
-        description: Contains the updated data for the user's profile.
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: User information updated successfully.
-        "400":
-          description: "Invalid input, such as malformed data or incomplete required\
-            \ fields."
-        "404":
-          description: No user found with the specified ID.
-        "500":
-          description: "A server error occurred, preventing the update of the user."
-      security:
-      - BearerAuth: []
-      summary: Update a specific user
-      tags:
-      - Users
   /projects:
     get:
       description: |
@@ -1720,177 +1109,18 @@ components:
       minLength: 27
       pattern: "^[A-Za-z0-9]{27}$"
       type: string
-    Organization:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        description: description
-        id: id
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        name:
-          description: Name of the organization
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: Description for the organization
-          maxLength: 180
-          minLength: 1
-          type: string
-        createdAt:
-          description: Timestamp of organization creation
-          format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp of the last update to the organization
-          format: date-time
-          type: string
-      type: object
-    OrganizationInput:
-      example:
-        name: name
-        description: description
-      properties:
-        name:
-          description: Name of the organization
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: Description for the organization
-          type: string
-      required:
-      - name
-      type: object
-    Team:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        description: description
-        id: id
-        orgId: orgId
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        name:
-          description: Name of the team
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: A brief description of the team
-          maxLength: 180
-          minLength: 1
-          type: string
-        orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        createdAt:
-          description: Timestamp of team creation
-          format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp of the last update to the team
-          format: date-time
-          type: string
-      type: object
-    TeamInput:
-      example:
-        name: name
-        description: description
-      properties:
-        name:
-          description: Name of the team
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: A brief description of the team
-          maxLength: 180
-          minLength: 1
-          type: string
-      required:
-      - name
-      type: object
-    User:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        id: id
-        email: email
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        name:
-          description: User's full name (optional)
-          maxLength: 30
-          minLength: 1
-          type: string
-        email:
-          description: User's email address
-          format: email
-          type: string
-        createdAt:
-          description: Timestamp of user creation
-          format: date-time
-          type: string
-        updatedAt:
-          format: date-time
-          type: string
-      type: object
-    UserInput:
-      example:
-        name: name
-        email: email
-      properties:
-        name:
-          description: User's full name (optional)
-          maxLength: 30
-          minLength: 1
-          type: string
-        email:
-          description: User's email address
-          format: email
-          type: string
-      required:
-      - email
-      type: object
     Project:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        teamId: teamId
         name: name
         description: description
-        id: id
-        orgId: orgId
+        id: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the project
         name:
           description: Name of the project
           maxLength: 30
@@ -1900,18 +1130,6 @@ components:
           description: A brief description of the project
           maxLength: 180
           minLength: 1
-          type: string
-        orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        teamId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
           type: string
         createdAt:
           description: Timestamp when the project was created
@@ -1924,10 +1142,8 @@ components:
       type: object
     ProjectInput:
       example:
-        teamId: teamId
         name: name
         description: description
-        orgId: orgId
       properties:
         name:
           description: Name of the project
@@ -1939,39 +1155,25 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        orgId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        teamId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
       required:
       - name
       type: object
     ApiKey:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        id: id
+        id: ""
+        secret: secret
         scopes:
         - scopes
         - scopes
-        projectId: projectId
-        key: key
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
-        key:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        secret:
           description: The API key token
           maxLength: 180
           minLength: 1
@@ -1982,11 +1184,9 @@ components:
             type: string
           type: array
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: The project ID this API key belongs to
         createdAt:
           description: Timestamp when the API key was created
           format: date-time
@@ -2015,17 +1215,15 @@ components:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
         description: description
-        id: id
+        id: ""
         prompt: prompt
-        projectId: projectId
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
         name:
           description: Name of the prompt
           maxLength: 30
@@ -2042,11 +1240,9 @@ components:
           minLength: 1
           type: string
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -2086,16 +1282,14 @@ components:
         name: name
         stub: stub
         description: description
-        id: id
-        projectId: projectId
+        id: ""
+        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the prompt
         name:
           description: Name of the prompt
           maxLength: 30
@@ -2112,11 +1306,9 @@ components:
           minLength: 1
           type: string
         projectId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -2156,18 +1348,15 @@ components:
     Commit:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        checksum: checksum
-        id: id
+        id: ""
         message: message
-        userId: userId
+        userId: ""
         content: content
       properties:
         id:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the commit of the branch
         content:
           description: Content of the prompt in this commit
           minLength: 1
@@ -2177,15 +1366,10 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        checksum:
-          description: SHA-256 checksum of the content in this commit
-          type: string
         userId:
-          description: A K-sortable unique identifier (KSUID)
-          maxLength: 27
-          minLength: 27
-          pattern: "^[A-Za-z0-9]{27}$"
-          type: string
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the user that created this commit
         createdAt:
           description: Timestamp when this commit was created
           format: date-time

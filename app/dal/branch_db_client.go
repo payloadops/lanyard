@@ -9,17 +9,16 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/payloadops/plato/api/utils"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_branch_db_client.go "github.com/payloadops/plato/api/dal" BranchManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_branch_db_client.go "github.com/payloadops/plato/app/dal" BranchManager
 
 // BranchManager defines the operations available for managing branches.
 type BranchManager interface {
-	CreateBranch(ctx context.Context, branch *Branch) error
-	GetBranch(ctx context.Context, promptID, branchID string) (*Branch, error)
-	DeleteBranch(ctx context.Context, promptID, branchID string) error
-	ListBranchesByPrompt(ctx context.Context, promptID string) ([]Branch, error)
+	CreateBranch(ctx context.Context, orgID, promptID string, branch *Branch) error
+	GetBranch(ctx context.Context, orgID, promptID, branchName string) (*Branch, error)
+	DeleteBranch(ctx context.Context, orgID, promptID, branchName string) error
+	ListBranchesByPrompt(ctx context.Context, orgID, promptID string) ([]Branch, error)
 }
 
 // Ensure BranchDBClient implements the BranchManager interface
@@ -27,38 +26,31 @@ var _ BranchManager = &BranchDBClient{}
 
 // Branch represents a branch in the system.
 type Branch struct {
-	PromptID  string `json:"promptId"`
-	BranchID  string `json:"branchId"`
+	Name      string `json:"name"`
 	Deleted   bool   `json:"deleted"`
 	CreatedAt string `json:"createdAt"`
 }
 
 // BranchDBClient is a client for interacting with DynamoDB for branch-related operations.
 type BranchDBClient struct {
-	service *dynamodb.Client
+	service DynamoDBAPI
 }
 
 // NewBranchDBClient creates a new BranchDBClient.
-func NewBranchDBClient(service *dynamodb.Client) *BranchDBClient {
+func NewBranchDBClient(service DynamoDBAPI) *BranchDBClient {
 	return &BranchDBClient{
 		service: service,
 	}
 }
 
 // createBranchCompositeKeys generates the partition key (PK) and sort key (SK) for a branch.
-func createBranchCompositeKeys(promptID, branchID string) (string, string) {
-	return "Prompt#" + promptID, "Branch#" + branchID
+func createBranchCompositeKeys(orgID, promptID, branchName string) (string, string) {
+	return "Org#" + orgID + "Prompt#" + promptID, "Branch#" + branchName
 }
 
 // CreateBranch creates a new branch in the DynamoDB table.
-func (d *BranchDBClient) CreateBranch(ctx context.Context, branch *Branch) error {
-	ksuid, err := utils.GenerateKSUID()
-	if err != nil {
-		return fmt.Errorf("failed to create ksuid: %v", err)
-	}
-
-	branch.BranchID = ksuid
-	pk, sk := createBranchCompositeKeys(branch.PromptID, branch.BranchID)
+func (d *BranchDBClient) CreateBranch(ctx context.Context, orgID, promptID string, branch *Branch) error {
+	pk, sk := createBranchCompositeKeys(orgID, promptID, branch.Name)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	branch.CreatedAt = now
@@ -89,10 +81,9 @@ func (d *BranchDBClient) CreateBranch(ctx context.Context, branch *Branch) error
 	return nil
 }
 
-// GetBranch retrieves a branch by prompt ID and branch ID from the DynamoDB table.
-func (d *BranchDBClient) GetBranch(ctx context.Context, promptID, branchID string) (*Branch, error) {
-	pk, sk := createBranchCompositeKeys(promptID, branchID)
-
+// GetBranch retrieves a branch by orgID, prompt ID, and branch ID from the DynamoDB table.
+func (d *BranchDBClient) GetBranch(ctx context.Context, orgID, promptID, branchName string) (*Branch, error) {
+	pk, sk := createBranchCompositeKeys(orgID, promptID, branchName)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Branches"),
 		Key: map[string]types.AttributeValue{
@@ -119,9 +110,9 @@ func (d *BranchDBClient) GetBranch(ctx context.Context, promptID, branchID strin
 	return &branch, nil
 }
 
-// DeleteBranch marks a branch as deleted by prompt ID and branch ID in the DynamoDB table.
-func (d *BranchDBClient) DeleteBranch(ctx context.Context, promptID, branchID string) error {
-	pk, sk := createBranchCompositeKeys(promptID, branchID)
+// DeleteBranch marks a branch as deleted by org ID, prompt ID and branch ID in the DynamoDB table.
+func (d *BranchDBClient) DeleteBranch(ctx context.Context, orgID, promptID, branchName string) error {
+	pk, sk := createBranchCompositeKeys(orgID, promptID, branchName)
 	update := map[string]types.AttributeValueUpdate{
 		"Deleted": {
 			Value:  &types.AttributeValueMemberBOOL{Value: true},
@@ -148,8 +139,8 @@ func (d *BranchDBClient) DeleteBranch(ctx context.Context, promptID, branchID st
 }
 
 // ListBranchesByPrompt retrieves all branches belonging to a specific prompt from the DynamoDB table.
-func (d *BranchDBClient) ListBranchesByPrompt(ctx context.Context, promptID string) ([]Branch, error) {
-	pk, _ := createBranchCompositeKeys(promptID, "")
+func (d *BranchDBClient) ListBranchesByPrompt(ctx context.Context, orgID, promptID string) ([]Branch, error) {
+	pk, _ := createBranchCompositeKeys(orgID, promptID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Branches"),
 		KeyConditionExpression: aws.String("PK = :pk"),
