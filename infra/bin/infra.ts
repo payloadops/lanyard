@@ -13,7 +13,7 @@ const app = new cdk.App();
 const stages = [
   new Stage(app, `${Stages.DEV}-${Regions.US_EAST_1}`, Stages.DEV, {
     env: {account: Accounts.DEV, region: Regions.US_EAST_1},
-    imageTag: '$COMMIT_HASH'
+    imageTag: '$CODEBUILD_RESOLVED_SOURCE_VERSION'
   })
 ]
 
