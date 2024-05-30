@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/app/cache"
+	"github.com/payloadops/plato/app/config"
 	"io"
 	"strings"
 	"time"
@@ -45,12 +46,12 @@ type CommitDBClient struct {
 }
 
 // NewCommitDBClient creates a new CommitDBClient with the AWS configuration.
-func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache, bucketName string) *CommitDBClient {
+func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache, config *config.Config) *CommitDBClient {
 	return &CommitDBClient{
 		dynamoDb:   dynamoDb,
 		s3:         s3,
 		cache:      cache,
-		bucketName: bucketName,
+		bucketName: config.PromptBucket,
 	}
 }
 

@@ -101,7 +101,7 @@ func main() {
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
 	promptDBClient := dal.NewPromptDBClient(dynamoClient)
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
-	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg.PromptBucket)
+	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg)
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/payloadops/plato/app/config"
 	"io"
 	"strings"
 	"testing"
@@ -28,7 +29,9 @@ func TestCreateCommit(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, &config.Config{
+		PromptBucket: "test-bucket",
+	})
 
 	commit := &dal.Commit{
 		UserID:  "user1",
@@ -62,7 +65,9 @@ func TestGetCommit(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, &config.Config{
+		PromptBucket: "test-bucket",
+	})
 
 	commit := dal.Commit{
 		CommitID:  "commit1",
@@ -101,7 +106,9 @@ func TestListCommitsByBranch(t *testing.T) {
 	mockS3 := mocks.NewMockS3API(ctrl)
 	mockCache := cacheMocks.NewMockCache(ctrl)
 
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, "bucket-name")
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, &config.Config{
+		PromptBucket: "test-bucket",
+	})
 
 	commit := dal.Commit{
 		CommitID:  "1",
