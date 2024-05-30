@@ -103,13 +103,6 @@ func main() {
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
 	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
 	/*
-		commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache)
-		branchDBClient := &dal.BranchDBClient{service: dynamoClient}
-		orgDBClient := &dal.OrgDBClient{service: dynamoClient}
-		projectDBClient := &dal.ProjectDBClient{service: dynamoClient}
-		promptDBClient := &dal.PromptDBClient{service: dynamoClient}
-		teamDBClient := &dal.TeamDBClient{service: dynamoClient}
-		userDBClient := &dal.UserDBClient{service: dynamoClient}
 		apiKeyDBClient := &dal.APIKeyDBClient{service: dynamoClient}
 	*/
 
@@ -132,13 +125,6 @@ func main() {
 	// Initialize services with injected dependencies
 	/*
 		APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
-		BranchesAPIService := service.NewBranchesAPIService(branchDBClient, promptDBClient)
-		CommitsAPIService := service.NewCommitsAPIService(commitDBClient, branchDBClient)
-		OrganizationsAPIService := service.NewOrganizationsAPIService(orgDBClient)
-		ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, orgDBClient)
-		PromptsAPIService := service.NewPromptsAPIService(promptDBClient, projectDBClient)
-		TeamsAPIService := service.NewTeamsAPIService(teamDBClient, orgDBClient)
-		UsersAPIService := service.NewUsersAPIService(userDBClient)
 	*/
 
 	// Initialize controllers
@@ -149,13 +135,6 @@ func main() {
 	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 	/*
 		APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
-		BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
-		CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
-		OrganizationsAPIController := openapi.NewOrganizationsAPIController(OrganizationsAPIService)
-		ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
-		PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
-		TeamsAPIController := openapi.NewTeamsAPIController(TeamsAPIService)
-		UsersAPIController := openapi.NewUsersAPIController(UsersAPIService)
 	*/
 
 	// Initialize router
@@ -167,13 +146,6 @@ func main() {
 		CommitsAPIController,
 		/*
 			APIKeysAPIController,
-			BranchesAPIController,
-			CommitsAPIController,
-			OrganizationsAPIController,
-			ProjectsAPIController,
-			PromptsAPIController,
-			TeamsAPIController,
-			UsersAPIController,
 		*/
 	)
 
