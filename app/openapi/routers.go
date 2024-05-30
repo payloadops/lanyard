@@ -41,12 +41,11 @@ const errMsgMaxValueConstraint = "provided parameter is not respecting maximum v
 func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
-	router.Use(auth.AuthMiddleware(cfg))
+
 	for _, api := range routers {
 		for _, route := range api.Routes() {
 			var handler http.Handler
 			handler = route.HandlerFunc
-
 			// Skip auth middleware for health check
 			if route.Pattern == "/v1/health" {
 				router.Method(route.Method, route.Pattern, handler)
