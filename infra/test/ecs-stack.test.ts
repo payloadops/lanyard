@@ -9,7 +9,12 @@ import Stages from '../lib/constants/stages';
 test('ECS Cluster Created', () => {
   const app = new cdk.App();
   const vpcStack = new VpcStack(app, 'TestVpcStack', Stages.DEV);
-  const stack = new EcsStack(app, 'TestEcsStack', vpcStack, "bucket-name", Stages.DEV);
+  const stack = new EcsStack(app, 'TestEcsStack', {
+    stage: "stage",
+    bucketName: "b",
+    imageTag: "a",
+    vpcStack: vpcStack
+  });
   const template = Template.fromStack(stack);
   
   template.hasResource('AWS::ECS::Cluster', {});

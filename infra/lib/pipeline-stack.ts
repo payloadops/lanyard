@@ -69,9 +69,10 @@ export class PipelineStack extends cdk.Stack {
       const dockerBuildStep = new CodeBuildStep('BuildAndPushDockerImage', {
         commands: [
             'cd app',
-            'docker build -t $ECR_URI:latest .',
+            'export COMMIT_HASH=$(git rev-parse --short HEAD)',
+            'docker build -t $ECR_URI:$COMMIT_HASH .',
             'aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_URI',
-            'docker push $ECR_URI:latest',
+            'docker push $ECR_URI:$COMMIT_HASH',
         ],
         env: {
             'ECR_URI': ecrRepository.repositoryUri,
