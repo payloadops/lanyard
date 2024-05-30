@@ -22,7 +22,6 @@ func TestCreateProject(t *testing.T) {
 	client := dal.NewProjectDBClient(mockSvc)
 
 	project := &dal.Project{
-		OrgID:       "org1",
 		Name:        "Project1",
 		Description: "Description1",
 	}
@@ -31,7 +30,7 @@ func TestCreateProject(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreateProject(context.Background(), project)
+	err := client.CreateProject(context.Background(), "org1", project)
 	assert.NoError(t, err)
 }
 
@@ -43,7 +42,6 @@ func TestGetProject(t *testing.T) {
 	client := dal.NewProjectDBClient(mockSvc)
 
 	project := dal.Project{
-		OrgID:       "org1",
 		ProjectID:   "proj1",
 		Name:        "Project1",
 		Description: "Description1",
@@ -71,7 +69,6 @@ func TestUpdateProject(t *testing.T) {
 	client := dal.NewProjectDBClient(mockSvc)
 
 	project := &dal.Project{
-		OrgID:       "org1",
 		ProjectID:   "proj1",
 		Name:        "Project1",
 		Description: "Description1",
@@ -81,7 +78,7 @@ func TestUpdateProject(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.UpdateProject(context.Background(), project)
+	err := client.UpdateProject(context.Background(), "org1", project)
 	assert.NoError(t, err)
 }
 
@@ -108,7 +105,6 @@ func TestListProjectsByOrganization(t *testing.T) {
 	client := dal.NewProjectDBClient(mockSvc)
 
 	project := dal.Project{
-		OrgID:       "org1",
 		ProjectID:   "proj1",
 		Name:        "Project1",
 		Description: "Description1",

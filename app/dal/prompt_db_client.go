@@ -16,9 +16,9 @@ import (
 
 // PromptManager defines the operations available for managing prompts.
 type PromptManager interface {
-	CreatePrompt(ctx context.Context, prompt *Prompt) error
+	CreatePrompt(ctx context.Context, orgID, projectID string, prompt *Prompt) error
 	GetPrompt(ctx context.Context, orgID, projectID, promptID string) (*Prompt, error)
-	UpdatePrompt(ctx context.Context, prompt *Prompt) error
+	UpdatePrompt(ctx context.Context, orgID, projectID string, prompt *Prompt) error
 	DeletePrompt(ctx context.Context, orgID, projectID, promptID string) error
 	ListPromptsByProject(ctx context.Context, orgID, projectID string) ([]Prompt, error)
 }
@@ -28,8 +28,6 @@ var _ PromptManager = &PromptDBClient{}
 
 // Prompt represents a prompt in the system.
 type Prompt struct {
-	OrgID       string `json:"orgId"`
-	ProjectID   string `json:"projectId"`
 	PromptID    string `json:"promptId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -56,14 +54,14 @@ func createPromptCompositeKeys(orgID, projectID, promptID string) (string, strin
 }
 
 // CreatePrompt creates a new prompt in the DynamoDB table.
-func (d *PromptDBClient) CreatePrompt(ctx context.Context, prompt *Prompt) error {
+func (d *PromptDBClient) CreatePrompt(ctx context.Context, orgID, projectID string, prompt *Prompt) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	prompt.PromptID = ksuid
-	pk, sk := createPromptCompositeKeys(prompt.OrgID, prompt.ProjectID, prompt.PromptID)
+	pk, sk := createPromptCompositeKeys(orgID, projectID, prompt.PromptID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	prompt.CreatedAt = now
@@ -130,8 +128,8 @@ func (d *PromptDBClient) GetPrompt(ctx context.Context, orgID, projectID, prompt
 }
 
 // UpdatePrompt updates an existing prompt in the DynamoDB table.
-func (d *PromptDBClient) UpdatePrompt(ctx context.Context, prompt *Prompt) error {
-	pk, sk := createPromptCompositeKeys(prompt.OrgID, prompt.ProjectID, prompt.PromptID)
+func (d *PromptDBClient) UpdatePrompt(ctx context.Context, orgID string, projectID string, prompt *Prompt) error {
+	pk, sk := createPromptCompositeKeys(orgID, projectID, prompt.PromptID)
 	prompt.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(prompt)

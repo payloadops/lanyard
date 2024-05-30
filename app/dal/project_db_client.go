@@ -16,9 +16,9 @@ import (
 
 // ProjectManager defines the operations available for managing projects.
 type ProjectManager interface {
-	CreateProject(ctx context.Context, project *Project) error
+	CreateProject(ctx context.Context, orgID string, project *Project) error
 	GetProject(ctx context.Context, orgID string, projectID string) (*Project, error)
-	UpdateProject(ctx context.Context, project *Project) error
+	UpdateProject(ctx context.Context, orgID string, project *Project) error
 	DeleteProject(ctx context.Context, orgID string, projectID string) error
 	ListProjectsByOrganization(ctx context.Context, orgID string) ([]Project, error)
 }
@@ -28,7 +28,6 @@ var _ ProjectManager = &ProjectDBClient{}
 
 // Project represents a project in the system.
 type Project struct {
-	OrgID       string `json:"orgId"`
 	ProjectID   string `json:"projectId"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -55,14 +54,14 @@ func createProjectCompositeKeys(orgID, projectID string) (string, string) {
 }
 
 // CreateProject creates a new project in the DynamoDB table.
-func (d *ProjectDBClient) CreateProject(ctx context.Context, project *Project) error {
+func (d *ProjectDBClient) CreateProject(ctx context.Context, orgID string, project *Project) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	project.ProjectID = ksuid
-	pk, sk := createProjectCompositeKeys(project.OrgID, project.ProjectID)
+	pk, sk := createProjectCompositeKeys(orgID, project.ProjectID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	project.CreatedAt = now
@@ -128,8 +127,8 @@ func (d *ProjectDBClient) GetProject(ctx context.Context, orgID, projectID strin
 }
 
 // UpdateProject updates an existing project in the DynamoDB table.
-func (d *ProjectDBClient) UpdateProject(ctx context.Context, project *Project) error {
-	pk, sk := createProjectCompositeKeys(project.OrgID, project.ProjectID)
+func (d *ProjectDBClient) UpdateProject(ctx context.Context, orgID string, project *Project) error {
+	pk, sk := createProjectCompositeKeys(orgID, project.ProjectID)
 	project.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(project)

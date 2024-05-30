@@ -31,11 +31,9 @@ func TestCreateCommit(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := &dal.Commit{
-		PromptID:   "prompt1",
-		BranchName: "branch1",
-		UserID:     "user1",
-		Message:    "Initial commit",
-		Content:    "This is the commit content.",
+		UserID:  "user1",
+		Message: "Initial commit",
+		Content: "This is the commit content.",
 	}
 
 	mockS3.EXPECT().
@@ -50,11 +48,10 @@ func TestCreateCommit(t *testing.T) {
 		Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
-	err := client.CreateCommit(context.Background(), commit)
+	err := client.CreateCommit(context.Background(), "org1", "prompt1", "branch1", commit)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, commit.CommitID)
-	assert.Equal(t, "1", commit.VersionID)
-	assert.Equal(t, "abc123", commit.Checksum)
+	assert.Equal(t, "1", commit.CommitID)
 }
 
 func TestGetCommit(t *testing.T) {
@@ -68,12 +65,8 @@ func TestGetCommit(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := dal.Commit{
-		PromptID:   "prompt1",
-		BranchName: "branch1",
-		CommitID:   "commit1",
-		VersionID:  "1",
-		Checksum:   "abc123",
-		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
+		CommitID:  "commit1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
 
 	item, _ := attributevalue.MarshalMap(commit)
@@ -93,7 +86,7 @@ func TestGetCommit(t *testing.T) {
 		Set(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil)
 
-	result, err := client.GetCommit(context.Background(), "prompt1", "branch1", "commit1")
+	result, err := client.GetCommit(context.Background(), "org1", "prompt1", "branch1", "1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "commit1", result.CommitID)
@@ -111,12 +104,8 @@ func TestListCommitsByBranch(t *testing.T) {
 	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache)
 
 	commit := dal.Commit{
-		PromptID:   "prompt1",
-		BranchName: "branch1",
-		CommitID:   "commit1",
-		VersionID:  "1",
-		Checksum:   "abc123",
-		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
+		CommitID:  "1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
 
 	item, _ := attributevalue.MarshalMap(commit)
@@ -124,9 +113,9 @@ func TestListCommitsByBranch(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	results, err := client.ListCommitsByBranch(context.Background(), "prompt1", "branch1")
+	results, err := client.ListCommitsByBranch(context.Background(), "org1", "prompt1", "branch1")
 	assert.NoError(t, err)
 	assert.NotNil(t, results)
 	assert.Len(t, results, 1)
-	assert.Equal(t, "commit1", results[0].CommitID)
+	assert.Equal(t, "1", results[0].CommitID)
 }

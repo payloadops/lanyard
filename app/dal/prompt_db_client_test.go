@@ -22,7 +22,6 @@ func TestCreatePrompt(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := &dal.Prompt{
-		ProjectID:   "project1",
 		Name:        "Prompt1",
 		Description: "Description1",
 	}
@@ -31,7 +30,7 @@ func TestCreatePrompt(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreatePrompt(context.Background(), prompt)
+	err := client.CreatePrompt(context.Background(), "org1", "project1", prompt)
 	assert.NoError(t, err)
 }
 
@@ -43,8 +42,6 @@ func TestGetPrompt(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := dal.Prompt{
-		OrgID:       "org1",
-		ProjectID:   "project1",
 		PromptID:    "prompt1",
 		Name:        "Prompt1",
 		Description: "Description1",
@@ -72,7 +69,6 @@ func TestUpdatePrompt(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := &dal.Prompt{
-		ProjectID:   "project1",
 		PromptID:    "prompt1",
 		Name:        "Prompt1",
 		Description: "Description1",
@@ -82,7 +78,7 @@ func TestUpdatePrompt(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.UpdatePrompt(context.Background(), prompt)
+	err := client.UpdatePrompt(context.Background(), "org1", "project1", prompt)
 	assert.NoError(t, err)
 }
 
@@ -109,8 +105,6 @@ func TestListPromptsByProject(t *testing.T) {
 	client := dal.NewPromptDBClient(mockSvc)
 
 	prompt := dal.Prompt{
-		OrgID:       "orgId",
-		ProjectID:   "project1",
 		PromptID:    "prompt1",
 		Name:        "Prompt1",
 		Description: "Description1",

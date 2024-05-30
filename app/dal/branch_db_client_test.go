@@ -22,14 +22,14 @@ func TestCreateBranch(t *testing.T) {
 	client := dal.NewBranchDBClient(mockSvc)
 
 	branch := &dal.Branch{
-		PromptID: "prompt1",
+		Name: "prompt1",
 	}
 
 	mockSvc.EXPECT().
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreateBranch(context.Background(), branch)
+	err := client.CreateBranch(context.Background(), "org1", "prompt1", branch)
 	assert.NoError(t, err)
 }
 
@@ -41,8 +41,7 @@ func TestGetBranch(t *testing.T) {
 	client := dal.NewBranchDBClient(mockSvc)
 
 	branch := dal.Branch{
-		PromptID:  "prompt1",
-		BranchID:  "branch1",
+		Name:      "branch1",
 		Deleted:   false,
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
@@ -52,10 +51,10 @@ func TestGetBranch(t *testing.T) {
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetBranch(context.Background(), "prompt1", "branch1")
+	result, err := client.GetBranch(context.Background(), "org1", "prompt1", "branch1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "branch1", result.BranchID)
+	assert.Equal(t, "branch1", result.Name)
 }
 
 func TestDeleteBranch(t *testing.T) {
@@ -69,7 +68,7 @@ func TestDeleteBranch(t *testing.T) {
 		UpdateItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.UpdateItemOutput{}, nil)
 
-	err := client.DeleteBranch(context.Background(), "prompt1", "branch1")
+	err := client.DeleteBranch(context.Background(), "org1", "prompt1", "branch1")
 	assert.NoError(t, err)
 }
 
@@ -81,8 +80,7 @@ func TestListBranchesByPrompt(t *testing.T) {
 	client := dal.NewBranchDBClient(mockSvc)
 
 	branch := dal.Branch{
-		PromptID:  "prompt1",
-		BranchID:  "branch1",
+		Name:      "branch1",
 		Deleted:   false,
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 	}
@@ -92,9 +90,9 @@ func TestListBranchesByPrompt(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListBranchesByPrompt(context.Background(), "prompt1")
+	result, err := client.ListBranchesByPrompt(context.Background(), "org1", "prompt1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, "branch1", result[0].BranchID)
+	assert.Equal(t, "branch1", result[0].Name)
 }

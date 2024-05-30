@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/app/cache"
-	"github.com/payloadops/plato/app/utils"
 	"io"
 	"strings"
 	"time"
@@ -20,9 +19,9 @@ import (
 
 // CommitManager defines the operations available for managing commits.
 type CommitManager interface {
-	CreateCommit(ctx context.Context, commit *Commit) error
-	GetCommit(ctx context.Context, promptID, branchName, commitID string) (*Commit, error)
-	ListCommitsByBranch(ctx context.Context, promptID, branchName string) ([]Commit, error)
+	CreateCommit(ctx context.Context, orgID, promptID, branchName string, commit *Commit) error
+	GetCommit(ctx context.Context, orgID, promptID, branchName, commitID string) (*Commit, error)
+	ListCommitsByBranch(ctx context.Context, orgID, promptID, branchName string) ([]Commit, error)
 }
 
 // Ensure CommitDBClient implements the CommitManager interface
@@ -30,15 +29,11 @@ var _ CommitManager = &CommitDBClient{}
 
 // Commit represents a commit in the system.
 type Commit struct {
-	PromptID   string `json:"promptId"`
-	BranchName string `json:"branchName"`
-	CommitID   string `json:"commitId"`
-	UserID     string `json:"userId"`
-	Message    string `json:"message"`
-	Content    string `json:"-"`
-	Checksum   string `json:"checksum"`
-	VersionID  string `json:"versionId"`
-	CreatedAt  string `json:"createdAt"`
+	CommitID  string `json:"commitId"`
+	UserID    string `json:"userId"`
+	Message   string `json:"message"`
+	Content   string `json:"-"`
+	CreatedAt string `json:"createdAt"`
 }
 
 // CommitDBClient is a client for interacting with DynamoDB for commit-related operations.
@@ -58,25 +53,19 @@ func NewCommitDBClient(dynamoDb DynamoDBAPI, s3 S3API, cache cache.Cache) *Commi
 }
 
 // createCommitCompositeKeys generates the partition key (PK) and sort key (SK) for a commit.
-func createCommitCompositeKeys(promptID, branchName, commitID string) (string, string) {
-	return fmt.Sprintf("Prompt#%s#Branch#%s", promptID, branchName), fmt.Sprintf("Commit#%s", commitID)
+func createCommitCompositeKeys(orgID, promptID, branchName, commitID string) (string, string) {
+	return fmt.Sprintf("Org#%sPrompt#%s#Branch#%s", orgID, promptID, branchName), fmt.Sprintf("Commit#%s", commitID)
 }
 
 // CreateCommit creates a new commit in the DynamoDB table.
-func (d *CommitDBClient) CreateCommit(ctx context.Context, commit *Commit) error {
-	ksuid, err := utils.GenerateKSUID()
-	if err != nil {
-		return fmt.Errorf("failed to create ksuid: %v", err)
-	}
-
-	commit.CommitID = ksuid
-	pk, sk := createCommitCompositeKeys(commit.PromptID, commit.BranchName, commit.CommitID)
+func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, promptID, branchName string, commit *Commit) error {
+	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
 
 	// Upload the commit content to S3 and get the version ID
-	s3Key := fmt.Sprintf("commits/%s/%s.txt", commit.PromptID, commit.BranchName)
+	s3Key := fmt.Sprintf("commits/%s/%s/%s.txt", orgID, promptID, branchName)
 	putObjectOutput, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String("your-bucket-name"),
 		Key:    aws.String(s3Key),
@@ -86,8 +75,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit *Commit) error
 		return fmt.Errorf("failed to upload commit content to S3: %v", err)
 	}
 
-	commit.VersionID = aws.ToString(putObjectOutput.VersionId)
-	commit.Checksum = aws.ToString(putObjectOutput.ChecksumSHA256)
+	commit.CommitID = aws.ToString(putObjectOutput.VersionId)
 	commit.Content = "" // Clear the content before saving to DynamoDB
 
 	av, err := attributevalue.MarshalMap(commit)
@@ -114,7 +102,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit *Commit) error
 	}
 
 	// Cache the latest commit content
-	cacheKey := fmt.Sprintf("commit:%s:%s:%s", commit.PromptID, commit.BranchName, commit.CommitID)
+	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
 	if err := d.cache.Set(ctx, cacheKey, commit.Content, 10*time.Minute); err != nil {
 		return fmt.Errorf("failed to cache commit content: %v", err)
 	}
@@ -123,9 +111,8 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, commit *Commit) error
 }
 
 // GetCommit retrieves a commit by prompt ID, branch ID, and commit ID from the DynamoDB table.
-func (d *CommitDBClient) GetCommit(ctx context.Context, promptID, branchName, commitID string) (*Commit, error) {
-	pk, sk := createCommitCompositeKeys(promptID, branchName, commitID)
-
+func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, promptID, branchName, commitID string) (*Commit, error) {
+	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commitID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
 		Key: map[string]types.AttributeValue{
@@ -157,15 +144,16 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, promptID, branchName, co
 	}
 
 	// Retrieve the content from S3 using the branchName and VersionID if not in cache
-	key := fmt.Sprintf("commits/%s/%s.txt", promptID, branchName)
+	key := fmt.Sprintf("commits/%s/%s/%s.txt", orgID, promptID, branchName)
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
 		Bucket:    aws.String("your-bucket-name"),
 		Key:       aws.String(key),
-		VersionId: aws.String(commit.VersionID),
+		VersionId: aws.String(commit.CommitID),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commit content from S3: %v", err)
 	}
+
 	defer obj.Body.Close()
 
 	content, err := io.ReadAll(obj.Body)
@@ -183,9 +171,8 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, promptID, branchName, co
 }
 
 // ListCommitsByBranch retrieves all commits belonging to a specific branch from the DynamoDB table.
-func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, promptID, branchName string) ([]Commit, error) {
-	pk := fmt.Sprintf("Prompt#%s#Branch#%s", promptID, branchName)
-
+func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, orgID, promptID, branchName string) ([]Commit, error) {
+	pk, _ := createCommitCompositeKeys(orgID, promptID, branchName, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Commits"),
 		KeyConditionExpression: aws.String("PK = :pk"),

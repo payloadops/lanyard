@@ -50,7 +50,7 @@ func TestCreateBranchCommit(t *testing.T) {
 	}
 	expectedCommit := dal.Commit{
 		ID:       "id",
-		BranchID: branchId,
+		Name: branchId,
 		UserID:   "user_id",
 		Message:  commitInput.Message,
 		Content:  commitInput.Content,
@@ -76,7 +76,7 @@ func TestGetBranchCommit(t *testing.T) {
 	commitId := "commit1"
 	commit := &dal.Commit{
 		ID:       commitId,
-		BranchID: branchId,
+		Name: branchId,
 	}
 
 	// Test case where branch and commit exist and belong to the branch
@@ -116,8 +116,8 @@ func TestListBranchCommits(t *testing.T) {
 	promptId := "prompt1"
 	branchId := "branch1"
 	commits := []dal.Commit{
-		{ID: "1", BranchID: branchId},
-		{ID: "2", BranchID: branchId},
+		{ID: "1", Name: branchId},
+		{ID: "2", Name: branchId},
 	}
 
 	// Test case where branch exists
