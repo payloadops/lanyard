@@ -13,12 +13,16 @@ import (
 )
 
 // generateTestToken generates a JWT token for testing with the specified secret, user ID, and organization ID.
-func generateTestToken(secret, userID, orgID string) string {
+func generateTestToken(secret, userID, orgID string, expired bool) string {
+	expiresAt := time.Now().Add(time.Hour).Unix()
+	if expired {
+		expiresAt = time.Now().Add(-time.Hour).Unix()
+	}
 	claims := &Claims{
 		OrgID: orgID,
 		StandardClaims: jwt.StandardClaims{
 			Subject:   userID,
-			ExpiresAt: time.Now().Add(time.Hour).Unix(),
+			ExpiresAt: expiresAt,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -40,7 +44,7 @@ func TestAuthMiddleware(t *testing.T) {
 	}{
 		{
 			name:           "Valid Token",
-			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1"),
+			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1", false),
 			expectedStatus: http.StatusOK,
 			expectedUserID: "user1",
 			expectedOrgID:  "org1",
@@ -51,8 +55,18 @@ func TestAuthMiddleware(t *testing.T) {
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
+			name:           "Invalid Authorization Header",
+			tokenString:    "Bearer ",
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
 			name:           "Invalid Token",
 			tokenString:    "invalid.token",
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
+			name:           "Expired Token",
+			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1", true),
 			expectedStatus: http.StatusUnauthorized,
 		},
 	}
