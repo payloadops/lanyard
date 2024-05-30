@@ -19,8 +19,12 @@ export class Stage extends cdk.Stage {
     //   new ElastiCacheStack(scope, disambiguator('ElasticacheStack'), vpcStack, {
     //     env: { account: props?.env?.account, region: props?.env?.region },
     //   });
+
+      const s3Stack = new S3Stack(this, disambiguator('S3Stack', stage, region), stage, {
+        env: { account: props?.env?.account, region: props?.env?.region },
+      });
       
-      new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, {
+      new EcsStack(this, disambiguator('EcsStack', stage, region), vpcStack, stage, s3Stack.bucketName, {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
 
@@ -28,10 +32,6 @@ export class Stage extends cdk.Stage {
         new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
             env: { account: props?.env?.account, region: props?.env?.region },
           })
-
-          new S3Stack(this, disambiguator('S3Stack', stage, region), stage, {
-            env: { account: props?.env?.account, region: props?.env?.region },
-          });
       }
     }
 }

@@ -20,7 +20,7 @@ import { ApplicationProtocol } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 
 export class EcsStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, vpcStack: VpcStack, stage: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, vpcStack: VpcStack, stage: string, bucketName: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const MIN_CAPACITY = stage === Stages.PROD ? 2 : 0;
@@ -119,7 +119,7 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": stage,
-          PROMPT_BUCKET: "prompts-bucket"
+          PROMPT_BUCKET: bucketName
         },
         secrets: {
           "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
