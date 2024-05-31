@@ -80,7 +80,7 @@ func TestGetCommit(t *testing.T) {
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
 	mockCache.EXPECT().
-		Get(gomock.Any(), gomock.Any()).
+		Get(gomock.Any(), gomock.Any(), dal.CommitTTL).
 		Return("", errors.New("cache miss"))
 
 	mockS3.EXPECT().

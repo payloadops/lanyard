@@ -17,8 +17,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-// TimeToLive represents the duration that a prompt can be stored in the cache
-const TimeToLive = 10 * time.Minute
+// CommitTTL represents the duration that a prompt can be stored in the cache
+const CommitTTL = 1 * time.Minute
 
 //go:generate mockgen -package=mocks -destination=mocks/mock_commit_db_client.go "github.com/payloadops/plato/app/dal" CommitManager
 
@@ -72,7 +72,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 	commit.CreatedAt = now
 
 	// Upload the commit content to S3 and get the version ID
-	s3Key := fmt.Sprintf("prompts/%s/%/%s/%s.txt", orgID, projectID, promptID, branchName)
+	s3Key := fmt.Sprintf("prompts/%s/%s/%s/%s.txt", orgID, projectID, promptID, branchName)
 	putObjectOutput, err := d.s3.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(d.bucketName),
 		Key:    aws.String(s3Key),
@@ -110,7 +110,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 
 	// Cache the latest commit content
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
-	if err := d.cache.Set(ctx, cacheKey, commit.Content, TimeToLive); err != nil {
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, CommitTTL); err != nil {
 		return fmt.Errorf("failed to cache commit content: %v", err)
 	}
 
@@ -145,7 +145,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, prompt
 
 	// Try to get the content from the cache
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
-	if content, err := d.cache.Get(ctx, cacheKey); err == nil {
+	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); err == nil {
 		commit.Content = content
 		return &commit, nil
 	}
@@ -170,7 +170,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, prompt
 
 	commit.Content = string(content)
 	// Cache the retrieved content
-	if err := d.cache.Set(ctx, cacheKey, commit.Content, TimeToLive); err != nil {
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, CommitTTL); err != nil {
 		return nil, fmt.Errorf("failed to cache commit content: %v", err)
 	}
 

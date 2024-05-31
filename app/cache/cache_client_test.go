@@ -2,31 +2,31 @@ package cache_test
 
 import (
 	"context"
-	"github.com/go-redis/redis/v8"
-	"github.com/payloadops/plato/app/cache"
+	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/payloadops/plato/app/cache"
 	"github.com/payloadops/plato/app/cache/mocks"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
 )
 
 func TestRedisCache_Set(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockClient := mocks.NewMockCmdable(ctrl)
-	cache := cache.NewRedisCache(mockClient)
+	mockRedisClient := mocks.NewMockCmdable(ctrl)
+	redisCache := cache.NewRedisCache(mockRedisClient)
 
 	ctx := context.Background()
 	key := "test-key"
 	value := "test-value"
-	expiration := time.Hour
+	expiration := 10 * time.Second
 
-	mockClient.EXPECT().Set(ctx, key, value, expiration).Return(&redis.StatusCmd{})
+	mockRedisClient.EXPECT().Set(ctx, key, value, expiration).Return(redis.NewStatusResult("OK", nil))
 
-	err := cache.Set(ctx, key, value, expiration)
+	err := redisCache.Set(ctx, key, value, expiration)
 	assert.NoError(t, err)
 }
 
@@ -34,48 +34,77 @@ func TestRedisCache_Get(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockClient := mocks.NewMockCmdable(ctrl)
-	cache := cache.NewRedisCache(mockClient)
+	mockRedisClient := mocks.NewMockCmdable(ctrl)
+	redisCache := cache.NewRedisCache(mockRedisClient)
 
 	ctx := context.Background()
 	key := "test-key"
 	value := "test-value"
+	expiration := 10 * time.Second
 
-	mockClient.EXPECT().Get(ctx, key).Return(redis.NewStringResult(value, nil))
+	script := `
+		local value = redis.call('GET', KEYS[1])
+		if value then
+			redis.call('EXPIRE', KEYS[1], ARGV[1])
+		end
+		return value
+	`
 
-	result, err := cache.Get(ctx, key)
+	mockRedisClient.EXPECT().
+		Eval(ctx, script, []string{key}, int(expiration.Seconds())).
+		Return(redis.NewCmdResult(value, nil))
+
+	result, err := redisCache.Get(ctx, key, expiration)
 	assert.NoError(t, err)
 	assert.Equal(t, value, result)
 }
 
-func TestRedisCache_Get_NotFound(t *testing.T) {
+func TestRedisCache_Get_KeyNotFound(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockClient := mocks.NewMockCmdable(ctrl)
-	cache := cache.NewRedisCache(mockClient)
+	mockRedisClient := mocks.NewMockCmdable(ctrl)
+	redisCache := cache.NewRedisCache(mockRedisClient)
 
 	ctx := context.Background()
-	key := "non-existent-key"
+	key := "test-key"
+	expiration := 10 * time.Second
 
-	mockClient.EXPECT().Get(ctx, key).Return(redis.NewStringResult("", redis.Nil))
+	script := `
+		local value = redis.call('GET', KEYS[1])
+		if value then
+			redis.call('EXPIRE', KEYS[1], ARGV[1])
+		end
+		return value
+	`
 
-	_, err := cache.Get(ctx, key)
-	assert.Error(t, err)
-	assert.Equal(t, redis.Nil, err)
+	mockRedisClient.EXPECT().
+		Eval(ctx, script, []string{key}, int(expiration.Seconds())).
+		Return(redis.NewCmdResult(nil, redis.Nil))
+
+	result, err := redisCache.Get(ctx, key, expiration)
+	assert.ErrorIs(t, err, redis.Nil)
+	assert.Equal(t, "", result)
 }
 
 func TestNoopCache_Set(t *testing.T) {
-	nc := cache.NewNoopCache()
+	noopCache := cache.NewNoopCache()
+	ctx := context.Background()
+	key := "test-key"
+	value := "test-value"
+	expiration := 10 * time.Second
 
-	err := nc.Set(context.Background(), "key", "value", 10*time.Minute)
-	assert.NoError(t, err, "Expected no error for NoopCache Set")
+	err := noopCache.Set(ctx, key, value, expiration)
+	assert.NoError(t, err)
 }
 
 func TestNoopCache_Get(t *testing.T) {
-	nc := cache.NewNoopCache()
+	noopCache := cache.NewNoopCache()
+	ctx := context.Background()
+	key := "test-key"
+	expiration := 10 * time.Second
 
-	value, err := nc.Get(context.Background(), "key")
-	assert.NoError(t, err, "Expected no error for NoopCache Get")
-	assert.Equal(t, "", value, "Expected empty string value for NoopCache Get")
+	result, err := noopCache.Get(ctx, key, expiration)
+	assert.NoError(t, err)
+	assert.Equal(t, "", result)
 }

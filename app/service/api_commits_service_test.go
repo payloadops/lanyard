@@ -36,7 +36,7 @@ func TestCommitsAPIService_CreateBranchCommit(t *testing.T) {
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
 	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
 	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
-	mockCommitClient.EXPECT().CreateCommit(ctx, "org1", promptID, branchName, gomock.Any()).Return(nil)
+	mockCommitClient.EXPECT().CreateCommit(ctx, "org1", projectID, promptID, branchName, gomock.Any()).Return(nil)
 
 	response, err := service.CreateBranchCommit(ctx, projectID, promptID, branchName, commitInput)
 	assert.NoError(t, err)
@@ -67,7 +67,7 @@ func TestCommitsAPIService_GetBranchCommit(t *testing.T) {
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
 	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
 	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
-	mockCommitClient.EXPECT().GetCommit(ctx, "org1", promptID, branchName, commitID).Return(&dal.Commit{
+	mockCommitClient.EXPECT().GetCommit(ctx, "org1", projectID, promptID, branchName, commitID).Return(&dal.Commit{
 		CommitID:  commitID,
 		Message:   "Initial commit",
 		Content:   "This is the first commit",
@@ -108,7 +108,7 @@ func TestCommitsAPIService_ListBranchCommits(t *testing.T) {
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
 	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
 	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
-	mockCommitClient.EXPECT().ListCommitsByBranch(ctx, "org1", promptID, branchName).Return(commits, nil)
+	mockCommitClient.EXPECT().ListCommitsByBranch(ctx, "org1", projectID, promptID, branchName).Return(commits, nil)
 
 	response, err := service.ListBranchCommits(ctx, projectID, promptID, branchName)
 	assert.NoError(t, err)
