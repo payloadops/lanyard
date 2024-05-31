@@ -12,14 +12,16 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/auth"
 	"github.com/payloadops/plato/app/config"
 )
 
-// RequestTimeout defines the time that a handler will take to process the request before timing out.
-const RequestTimeout = 3 * time.Second
+// requestTimeout defines the time that a handler will take to process the request before timing out.
+const requestTimeout = 3 * time.Second
 
 // A Route defines the parameters for an api endpoint
 type Route struct {
@@ -41,13 +43,13 @@ const errMsgMinValueConstraint = "provided parameter is not respecting minimum v
 const errMsgMaxValueConstraint = "provided parameter is not respecting maximum value constraint"
 
 // NewRouter creates a new router for any number of api routers
-func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
+func NewRouter(cfg *config.Config, logger *zap.Logger, routers ...Router) chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(RequestTimeout))
+	router.Use(middleware.Timeout(requestTimeout))
 	router.Use(middleware.AllowContentType("application/json"))
 
 	for _, api := range routers {
@@ -58,7 +60,7 @@ func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
 			if route.Pattern == "/v1/health" {
 				router.Method(route.Method, route.Pattern, handler)
 			} else {
-				router.Method(route.Method, route.Pattern, auth.AuthMiddleware(cfg)(handler))
+				router.Method(route.Method, route.Pattern, auth.AuthMiddleware(cfg, logger)(handler))
 			}
 		}
 	}

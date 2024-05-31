@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"testing"
 	"time"
 
@@ -21,7 +22,7 @@ func TestCommitsAPIService_CreateBranchCommit(t *testing.T) {
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
 	mockCommitClient := mocks.NewMockCommitManager(ctrl)
-	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	ctx = context.WithValue(ctx, "userID", "user1")
@@ -56,7 +57,7 @@ func TestCommitsAPIService_GetBranchCommit(t *testing.T) {
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
 	mockCommitClient := mocks.NewMockCommitManager(ctrl)
-	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -93,7 +94,7 @@ func TestCommitsAPIService_ListBranchCommits(t *testing.T) {
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
 	mockCommitClient := mocks.NewMockCommitManager(ctrl)
-	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"

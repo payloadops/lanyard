@@ -44,8 +44,8 @@ func main() {
 		_ = logger.Sync()
 	}()
 
-	// Set global logger to use this implementation (RISKY!!!)
-	// zap.ReplaceGlobals(logger)
+	// Set global logger to use this implementation
+	zap.ReplaceGlobals(logger)
 
 	// Set up OpenTelemetry tracing
 	tp, err := tracing.NewTracer(context.Background(), cfg)
@@ -105,21 +105,31 @@ func main() {
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
-	HealthCheckAPIService := service.NewHealthCheckAPIService()
-	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient)
-	PromptsAPIService := service.NewPromptsAPIService(projectDBClient, promptDBClient)
+	HealthCheckAPIService := service.NewHealthCheckAPIService(logger)
+	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, logger)
+	PromptsAPIService := service.NewPromptsAPIService(
+		projectDBClient,
+		promptDBClient,
+		logger,
+	)
 	BranchesAPIService := service.NewBranchesAPIService(
 		projectDBClient,
 		promptDBClient,
 		branchDBClient,
+		logger,
 	)
 	CommitsAPIService := service.NewCommitsAPIService(
 		projectDBClient,
 		promptDBClient,
 		branchDBClient,
 		commitDBClient,
+		logger,
 	)
-	APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
+	APIKeysAPIService := service.NewAPIKeysAPIService(
+		apiKeyDBClient,
+		projectDBClient,
+		logger,
+	)
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
@@ -132,6 +142,7 @@ func main() {
 	// Initialize router
 	router := openapi.NewRouter(
 		cfg,
+		logger,
 		HealthCheckAPIController,
 		ProjectsAPIController,
 		PromptsAPIController,

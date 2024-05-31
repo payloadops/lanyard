@@ -107,6 +107,10 @@ func (d *BranchDBClient) GetBranch(ctx context.Context, orgID, promptID, branchN
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
+	if branch.Deleted {
+		return nil, nil
+	}
+
 	return &branch, nil
 }
 
@@ -160,6 +164,14 @@ func (d *BranchDBClient) ListBranchesByPrompt(ctx context.Context, orgID, prompt
 	err = attributevalue.UnmarshalListOfMaps(result.Items, &branches)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
+	}
+
+	results := []Branch{}
+	for _, branch := range branches {
+		if branch.Deleted {
+			continue
+		}
+		results = append(results, branch)
 	}
 
 	return branches, nil

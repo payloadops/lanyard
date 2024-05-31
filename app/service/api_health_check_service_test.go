@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"go.uber.org/zap"
 	"net/http"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 
 func TestHealthCheck(t *testing.T) {
 	t.Run("Returns healthy status when service is healthy", func(t *testing.T) {
-		service := HealthCheckAPIService{healthy: true}
+		service := HealthCheckAPIService{healthy: true, logger: zap.NewNop()}
 
 		resp, err := service.HealthCheck(context.Background())
 		assert.NoError(t, err)
@@ -23,7 +24,7 @@ func TestHealthCheck(t *testing.T) {
 	})
 
 	t.Run("Returns unhealthy status when service is not healthy", func(t *testing.T) {
-		service := HealthCheckAPIService{healthy: false}
+		service := HealthCheckAPIService{healthy: false, logger: zap.NewNop()}
 
 		resp, err := service.HealthCheck(context.Background())
 		assert.NoError(t, err)

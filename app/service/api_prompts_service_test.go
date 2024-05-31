@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"testing"
 	"time"
 
@@ -19,7 +20,7 @@ func TestPromptsAPIService_CreatePrompt(t *testing.T) {
 
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
-	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -47,7 +48,7 @@ func TestPromptsAPIService_DeletePrompt(t *testing.T) {
 
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
-	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -68,7 +69,7 @@ func TestPromptsAPIService_GetPrompt(t *testing.T) {
 
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
-	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -98,7 +99,7 @@ func TestPromptsAPIService_ListPrompts(t *testing.T) {
 
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
-	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -128,7 +129,7 @@ func TestPromptsAPIService_UpdatePrompt(t *testing.T) {
 
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
-	service := NewPromptsAPIService(mockProjectClient, mockPromptClient)
+	service := NewPromptsAPIService(mockProjectClient, mockPromptClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"

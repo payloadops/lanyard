@@ -8,6 +8,7 @@ import (
 	"github.com/payloadops/plato/app/service"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"net/http"
 	"testing"
 )
@@ -18,7 +19,7 @@ func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -39,7 +40,7 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -66,7 +67,7 @@ func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -90,7 +91,7 @@ func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -120,7 +121,7 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
