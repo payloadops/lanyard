@@ -3,7 +3,6 @@ package openapi
 import (
 	"encoding/json"
 	"errors"
-	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
