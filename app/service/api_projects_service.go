@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
@@ -24,8 +25,12 @@ func NewProjectsAPIService(client dal.ProjectManager, logger *zap.Logger) openap
 
 // CreateProject - Create a new project
 func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
@@ -36,16 +41,28 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ope
 
 	err := s.client.CreateProject(ctx, orgID, project)
 	if err != nil {
+		s.logger.Error("failed to create project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -62,14 +79,22 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ope
 
 // DeleteProject - Delete a project
 func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.client.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -78,6 +103,10 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectID string
 
 	err = s.client.DeleteProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to delete project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -86,13 +115,21 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectID string
 
 // GetProject - Retrieve a project by ID
 func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	project, err := s.client.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -101,11 +138,19 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (
 
 	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -122,13 +167,21 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (
 
 // ListProjects - List all projects
 func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	projects, err := s.client.ListProjectsByOrganization(ctx, orgID)
 	if err != nil {
+		s.logger.Error("failed to list projects by organization",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -136,11 +189,19 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResp
 	for i, project := range projects {
 		createdAt, err := utils.ParseTimestamp(project.CreatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
@@ -158,14 +219,22 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResp
 
 // UpdateProject - Update a project
 func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectID string, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.client.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -178,16 +247,28 @@ func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectID string
 
 	err = s.client.UpdateProject(ctx, orgID, project)
 	if err != nil {
+		s.logger.Error("failed to update project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(project.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(project.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 

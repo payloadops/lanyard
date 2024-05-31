@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/utils"
 	"go.uber.org/zap"
 	"net/http"
@@ -26,14 +27,22 @@ func NewPromptsAPIService(projectClient dal.ProjectManager, promptClient dal.Pro
 
 // CreatePrompt - Create a new prompt in a project
 func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectID string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -47,16 +56,28 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectID string, 
 
 	err = s.promptClient.CreatePrompt(ctx, orgID, projectID, prompt)
 	if err != nil {
+		s.logger.Error("failed to create prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(prompt.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(prompt.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -73,14 +94,22 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectID string, 
 
 // DeletePrompt - Delete a specific prompt from a project
 func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, promptID string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -90,6 +119,10 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, 
 	// Check if the prompt exists
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
+		s.logger.Error("failed to get prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
@@ -98,6 +131,10 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, 
 
 	err = s.promptClient.DeletePrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
+		s.logger.Error("failed to delete prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -106,14 +143,22 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, 
 
 // GetPrompt - Retrieve a specific prompt within a project
 func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, promptID string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -122,6 +167,10 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, pro
 
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
+		s.logger.Error("failed to get prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
@@ -130,11 +179,19 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, pro
 
 	createdAt, err := utils.ParseTimestamp(prompt.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(prompt.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -151,14 +208,22 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, pro
 
 // ListPrompts - List all prompts in a project
 func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -167,6 +232,10 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (
 
 	prompts, err := s.promptClient.ListPromptsByProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to list prompts by project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -174,11 +243,19 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (
 	for i, prompt := range prompts {
 		createdAt, err := utils.ParseTimestamp(prompt.CreatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		updatedAt, err := utils.ParseTimestamp(prompt.UpdatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
@@ -196,14 +273,22 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (
 
 // UpdatePrompt - Update a specific prompt in a project
 func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectID string, promptID string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -213,6 +298,10 @@ func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectID string, 
 	// Check if the prompt exists
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
+		s.logger.Error("failed to get prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
@@ -225,16 +314,28 @@ func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectID string, 
 
 	err = s.promptClient.UpdatePrompt(ctx, orgID, projectID, prompt)
 	if err != nil {
+		s.logger.Error("failed to update prompt",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(prompt.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(prompt.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 

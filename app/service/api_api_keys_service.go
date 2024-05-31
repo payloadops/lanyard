@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
@@ -30,14 +31,22 @@ func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.Proj
 
 // DeleteApiKey - Delete a specific API key
 func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -47,6 +56,10 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 	// Check if the API key exists
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
+		s.logger.Error("failed to get API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
@@ -55,6 +68,10 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 
 	err = s.apiKeyClient.DeleteAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
+		s.logger.Error("failed to delete API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -63,14 +80,22 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 
 // GenerateApiKey - Generate a new API key with specific scopes for a project
 func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -79,6 +104,10 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 
 	keySecret, err := utils.GenerateSecret(ApiKeyLength)
 	if err != nil {
+		s.logger.Error("failed to generate API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -90,16 +119,28 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 
 	err = s.apiKeyClient.CreateAPIKey(ctx, orgID, &apiKey)
 	if err != nil {
+		s.logger.Error("failed to create API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -117,14 +158,22 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 
 // GetApiKey - Retrieve a specific API key
 func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -133,6 +182,10 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
+		s.logger.Error("failed to get API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
@@ -141,11 +194,19 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -163,14 +224,22 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 
 // ListApiKeys - List all API keys for a project
 func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -179,6 +248,10 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 
 	apiKeys, err := s.apiKeyClient.ListAPIKeysByProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to list API keys",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
@@ -186,11 +259,19 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 	for i, apiKey := range apiKeys {
 		createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 		if err != nil {
+			s.logger.Error("failed to parse timestamp",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
 			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
@@ -209,14 +290,22 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 
 // UpdateApiKey - Update an API key's scopes
 func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
+	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
+		s.logger.Error("orgID not present in context",
+			zap.String("requestID", requestID),
+		)
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
+		s.logger.Error("failed to get project",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
@@ -226,6 +315,10 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 	// Check if the API key exists
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
+		s.logger.Error("failed to get API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
@@ -236,16 +329,28 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 	apiKey.Scopes = apiKeyInput.Scopes
 	err = s.apiKeyClient.UpdateAPIKey(ctx, orgID, apiKey)
 	if err != nil {
+		s.logger.Error("failed to update API key",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
+		s.logger.Error("failed to parse timestamp",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
