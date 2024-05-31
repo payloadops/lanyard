@@ -84,6 +84,10 @@ paths:
                   $ref: '#/components/schemas/Project'
         '500':
           description: A server error occurred, preventing the listing of projects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
       summary: Create a new project
@@ -122,11 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Required field 'name' missing"
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}:
     get:
@@ -163,8 +163,16 @@ paths:
                 $ref: '#/components/schemas/Project'
         '404':
           description: No project found with the specified ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of the project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     put:
       summary: Update a project
@@ -207,10 +215,22 @@ paths:
                 $ref: '#/components/schemas/Project'
         '400':
           description: Bad request due to invalid input or missing required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: No project found with the specified ID to update.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the update of the project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     delete:
       summary: Delete a project
@@ -242,8 +262,16 @@ paths:
           description: Project deleted successfully, with no remaining data stored.
         '404':
           description: No project found with the specified ID to delete.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the dele
+          description: A server error occurred, preventing the deletion of the project.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/keys:
     post:
@@ -291,10 +319,22 @@ paths:
                 $ref: '#/components/schemas/ApiKey'
         '400':
           description: Invalid request, such as missing required fields or invalid scope specifications.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: The specified project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the generation of the API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     get:
       summary: List all API keys for a project
@@ -332,8 +372,16 @@ paths:
                   $ref: '#/components/schemas/ApiKey'
         '404':
           description: The specified project was not found, indicating an invalid project ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of API keys.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/keys/{keyId}:
     get:
@@ -376,8 +424,16 @@ paths:
                 $ref: '#/components/schemas/ApiKey'
         '404':
           description: Either the specified API key or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of the API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     put:
       summary: Update an API key's scopes
@@ -426,10 +482,22 @@ paths:
                 $ref: '#/components/schemas/ApiKey'
         '400':
           description: Invalid input, such as unspecified or unsupported scopes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Either the API key or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the update of the API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     delete:
       summary: Delete a specific API key
@@ -467,8 +535,16 @@ paths:
           description: The API key was deleted successfully, no content returned.
         '404':
           description: Either the API key or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the deletion of the API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts:
     get:
@@ -505,8 +581,16 @@ paths:
                   $ref: '#/components/schemas/PromptStub'
         '404':
           description: Project not found, indicating the specified project ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of prompts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
       summary: Create a new prompt in a project
@@ -547,10 +631,22 @@ paths:
                 $ref: '#/components/schemas/Prompt'
         '400':
           description: Invalid input provided in the request body, such as missing required fields or data that does not conform to the expected format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Project not found, indicating the specified project ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the creation of the new prompt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts/{promptId}:
     get:
@@ -587,8 +683,16 @@ paths:
                 $ref: '#/components/schemas/Prompt'
         '404':
           description: Either the prompt or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of the prompt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     put:
       summary: Update a specific prompt in a project
@@ -631,10 +735,22 @@ paths:
                 $ref: '#/components/schemas/Prompt'
         '400':
           description: Invalid input, such as malformed data or incomplete required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Either the prompt or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the update of the prompt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     delete:
       summary: Delete a specific prompt from a project
@@ -666,8 +782,16 @@ paths:
           description: The prompt was deleted successfully; no content is returned.
         '404':
           description: Either the prompt or the project was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the deletion of the prompt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts/{promptId}/branches:
     get:
@@ -707,8 +831,16 @@ paths:
                   $ref: '#/components/schemas/Branch'
         '404':
           description: The specified prompt was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of branch data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
       summary: Create a new branch for a prompt
@@ -755,10 +887,22 @@ paths:
                 $ref: '#/components/schemas/Branch'
         '400':
           description: Invalid input, such as missing required fields or malformed data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: The specified prompt was not found, and thus the branch could not be created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the creation of a new branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts/{promptId}/branches/{branchName}:
     get:
@@ -810,8 +954,16 @@ paths:
                 $ref: '#/components/schemas/Branch'
         '404':
           description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of the branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     delete:
       summary: Delete a specific branch
@@ -858,8 +1010,16 @@ paths:
           description: Branch deleted successfully.
         '404':
           description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the deletion of the branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits:
     get:
@@ -910,8 +1070,16 @@ paths:
                   $ref: '#/components/schemas/Commit'
         '404':
           description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of commit information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     post:
       summary: Create a new commit for a branch
@@ -966,10 +1134,22 @@ paths:
                 $ref: '#/components/schemas/Commit'
         '400':
           description: Invalid input, such as missing required fields or malformed data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: The specified branch was not found, and thus the commit could not be created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the creation of a new commit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}:
     get:
@@ -1025,8 +1205,16 @@ paths:
                 $ref: '#/components/schemas/Commit'
         '404':
           description: No branch or commit found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: A server error occurred, preventing the retrieval of the branch commit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:
@@ -1332,3 +1520,10 @@ components:
           minLength: 1
           maxLength: 180
           description: Message describing the changes in this commit
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message describing the error that occurred

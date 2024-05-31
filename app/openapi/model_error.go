@@ -11,16 +11,18 @@
 
 package openapi
 
-type CreateProject400Response struct {
+type Error struct {
+
+	// Message describing the error that occurred
 	Error string `json:"error,omitempty"`
 }
 
-// AssertCreateProject400ResponseRequired checks if the required fields are not zero-ed
-func AssertCreateProject400ResponseRequired(obj CreateProject400Response) error {
+// AssertErrorRequired checks if the required fields are not zero-ed
+func AssertErrorRequired(obj Error) error {
 	return nil
 }
 
-// AssertCreateProject400ResponseConstraints checks if the values respects the defined constraints
-func AssertCreateProject400ResponseConstraints(obj CreateProject400Response) error {
+// AssertErrorConstraints checks if the values respects the defined constraints
+func AssertErrorConstraints(obj Error) error {
 	return nil
 }

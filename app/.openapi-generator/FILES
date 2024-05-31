@@ -16,7 +16,7 @@ openapi/model_branch.go
 openapi/model_branch_input.go
 openapi/model_commit.go
 openapi/model_commit_input.go
-openapi/model_create_project_400_response.go
+openapi/model_error.go
 openapi/model_health_check_error_response.go
 openapi/model_health_check_success_response.go
 openapi/model_project.go
