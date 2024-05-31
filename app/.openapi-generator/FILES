@@ -6,7 +6,6 @@ openapi/api_commits.go
 openapi/api_health_check.go
 openapi/api_projects.go
 openapi/api_prompts.go
-openapi/error.go
 openapi/helpers.go
 openapi/impl.go
 openapi/logger.go
