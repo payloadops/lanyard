@@ -48,9 +48,7 @@ func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(RequestTimeout))
-	router.Use(middleware.AllowContentType(
-		"application/json",
-	))
+	router.Use(middleware.AllowContentType("application/json"))
 
 	for _, api := range routers {
 		for _, route := range api.Routes() {
