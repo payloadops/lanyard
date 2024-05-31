@@ -18,6 +18,9 @@ import (
 	"github.com/payloadops/plato/app/config"
 )
 
+// RequestTimeout defines the time that a handler will take to process the request before timing out.
+const RequestTimeout = 3 * time.Second
+
 // A Route defines the parameters for an api endpoint
 type Route struct {
 	Method      string
@@ -40,7 +43,12 @@ const errMsgMaxValueConstraint = "provided parameter is not respecting maximum v
 // NewRouter creates a new router for any number of api routers
 func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
 	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.Timeout(RequestTimeout))
+	router.Use(middleware.AllowContentType("application/json"))
 
 	for _, api := range routers {
 		for _, route := range api.Routes() {
@@ -78,8 +86,8 @@ func EncodeJSONResponse(i interface{}, status *int, w http.ResponseWriter) error
 		_, err = w.Write(data)
 		return err
 	}
-	wHeader.Set("Content-Type", "application/json; charset=UTF-8")
 
+	wHeader.Set("Content-Type", "application/json; charset=UTF-8")
 	if status != nil {
 		w.WriteHeader(*status)
 	} else {
