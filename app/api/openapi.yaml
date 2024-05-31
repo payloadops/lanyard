@@ -40,14 +40,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/healthCheck_200_response'
+                $ref: '#/components/schemas/HealthCheckSuccessResponse'
           description: "API is healthy and fully operational, with all necessary components\
             \ (like databases) connected and functioning."
         "500":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/healthCheck_500_response'
+                $ref: '#/components/schemas/HealthCheckErrorResponse'
           description: "API is experiencing issues, indicating that one or more components\
             \ are not functioning correctly."
       summary: Health Check Endpoint
@@ -1109,6 +1109,26 @@ components:
       minLength: 27
       pattern: "^[A-Za-z0-9]{27}$"
       type: string
+    HealthCheckSuccessResponse:
+      example:
+        status: healthy
+      properties:
+        status:
+          example: healthy
+          type: string
+      type: object
+    HealthCheckErrorResponse:
+      example:
+        error: Database connection failed
+        status: unhealthy
+      properties:
+        status:
+          example: unhealthy
+          type: string
+        error:
+          example: Database connection failed
+          type: string
+      type: object
     Project:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
@@ -1391,26 +1411,6 @@ components:
           type: string
       required:
       - content
-      type: object
-    healthCheck_200_response:
-      example:
-        status: healthy
-      properties:
-        status:
-          example: healthy
-          type: string
-      type: object
-    healthCheck_500_response:
-      example:
-        error: Database connection failed
-        status: unhealthy
-      properties:
-        status:
-          example: unhealthy
-          type: string
-        error:
-          example: Database connection failed
-          type: string
       type: object
     createProject_400_response:
       example:

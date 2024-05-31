@@ -17,7 +17,7 @@ func TestHealthCheck(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, resp.Code)
 
-		status, ok := resp.Body.(openapi.HealthCheck200Response)
+		status, ok := resp.Body.(openapi.HealthCheckSuccessResponse)
 		assert.True(t, ok)
 		assert.Equal(t, HealthCheckStatus_Healthy, status.Status)
 	})
@@ -29,7 +29,7 @@ func TestHealthCheck(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, resp.Code)
 
-		status, ok := resp.Body.(openapi.HealthCheck500Response)
+		status, ok := resp.Body.(openapi.HealthCheckErrorResponse)
 		assert.True(t, ok)
 		assert.Equal(t, HealthCheckStatus_Unhealthy, status.Status)
 	})

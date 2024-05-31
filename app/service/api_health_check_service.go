@@ -26,12 +26,12 @@ func NewHealthCheckAPIService() openapi.HealthCheckAPIServicer {
 // HealthCheck - Health Check Endpoint
 func (s *HealthCheckAPIService) HealthCheck(ctx context.Context) (openapi.ImplResponse, error) {
 	if !s.healthy {
-		return openapi.Response(http.StatusInternalServerError, openapi.HealthCheck500Response{
+		return openapi.Response(http.StatusInternalServerError, openapi.HealthCheckErrorResponse{
 			Status: HealthCheckStatus_Unhealthy,
 		}), nil
 	}
 
-	return openapi.Response(http.StatusOK, openapi.HealthCheck200Response{
+	return openapi.Response(http.StatusOK, openapi.HealthCheckSuccessResponse{
 		Status: HealthCheckStatus_Healthy,
 	}), nil
 }
