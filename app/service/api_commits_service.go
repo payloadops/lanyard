@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/payloadops/plato/app/utils"
 	"net/http"
 
@@ -38,39 +38,39 @@ func NewCommitsAPIService(
 func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitInput openapi.CommitInput) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	userID, ok := ctx.Value("userID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("user not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("user not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	// Check if the prompt exists
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("prompt not found")
 	}
 
 	// Check if the branch exists
 	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if branch == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("branch not found")
 	}
 
 	commit := &dal.Commit{
@@ -81,12 +81,12 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 
 	err = s.commitClient.CreateCommit(ctx, orgID, projectID, promptID, branchName, commit)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	response := openapi.Commit{
@@ -104,47 +104,47 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitID string) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	// Check if the prompt exists
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("prompt not found")
 	}
 
 	// Check if the branch exists
 	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if branch == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("branch not found")
 	}
 
 	commit, err := s.commitClient.GetCommit(ctx, orgID, projectID, promptID, branchName, commitID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if commit == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("commit not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("commit not found")
 	}
 
 	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	response := openapi.Commit{
@@ -162,46 +162,46 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID strin
 func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectID string, promptID string, branchName string) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	// Check if the prompt exists
 	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if prompt == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("prompt not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("prompt not found")
 	}
 
 	// Check if the branch exists
 	branch, err := s.branchClient.GetBranch(ctx, orgID, promptID, branchName)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if branch == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("branch not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("branch not found")
 	}
 
 	commits, err := s.commitClient.ListCommitsByBranch(ctx, orgID, projectID, promptID, branchName)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	responses := make([]openapi.Commit, len(commits))
 	for i, commit := range commits {
 		createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
 		if err != nil {
-			return openapi.Response(http.StatusInternalServerError, nil), err
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		responses[i] = openapi.Commit{

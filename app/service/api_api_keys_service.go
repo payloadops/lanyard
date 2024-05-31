@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
@@ -30,30 +30,30 @@ func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.Proj
 func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	// Check if the API key exists
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("API key not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("API key not found")
 	}
 
 	err = s.apiKeyClient.DeleteAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	return openapi.Response(http.StatusNoContent, nil), nil
@@ -63,21 +63,21 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	keySecret, err := utils.GenerateSecret(ApiKeyLength)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	apiKey := dal.APIKey{
@@ -88,17 +88,17 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 
 	err = s.apiKeyClient.CreateAPIKey(ctx, orgID, &apiKey)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	response := openapi.ApiKey{
@@ -117,34 +117,34 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("API key not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("API key not found")
 	}
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	response := openapi.ApiKey{
@@ -163,33 +163,33 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	apiKeys, err := s.apiKeyClient.ListAPIKeysByProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	responses := make([]openapi.ApiKey, len(apiKeys))
 	for i, apiKey := range apiKeys {
 		createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 		if err != nil {
-			return openapi.Response(http.StatusInternalServerError, nil), err
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 		if err != nil {
-			return openapi.Response(http.StatusInternalServerError, nil), err
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 		}
 
 		responses[i] = openapi.ApiKey{
@@ -209,42 +209,42 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("org not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
 	// Check if the project exists
 	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("project not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
 	// Check if the API key exists
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 	if apiKey == nil {
-		return openapi.Response(http.StatusNotFound, nil), fmt.Errorf("API key not found")
+		return openapi.Response(http.StatusNotFound, nil), errors.New("API key not found")
 	}
 
 	// Update the API key with the new values
 	apiKey.Scopes = apiKeyInput.Scopes
 	err = s.apiKeyClient.UpdateAPIKey(ctx, orgID, apiKey)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	createdAt, err := utils.ParseTimestamp(apiKey.CreatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	updatedAt, err := utils.ParseTimestamp(apiKey.UpdatedAt)
 	if err != nil {
-		return openapi.Response(http.StatusInternalServerError, nil), err
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
 	response := openapi.ApiKey{
