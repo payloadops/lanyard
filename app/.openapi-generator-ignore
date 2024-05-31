@@ -1,3 +1,4 @@
 # Router files
 openapi/routers.go
+openapi/error.go
 README.md
