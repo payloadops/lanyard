@@ -17,6 +17,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+// TimeToLive represents the duration that a prompt can be stored in the cache
+const TimeToLive = 10 * time.Minute
+
 //go:generate mockgen -package=mocks -destination=mocks/mock_commit_db_client.go "github.com/payloadops/plato/app/dal" CommitManager
 
 // CommitManager defines the operations available for managing commits.
@@ -107,7 +110,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 
 	// Cache the latest commit content
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
-	if err := d.cache.Set(ctx, cacheKey, commit.Content, 10*time.Minute); err != nil {
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, TimeToLive); err != nil {
 		return fmt.Errorf("failed to cache commit content: %v", err)
 	}
 
@@ -167,7 +170,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, prompt
 
 	commit.Content = string(content)
 	// Cache the retrieved content
-	if err := d.cache.Set(ctx, cacheKey, commit.Content, 10*time.Minute); err != nil {
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, TimeToLive); err != nil {
 		return nil, fmt.Errorf("failed to cache commit content: %v", err)
 	}
 
