@@ -217,5 +217,13 @@ func (d *PromptDBClient) ListPromptsByProject(ctx context.Context, orgID string,
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
 	}
 
+	results := []Prompt{}
+	for _, prompt := range prompts {
+		if prompt.Deleted {
+			continue
+		}
+		results = append(results, prompt)
+	}
+
 	return prompts, nil
 }

@@ -217,5 +217,13 @@ func (d *ProjectDBClient) ListProjectsByOrganization(ctx context.Context, orgID 
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
 	}
 
+	results := []Project{}
+	for _, project := range projects {
+		if project.Deleted {
+			continue
+		}
+		results = append(results, project)
+	}
+
 	return projects, nil
 }

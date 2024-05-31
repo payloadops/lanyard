@@ -123,6 +123,10 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
+	if apiKey.Deleted {
+		return nil, nil
+	}
+
 	return &apiKey, nil
 }
 
@@ -213,5 +217,13 @@ func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projec
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
 	}
 
-	return apiKeys, nil
+	results := []APIKey{}
+	for _, apiKey := range apiKeys {
+		if apiKey.Deleted {
+			continue
+		}
+		results = append(results, apiKey)
+	}
+
+	return results, nil
 }
