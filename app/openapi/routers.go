@@ -18,8 +18,8 @@ import (
 	"github.com/payloadops/plato/app/config"
 )
 
-// RequestTimeout defines the time that a handler will take to process the request before timing out.
-const RequestTimeout = 3 * time.Second
+// requestTimeout defines the time that a handler will take to process the request before timing out.
+const requestTimeout = 3 * time.Second
 
 // A Route defines the parameters for an api endpoint
 type Route struct {
@@ -47,7 +47,7 @@ func NewRouter(cfg *config.Config, routers ...Router) chi.Router {
 	router.Use(middleware.RealIP)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Timeout(RequestTimeout))
+	router.Use(middleware.Timeout(requestTimeout))
 	router.Use(middleware.AllowContentType("application/json"))
 
 	for _, api := range routers {
