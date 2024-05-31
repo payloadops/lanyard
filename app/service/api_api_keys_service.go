@@ -6,6 +6,7 @@ import (
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -19,6 +20,7 @@ const (
 type APIKeysAPIService struct {
 	apiKeyClient  dal.APIKeyManager
 	projectClient dal.ProjectManager
+	logger        zap.Logger
 }
 
 // NewAPIKeysAPIService creates a default app service

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/payloadops/plato/app/utils"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
@@ -15,6 +16,7 @@ import (
 type PromptsAPIService struct {
 	projectClient dal.ProjectManager
 	promptClient  dal.PromptManager
+	logger        zap.Logger
 }
 
 // NewPromptsAPIService creates a default app service

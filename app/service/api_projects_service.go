@@ -6,6 +6,7 @@ import (
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -13,6 +14,7 @@ import (
 // This service should implement the business logic for every endpoint for the ProjectsAPI API.
 type ProjectsAPIService struct {
 	client dal.ProjectManager
+	logger zap.Logger
 }
 
 // NewProjectsAPIService creates a default app service

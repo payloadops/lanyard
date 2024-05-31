@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/payloadops/plato/app/utils"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
@@ -16,6 +17,7 @@ type BranchesAPIService struct {
 	projectClient dal.ProjectManager
 	promptClient  dal.PromptManager
 	branchClient  dal.BranchManager
+	logger        zap.Logger
 }
 
 // NewBranchesAPIService creates a default app service

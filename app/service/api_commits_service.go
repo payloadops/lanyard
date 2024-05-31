@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/payloadops/plato/app/utils"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
@@ -17,6 +18,7 @@ type CommitsAPIService struct {
 	promptClient  dal.PromptManager
 	branchClient  dal.BranchManager
 	commitClient  dal.CommitManager
+	logger        zap.Logger
 }
 
 // NewCommitsAPIService creates a default app service
