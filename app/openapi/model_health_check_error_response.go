@@ -13,8 +13,6 @@ package openapi
 
 type HealthCheckErrorResponse struct {
 	Status string `json:"status,omitempty"`
-
-	Error string `json:"error,omitempty"`
 }
 
 // AssertHealthCheckErrorResponseRequired checks if the required fields are not zero-ed

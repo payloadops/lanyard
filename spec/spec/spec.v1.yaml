@@ -24,15 +24,15 @@ paths:
       summary: Health Check Endpoint
       description: |
         This endpoint performs a health check of the API, quickly assessing and returning the operational status. It is designed to monitor critical system metrics and infrastructure components, such as database connections and system uptime, ensuring that the API is functioning properly. This endpoint is vital for operational monitoring, particularly in production environments where reliability is crucial.
-
+        
         **Key Features**:
         - **Immediate Health Status**: Quickly assesses the overall health of the API by checking essential components and dependencies, such as database connectivity and server uptime.
         - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
-
+        
         **Use Cases**:
         - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
         - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
-
+        
         **Response Details**:
         - A successful response indicates that all checked components are operational.
         - An unsuccessful response identifies which components are experiencing issues, aiding in quick diagnostics and resolution.
@@ -46,24 +46,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "healthy"
+                $ref: '#/components/schemas/HealthCheckSuccessResponse'
         '500':
           description: API is experiencing issues, indicating that one or more components are not functioning correctly.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "unhealthy"
-                  error:
-                    type: string
-                    example: "Database connection failed"
+                $ref: '#/components/schemas/HealthCheckErrorResponse'
 
   /projects:
     get:
@@ -1100,6 +1089,20 @@ components:
       maxLength: 27
       description: A K-sortable unique identifier (KSUID)
 
+    HealthCheckSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+
+    HealthCheckErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "unhealthy"
+
     Project:
       type: object
       properties:
@@ -1205,10 +1208,6 @@ components:
           minLength: 1
           maxLength: 50000
           description: Contents of the prompt
-        projectId:
-          allOf:
-            - $ref: '#/components/schemas/KSUID'
-          description: Identifier of the project this prompt belongs to
         createdAt:
           type: string
           format: date-time
@@ -1261,10 +1260,6 @@ components:
           minLength: 1
           maxLength: 180
           description: A 180 character preview of the prompt
-        projectId:
-          allOf:
-            - $ref: '#/components/schemas/KSUID'
-          description: Identifier of the project this prompt belongs to
         createdAt:
           type: string
           format: date-time

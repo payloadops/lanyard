@@ -29,9 +29,6 @@ type PromptStub struct {
 	// A 180 character preview of the prompt
 	Stub string `json:"stub,omitempty"`
 
-	// Identifier of the project this prompt belongs to
-	ProjectId string `json:"projectId,omitempty"`
-
 	// Timestamp when the prompt was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 

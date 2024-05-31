@@ -1119,14 +1119,10 @@ components:
       type: object
     HealthCheckErrorResponse:
       example:
-        error: Database connection failed
         status: unhealthy
       properties:
         status:
           example: unhealthy
-          type: string
-        error:
-          example: Database connection failed
           type: string
       type: object
     Project:
@@ -1237,7 +1233,6 @@ components:
         description: description
         id: ""
         prompt: prompt
-        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
@@ -1259,10 +1254,6 @@ components:
           maxLength: 50000
           minLength: 1
           type: string
-        projectId:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -1303,7 +1294,6 @@ components:
         stub: stub
         description: description
         id: ""
-        projectId: ""
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
@@ -1325,10 +1315,6 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        projectId:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Identifier of the project this prompt belongs to
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
