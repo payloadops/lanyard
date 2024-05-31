@@ -3,6 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
 	"net/http"
 	"strings"
 
@@ -18,9 +20,10 @@ type Claims struct {
 
 // AuthMiddleware returns a middleware function that validates the JWT token from the Authorization header.
 // It sets the user ID and organization ID in the request context if the token is valid.
-func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
+func AuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestID := middleware.GetReqID(r.Context())
 			// Extract the token from the Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
@@ -39,12 +42,21 @@ func AuthMiddleware(cfg *config.Config) func(http.Handler) http.Handler {
 			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 				// Ensure the token method conforms to "alg" expected value
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					logger.Warn("unexpected signing method",
+						zap.String("requestID", requestID),
+					)
+
 					return nil, errors.New("unexpected signing method")
 				}
 
 				return []byte(cfg.JWTSecret), nil
 			})
 			if err != nil || !token.Valid {
+				logger.Error("invalid token",
+					zap.String("requestID", requestID),
+					zap.Error(err),
+				)
+
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}

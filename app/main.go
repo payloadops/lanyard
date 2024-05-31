@@ -44,8 +44,8 @@ func main() {
 		_ = logger.Sync()
 	}()
 
-	// Set global logger to use this implementation (RISKY!!!)
-	// zap.ReplaceGlobals(logger)
+	// Set global logger to use this implementation
+	zap.ReplaceGlobals(logger)
 
 	// Set up OpenTelemetry tracing
 	tp, err := tracing.NewTracer(context.Background(), cfg)
@@ -142,6 +142,7 @@ func main() {
 	// Initialize router
 	router := openapi.NewRouter(
 		cfg,
+		logger,
 		HealthCheckAPIController,
 		ProjectsAPIController,
 		PromptsAPIController,
