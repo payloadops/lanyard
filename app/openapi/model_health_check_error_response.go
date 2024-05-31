@@ -11,18 +11,16 @@
 
 package openapi
 
-type HealthCheck500Response struct {
+type HealthCheckErrorResponse struct {
 	Status string `json:"status,omitempty"`
-
-	Error string `json:"error,omitempty"`
 }
 
-// AssertHealthCheck500ResponseRequired checks if the required fields are not zero-ed
-func AssertHealthCheck500ResponseRequired(obj HealthCheck500Response) error {
+// AssertHealthCheckErrorResponseRequired checks if the required fields are not zero-ed
+func AssertHealthCheckErrorResponseRequired(obj HealthCheckErrorResponse) error {
 	return nil
 }
 
-// AssertHealthCheck500ResponseConstraints checks if the values respects the defined constraints
-func AssertHealthCheck500ResponseConstraints(obj HealthCheck500Response) error {
+// AssertHealthCheckErrorResponseConstraints checks if the values respects the defined constraints
+func AssertHealthCheckErrorResponseConstraints(obj HealthCheckErrorResponse) error {
 	return nil
 }
