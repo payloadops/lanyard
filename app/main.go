@@ -105,21 +105,23 @@ func main() {
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
-	HealthCheckAPIService := service.NewHealthCheckAPIService()
-	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient)
-	PromptsAPIService := service.NewPromptsAPIService(projectDBClient, promptDBClient)
+	HealthCheckAPIService := service.NewHealthCheckAPIService(logger)
+	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, logger)
+	PromptsAPIService := service.NewPromptsAPIService(projectDBClient, promptDBClient, logger)
 	BranchesAPIService := service.NewBranchesAPIService(
 		projectDBClient,
 		promptDBClient,
 		branchDBClient,
+		logger,
 	)
 	CommitsAPIService := service.NewCommitsAPIService(
 		projectDBClient,
 		promptDBClient,
 		branchDBClient,
 		commitDBClient,
+		logger
 	)
-	APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient)
+	APIKeysAPIService := service.NewAPIKeysAPIService(apiKeyDBClient, projectDBClient, logger)
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)

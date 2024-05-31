@@ -14,12 +14,12 @@ import (
 // This service should implement the business logic for every endpoint for the ProjectsAPI API.
 type ProjectsAPIService struct {
 	client dal.ProjectManager
-	logger zap.Logger
+	logger *zap.Logger
 }
 
 // NewProjectsAPIService creates a default app service
-func NewProjectsAPIService(client dal.ProjectManager) openapi.ProjectsAPIServicer {
-	return &ProjectsAPIService{client: client}
+func NewProjectsAPIService(client dal.ProjectManager, logger *zap.Logger) openapi.ProjectsAPIServicer {
+	return &ProjectsAPIService{client: client, logger: logger}
 }
 
 // CreateProject - Create a new project

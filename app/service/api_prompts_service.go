@@ -16,12 +16,12 @@ import (
 type PromptsAPIService struct {
 	projectClient dal.ProjectManager
 	promptClient  dal.PromptManager
-	logger        zap.Logger
+	logger        *zap.Logger
 }
 
 // NewPromptsAPIService creates a default app service
-func NewPromptsAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager) openapi.PromptsAPIServicer {
-	return &PromptsAPIService{projectClient: projectClient, promptClient: promptClient}
+func NewPromptsAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager, logger *zap.Logger) openapi.PromptsAPIServicer {
+	return &PromptsAPIService{projectClient: projectClient, promptClient: promptClient, logger: logger}
 }
 
 // CreatePrompt - Create a new prompt in a project

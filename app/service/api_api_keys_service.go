@@ -20,12 +20,12 @@ const (
 type APIKeysAPIService struct {
 	apiKeyClient  dal.APIKeyManager
 	projectClient dal.ProjectManager
-	logger        zap.Logger
+	logger        *zap.Logger
 }
 
 // NewAPIKeysAPIService creates a default app service
-func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.ProjectManager) openapi.APIKeysAPIServicer {
-	return &APIKeysAPIService{apiKeyClient: apiKeyClient, projectClient: projectClient}
+func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.ProjectManager, logger *zap.Logger) openapi.APIKeysAPIServicer {
+	return &APIKeysAPIService{apiKeyClient: apiKeyClient, projectClient: projectClient, logger: logger}
 }
 
 // DeleteApiKey - Delete a specific API key

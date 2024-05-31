@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"testing"
 	"time"
 
@@ -20,7 +21,7 @@ func TestBranchesAPIService_CreatePromptBranch(t *testing.T) {
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
-	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -49,7 +50,7 @@ func TestBranchesAPIService_DeleteBranch(t *testing.T) {
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
-	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -73,7 +74,7 @@ func TestBranchesAPIService_GetBranch(t *testing.T) {
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
-	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -103,7 +104,7 @@ func TestBranchesAPIService_ListPromptBranches(t *testing.T) {
 	mockProjectClient := mocks.NewMockProjectManager(ctrl)
 	mockPromptClient := mocks.NewMockPromptManager(ctrl)
 	mockBranchClient := mocks.NewMockBranchManager(ctrl)
-	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient)
+	service := NewBranchesAPIService(mockProjectClient, mockPromptClient, mockBranchClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"

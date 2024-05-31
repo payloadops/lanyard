@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"testing"
 	"time"
 
@@ -18,7 +19,7 @@ func TestProjectsAPIService_CreateProject(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mocks.NewMockProjectManager(ctrl)
-	service := NewProjectsAPIService(mockClient)
+	service := NewProjectsAPIService(mockClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectInput := openapi.ProjectInput{
@@ -43,7 +44,7 @@ func TestProjectsAPIService_DeleteProject(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mocks.NewMockProjectManager(ctrl)
-	service := NewProjectsAPIService(mockClient)
+	service := NewProjectsAPIService(mockClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -61,7 +62,7 @@ func TestProjectsAPIService_GetProject(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mocks.NewMockProjectManager(ctrl)
-	service := NewProjectsAPIService(mockClient)
+	service := NewProjectsAPIService(mockClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"
@@ -88,7 +89,7 @@ func TestProjectsAPIService_ListProjects(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mocks.NewMockProjectManager(ctrl)
-	service := NewProjectsAPIService(mockClient)
+	service := NewProjectsAPIService(mockClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 
@@ -115,7 +116,7 @@ func TestProjectsAPIService_UpdateProject(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mocks.NewMockProjectManager(ctrl)
-	service := NewProjectsAPIService(mockClient)
+	service := NewProjectsAPIService(mockClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
 	projectID := "proj1"

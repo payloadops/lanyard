@@ -18,7 +18,7 @@ type CommitsAPIService struct {
 	promptClient  dal.PromptManager
 	branchClient  dal.BranchManager
 	commitClient  dal.CommitManager
-	logger        zap.Logger
+	logger        *zap.Logger
 }
 
 // NewCommitsAPIService creates a default app service
@@ -27,12 +27,14 @@ func NewCommitsAPIService(
 	promptClient dal.PromptManager,
 	branchClient dal.BranchManager,
 	commitClient dal.CommitManager,
+	logger *zap.Logger,
 ) openapi.CommitsAPIServicer {
 	return &CommitsAPIService{
 		projectClient: projectClient,
 		promptClient:  promptClient,
 		branchClient:  branchClient,
 		commitClient:  commitClient,
+		logger:        logger,
 	}
 }
 

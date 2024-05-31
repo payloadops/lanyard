@@ -17,15 +17,16 @@ type BranchesAPIService struct {
 	projectClient dal.ProjectManager
 	promptClient  dal.PromptManager
 	branchClient  dal.BranchManager
-	logger        zap.Logger
+	logger        *zap.Logger
 }
 
 // NewBranchesAPIService creates a default app service
-func NewBranchesAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager, branchClient dal.BranchManager) openapi.BranchesAPIServicer {
+func NewBranchesAPIService(projectClient dal.ProjectManager, promptClient dal.PromptManager, branchClient dal.BranchManager, logger *zap.Logger) openapi.BranchesAPIServicer {
 	return &BranchesAPIService{
 		projectClient: projectClient,
 		promptClient:  promptClient,
 		branchClient:  branchClient,
+		logger:        logger,
 	}
 }
 

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/payloadops/plato/app/openapi"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -16,11 +17,12 @@ const (
 // Include any external packages or services that will be required by this service.
 type HealthCheckAPIService struct {
 	healthy bool
+	logger  *zap.Logger
 }
 
 // NewHealthCheckAPIService creates a default app service
-func NewHealthCheckAPIService() openapi.HealthCheckAPIServicer {
-	return &HealthCheckAPIService{healthy: true}
+func NewHealthCheckAPIService(logger *zap.Logger) openapi.HealthCheckAPIServicer {
+	return &HealthCheckAPIService{healthy: true, logger: logger}
 }
 
 // HealthCheck - Health Check Endpoint
