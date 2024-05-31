@@ -18,7 +18,7 @@ import (
 )
 
 // CommitTTL represents the duration that a prompt can be stored in the cache
-const CommitTTL = 1 * time.Minute
+const CommitTTL = 5 * time.Minute
 
 //go:generate mockgen -package=mocks -destination=mocks/mock_commit_db_client.go "github.com/payloadops/plato/app/dal" CommitManager
 
