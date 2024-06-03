@@ -17,6 +17,7 @@ import (
 type BranchManager interface {
 	CreateBranch(ctx context.Context, orgID, promptID string, branch *Branch) error
 	GetBranch(ctx context.Context, orgID, promptID, branchName string) (*Branch, error)
+	UpdateBranchLatestCommit(ctx context.Context, orgID, promptID, branchName string, commitID string) error
 	DeleteBranch(ctx context.Context, orgID, promptID, branchName string) error
 	ListBranchesByPrompt(ctx context.Context, orgID, promptID string) ([]Branch, error)
 }
@@ -112,6 +113,33 @@ func (d *BranchDBClient) GetBranch(ctx context.Context, orgID, promptID, branchN
 	}
 
 	return &branch, nil
+}
+
+func (d *BranchDBClient) UpdateBranchLatestCommit(ctx context.Context, orgID, promptID, branchName string, commitID string) error {
+	pk, sk := createBranchCompositeKeys(orgID, promptID, branchName)
+	update := map[string]types.AttributeValueUpdate{
+		"LatestCommitId": {
+			Value:  &types.AttributeValueMemberS{Value: commitID},
+			Action: types.AttributeActionPut,
+		},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("Branches"),
+		Key: map[string]types.AttributeValue{
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
+		},
+		AttributeUpdates:    update,
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to update item in DynamoDB: %v", err)
+	}
+
+	return nil
 }
 
 // DeleteBranch marks a branch as deleted by org ID, prompt ID and branch ID in the DynamoDB table.

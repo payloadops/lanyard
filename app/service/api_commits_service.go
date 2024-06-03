@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/utils"
 	"go.uber.org/zap"
-	"net/http"
 
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
@@ -111,6 +112,8 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
+
+	err = s.branchClient.UpdateBranchLatestCommit(ctx, orgID, promptID, branchName, commit.CommitID)
 
 	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
 	if err != nil {
