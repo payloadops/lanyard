@@ -146,7 +146,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectID, prompt
 
 	// Try to get the content from the cache
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
-	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); content == "" && err == nil {
+	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); content != "" && err == nil {
 		commit.Content = content
 		return &commit, nil
 	}
