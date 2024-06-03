@@ -86,6 +86,45 @@ func TestCommitsAPIService_GetBranchCommit(t *testing.T) {
 	assert.Equal(t, "Initial commit", commit.Message)
 }
 
+func TestCommitsAPIService_GetTemplateCommit(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockProjectClient := mocks.NewMockProjectManager(ctrl)
+	mockPromptClient := mocks.NewMockPromptManager(ctrl)
+	mockBranchClient := mocks.NewMockBranchManager(ctrl)
+	mockCommitClient := mocks.NewMockCommitManager(ctrl)
+	service := NewCommitsAPIService(mockProjectClient, mockPromptClient, mockBranchClient, mockCommitClient, zap.NewNop())
+
+	ctx := context.WithValue(context.Background(), "orgID", "org1")
+	ctx = context.WithValue(ctx, "projectID", "proj1")
+
+	projectID := "proj1"
+	promptID := "prompt1"
+	branchName := "branch1"
+	commitID := "commit1"
+
+	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockBranchClient.EXPECT().GetBranch(ctx, "org1", promptID, branchName).Return(&dal.Branch{}, nil)
+	mockCommitClient.EXPECT().GetCommit(ctx, "org1", projectID, promptID, branchName, commitID).Return(&dal.Commit{
+		CommitID:  commitID,
+		Message:   "Initial commit",
+		Content:   "This is the first commit",
+		UserID:    "user1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}, nil)
+
+	response, err := service.GetTemplateCommit(ctx, promptID, branchName, commitID)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.NotNil(t, response.Body)
+	commit, ok := response.Body.(openapi.Commit)
+	assert.True(t, ok)
+	assert.Equal(t, commitID, commit.Id)
+	assert.Equal(t, "Initial commit", commit.Message)
+}
+
 func TestCommitsAPIService_ListBranchCommits(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

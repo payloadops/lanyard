@@ -62,6 +62,11 @@ func (c *CommitsAPIController) Routes() Routes {
 			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}",
 			c.GetBranchCommit,
 		},
+		"GetTemplateCommit": Route{
+			strings.ToUpper("Get"),
+			"/v1/templates/{promptId}/{branchName}/{commitId}",
+			c.GetTemplateCommit,
+		},
 		"ListBranchCommits": Route{
 			strings.ToUpper("Get"),
 			"/v1/projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits",
@@ -135,6 +140,33 @@ func (c *CommitsAPIController) GetBranchCommit(w http.ResponseWriter, r *http.Re
 		return
 	}
 	result, err := c.service.GetBranchCommit(r.Context(), projectIdParam, promptIdParam, branchNameParam, commitIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// GetTemplateCommit - Retrieve a specific commit or the latest commit of a branch
+func (c *CommitsAPIController) GetTemplateCommit(w http.ResponseWriter, r *http.Request) {
+	promptIdParam := chi.URLParam(r, "promptId")
+	if promptIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"promptId"}, nil)
+		return
+	}
+	branchNameParam := chi.URLParam(r, "branchName")
+	if branchNameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"branchName"}, nil)
+		return
+	}
+	commitIdParam := chi.URLParam(r, "commitId")
+	if commitIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"commitId"}, nil)
+		return
+	}
+	result, err := c.service.GetTemplateCommit(r.Context(), promptIdParam, branchNameParam, commitIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

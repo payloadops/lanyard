@@ -1293,6 +1293,72 @@ paths:
       summary: Retrieve a specific commit or the latest commit of a branch
       tags:
       - Commits
+  /templates/{promptId}/{branchName}/{commitId}:
+    get:
+      description: |
+        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
+
+        **Features**:
+        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
+        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
+        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
+
+        **Use Cases**:
+        - Retrieving past commits for audit or comparison purposes.
+        - Accessing the latest commit to continue development or review current changes.
+        - Integrating commit data into other systems for enhanced content lifecycle management.
+      operationId: getTemplateCommit
+      parameters:
+      - description: The unique identifier of the prompt.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The name of the branch.
+        explode: false
+        in: path
+        name: branchName
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: "The ID of the commit to retrieve, or 'latest' to obtain the\
+          \ most recent commit."
+        example: latest
+        explode: false
+        in: path
+        name: commitId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+          description: Successfully retrieved detailed information about the specified
+            commit of the branch.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No branch or commit found matching the specified identifiers.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the retrieval of the branch\
+            \ commit."
+      summary: Retrieve a specific commit or the latest commit of a branch
+      tags:
+      - Commits
 components:
   schemas:
     KSUID:
