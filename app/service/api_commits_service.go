@@ -114,6 +114,13 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 	}
 
 	err = s.branchClient.UpdateBranchLatestCommit(ctx, orgID, promptID, branchName, commit.CommitID)
+	if err != nil {
+		s.logger.Error("failed to update branch",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+	}
 
 	createdAt, err := utils.ParseTimestamp(commit.CreatedAt)
 	if err != nil {
