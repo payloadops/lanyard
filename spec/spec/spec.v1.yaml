@@ -1450,11 +1450,11 @@ components:
           minLength: 1
           maxLength: 180
           description: A brief description of the project
-        prompt:
+        defaultBranch:
           type: string
           minLength: 1
           maxLength: 50000
-          description: Contents of the prompt
+          description: Name of default branch
         createdAt:
           type: string
           format: date-time
@@ -1528,6 +1528,10 @@ components:
           type: string
           format: date-time
           description: Timestamp when this branch was created
+        latestCommitId:
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier of latest commit
 
     BranchInput:
       type: object
