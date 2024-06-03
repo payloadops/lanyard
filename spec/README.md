@@ -17,6 +17,7 @@ The following dependencies are necessary to run the Swagger UI and mock server.
 * [Docker Compose >= 2.26.1](https://docs.docker.com/compose/install/)
 * [Docker >= 26.0.0](https://docs.docker.com/get-docker/)
 * [OpenAPI Generator >= 7.5.0](https://openapi-generator.tech/docs/installation)
+* [Goimports >= 0.21.0](https://pkg.go.dev/golang.org/x/tools/cmd/goimports)
 
 ## Development
 
