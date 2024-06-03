@@ -66,8 +66,6 @@ func createCommitCompositeKeys(orgID, promptID, branchName, commitID string) (st
 
 // CreateCommit creates a new commit in the DynamoDB table.
 func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, promptID, branchName string, commit *Commit) error {
-	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
-
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
 
@@ -90,6 +88,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 		return fmt.Errorf("failed to marshal commit: %v", err)
 	}
 
+	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
 		"sk": &types.AttributeValueMemberS{Value: sk},
