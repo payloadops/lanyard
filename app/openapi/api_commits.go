@@ -21,7 +21,7 @@ import (
 
 // CommitsAPIController binds http requests to an api service and writes the service results to the http response
 type CommitsAPIController struct {
-	service CommitsAPIServicer
+	service      CommitsAPIServicer
 	errorHandler ErrorHandler
 }
 

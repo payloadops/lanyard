@@ -11,9 +11,6 @@
 
 package openapi
 
-
-
-
 type Error struct {
 
 	// Message describing the error that occurred
