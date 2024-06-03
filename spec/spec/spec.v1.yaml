@@ -1528,10 +1528,6 @@ components:
           type: string
           format: date-time
           description: Timestamp when this branch was created
-        latestCommitId:
-          allOf:
-            - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier of latest commit
 
     BranchInput:
       type: object
