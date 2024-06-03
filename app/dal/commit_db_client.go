@@ -81,6 +81,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 	}
 
 	commit.CommitID = aws.ToString(putObjectOutput.VersionId)
+	content := commit.Content
 	commit.Content = "" // Clear the content before saving to DynamoDB
 
 	av, err := attributevalue.MarshalMap(commit)
@@ -108,6 +109,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 	}
 
 	// Cache the latest commit content
+	commit.Content = content
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
 	if err := d.cache.Set(ctx, cacheKey, commit.Content, CommitTTL); err != nil {
 		return fmt.Errorf("failed to cache commit content: %v", err)
@@ -144,7 +146,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectID, prompt
 
 	// Try to get the content from the cache
 	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
-	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); err == nil {
+	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); content == "" && err == nil {
 		commit.Content = content
 		return &commit, nil
 	}
