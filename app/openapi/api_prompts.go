@@ -21,7 +21,7 @@ import (
 
 // PromptsAPIController binds http requests to an api service and writes the service results to the http response
 type PromptsAPIController struct {
-	service      PromptsAPIServicer
+	service PromptsAPIServicer
 	errorHandler ErrorHandler
 }
 

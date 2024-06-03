@@ -11,6 +11,9 @@
 
 package openapi
 
+
+
+
 type PromptInput struct {
 
 	// Name of the prompt

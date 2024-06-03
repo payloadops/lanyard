@@ -11,7 +11,11 @@
 
 package openapi
 
+
+
+
 type HealthCheckSuccessResponse struct {
+
 	Status string `json:"status,omitempty"`
 }
 

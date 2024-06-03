@@ -21,7 +21,7 @@ import (
 
 // ProjectsAPIController binds http requests to an api service and writes the service results to the http response
 type ProjectsAPIController struct {
-	service      ProjectsAPIServicer
+	service ProjectsAPIServicer
 	errorHandler ErrorHandler
 }
 

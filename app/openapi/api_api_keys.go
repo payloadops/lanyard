@@ -21,7 +21,7 @@ import (
 
 // APIKeysAPIController binds http requests to an api service and writes the service results to the http response
 type APIKeysAPIController struct {
-	service      APIKeysAPIServicer
+	service APIKeysAPIServicer
 	errorHandler ErrorHandler
 }
 

@@ -11,9 +11,12 @@
 
 package openapi
 
+
 import (
 	"time"
 )
+
+
 
 type ApiKey struct {
 

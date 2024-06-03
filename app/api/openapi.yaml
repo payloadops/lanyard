@@ -1487,10 +1487,10 @@ components:
     Prompt:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
+        defaultBranch: defaultBranch
         name: name
         description: description
         id: ""
-        prompt: prompt
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
@@ -1507,8 +1507,8 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        prompt:
-          description: Contents of the prompt
+        defaultBranch:
+          description: Name of default branch
           maxLength: 50000
           minLength: 1
           type: string

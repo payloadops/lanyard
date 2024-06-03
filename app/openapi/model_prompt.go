@@ -11,9 +11,12 @@
 
 package openapi
 
+
 import (
 	"time"
 )
+
+
 
 type Prompt struct {
 
@@ -26,8 +29,8 @@ type Prompt struct {
 	// A brief description of the project
 	Description string `json:"description,omitempty"`
 
-	// Contents of the prompt
-	Prompt string `json:"prompt,omitempty"`
+	// Name of default branch
+	DefaultBranch string `json:"defaultBranch,omitempty"`
 
 	// Timestamp when the prompt was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
