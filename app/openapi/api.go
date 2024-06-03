@@ -43,6 +43,7 @@ type BranchesAPIRouter interface {
 type CommitsAPIRouter interface {
 	CreateBranchCommit(http.ResponseWriter, *http.Request)
 	GetBranchCommit(http.ResponseWriter, *http.Request)
+	GetTemplateCommit(http.ResponseWriter, *http.Request)
 	ListBranchCommits(http.ResponseWriter, *http.Request)
 }
 
@@ -105,6 +106,7 @@ type BranchesAPIServicer interface {
 type CommitsAPIServicer interface {
 	CreateBranchCommit(context.Context, string, string, string, CommitInput) (ImplResponse, error)
 	GetBranchCommit(context.Context, string, string, string, string) (ImplResponse, error)
+	GetTemplateCommit(context.Context, string, string, string) (ImplResponse, error)
 	ListBranchCommits(context.Context, string, string, string) (ImplResponse, error)
 }
 
