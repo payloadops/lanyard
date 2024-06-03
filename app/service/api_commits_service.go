@@ -43,7 +43,7 @@ func NewCommitsAPIService(
 func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitInput openapi.CommitInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -51,7 +51,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 	}
 
 	userID, ok := ctx.Value("userID").(string)
-	if !ok {
+	if !ok || userID == "" {
 		s.logger.Error("userID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -136,7 +136,7 @@ func (s *CommitsAPIService) CreateBranchCommit(ctx context.Context, projectID st
 func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID string, promptID string, branchName string, commitID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -218,7 +218,7 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID strin
 func (s *CommitsAPIService) GetTemplateCommit(ctx context.Context, promptID string, branchName string, commitID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -308,7 +308,7 @@ func (s *CommitsAPIService) GetTemplateCommit(ctx context.Context, promptID stri
 func (s *CommitsAPIService) ListBranchCommits(ctx context.Context, projectID string, promptID string, branchName string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)

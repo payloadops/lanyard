@@ -29,7 +29,7 @@ func NewPromptsAPIService(projectClient dal.ProjectManager, promptClient dal.Pro
 func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectID string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -96,7 +96,7 @@ func (s *PromptsAPIService) CreatePrompt(ctx context.Context, projectID string, 
 func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, promptID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -145,7 +145,7 @@ func (s *PromptsAPIService) DeletePrompt(ctx context.Context, projectID string, 
 func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, promptID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -210,7 +210,7 @@ func (s *PromptsAPIService) GetPrompt(ctx context.Context, projectID string, pro
 func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -275,7 +275,7 @@ func (s *PromptsAPIService) ListPrompts(ctx context.Context, projectID string) (
 func (s *PromptsAPIService) UpdatePrompt(ctx context.Context, projectID string, promptID string, promptInput openapi.PromptInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
