@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 	"net/http"
@@ -51,8 +52,31 @@ func AuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler) h
 
 				return []byte(cfg.JWTSecret), nil
 			})
+
 			if err != nil || !token.Valid {
 				logger.Error("invalid token",
+					zap.String("requestID", requestID),
+					zap.Error(err),
+				)
+
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+
+			if claims.OrgID == "" {
+				err := fmt.Errorf("required field '%s' is empty value", "org")
+				logger.Error("failed to parse org from claims",
+					zap.String("requestID", requestID),
+					zap.Error(err),
+				)
+
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+
+			if claims.Subject == "" {
+				err := fmt.Errorf("required field '%s' is empty value", "sub")
+				logger.Error("failed to parse sub from claims",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)

@@ -70,6 +70,16 @@ func TestAuthMiddleware(t *testing.T) {
 			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1", true),
 			expectedStatus: http.StatusUnauthorized,
 		},
+		{
+			name:           "Missing sub",
+			tokenString:    generateTestToken(cfg.JWTSecret, "", "org1", true),
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
+			name:           "Missing org",
+			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "", true),
+			expectedStatus: http.StatusUnauthorized,
+		},
 	}
 
 	for _, tt := range tests {

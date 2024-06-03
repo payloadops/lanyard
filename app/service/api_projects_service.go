@@ -27,7 +27,7 @@ func NewProjectsAPIService(client dal.ProjectManager, logger *zap.Logger) openap
 func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -81,7 +81,7 @@ func (s *ProjectsAPIService) CreateProject(ctx context.Context, projectInput ope
 func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -117,7 +117,7 @@ func (s *ProjectsAPIService) DeleteProject(ctx context.Context, projectID string
 func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -169,7 +169,7 @@ func (s *ProjectsAPIService) GetProject(ctx context.Context, projectID string) (
 func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -221,7 +221,7 @@ func (s *ProjectsAPIService) ListProjects(ctx context.Context) (openapi.ImplResp
 func (s *ProjectsAPIService) UpdateProject(ctx context.Context, projectID string, projectInput openapi.ProjectInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)

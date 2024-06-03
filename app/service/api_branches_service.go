@@ -35,7 +35,7 @@ func NewBranchesAPIService(projectClient dal.ProjectManager, promptClient dal.Pr
 func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, projectID string, promptID string, branchInput openapi.BranchInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -102,7 +102,7 @@ func (s *BranchesAPIService) CreatePromptBranch(ctx context.Context, projectID s
 func (s *BranchesAPIService) DeleteBranch(ctx context.Context, projectID string, promptID string, branchName string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -164,7 +164,7 @@ func (s *BranchesAPIService) DeleteBranch(ctx context.Context, projectID string,
 func (s *BranchesAPIService) GetBranch(ctx context.Context, projectID string, promptID string, branchID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -230,7 +230,7 @@ func (s *BranchesAPIService) GetBranch(ctx context.Context, projectID string, pr
 func (s *BranchesAPIService) ListPromptBranches(ctx context.Context, projectID string, promptID string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)

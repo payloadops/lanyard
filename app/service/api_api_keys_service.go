@@ -33,7 +33,7 @@ func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.Proj
 func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -82,7 +82,7 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -160,7 +160,7 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -226,7 +226,7 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
@@ -292,7 +292,7 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
-	if !ok {
+	if !ok || orgID == "" {
 		s.logger.Error("orgID not present in context",
 			zap.String("requestID", requestID),
 		)
