@@ -117,7 +117,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 }
 
 // GetCommit retrieves a commit by prompt ID, branch ID, and commit ID from the DynamoDB table.
-func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, promptID, branchName, commitID string) (*Commit, error) {
+func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectID, promptID, branchName, commitID string) (*Commit, error) {
 	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commitID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
@@ -150,7 +150,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectId, prompt
 	}
 
 	// Retrieve the content from S3 using the branchName and VersionID if not in cache
-	s3Key := fmt.Sprintf("branches/%s/%s/%s/%s.txt", orgID, projectId, promptID, branchName)
+	s3Key := fmt.Sprintf("prompts/%s/%s/%s/%s.txt", orgID, projectID, promptID, branchName)
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
 		Bucket:    aws.String(d.bucketName),
 		Key:       aws.String(s3Key),
