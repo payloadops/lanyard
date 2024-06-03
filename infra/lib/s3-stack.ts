@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class S3Stack extends cdk.Stack {
     readonly bucketName: string; 
@@ -11,6 +12,13 @@ export class S3Stack extends cdk.Stack {
         publicReadAccess: false,
         // removalPolicy: cdk.RemovalPolicy.RETAIN
       })
+
+      const bucketPolicy = new s3.BucketPolicy(this, 'BucketPolicy', { bucket });
+      bucketPolicy.document.addStatements(new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [bucket.arnForObjects('*')],
+        principals: [new iam.AccountRootPrincipal()],
+      }));
 
       new cdk.CfnOutput(this, 'BucketNameOutput', {
         value: bucket.bucketName,
