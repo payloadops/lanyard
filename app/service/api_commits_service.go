@@ -192,6 +192,17 @@ func (s *CommitsAPIService) GetBranchCommit(ctx context.Context, projectID strin
 		return openapi.Response(http.StatusNotFound, nil), errors.New("branch not found")
 	}
 
+	if commitID == "latest" {
+		commitID = branch.LatestCommitId
+	}
+	if commitID == "" {
+		s.logger.Error("latest commit doesn't exist",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
+		return openapi.Response(http.StatusNotFound, nil), errors.New("commit not found")
+	}
+
 	commit, err := s.commitClient.GetCommit(ctx, orgID, projectID, promptID, branchName, commitID)
 	if err != nil {
 		s.logger.Error("failed to get commit",

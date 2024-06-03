@@ -27,9 +27,10 @@ var _ BranchManager = &BranchDBClient{}
 
 // Branch represents a branch in the system.
 type Branch struct {
-	Name      string `json:"name"`
-	Deleted   bool   `json:"deleted"`
-	CreatedAt string `json:"createdAt"`
+	Name           string `json:"name"`
+	Deleted        bool   `json:"deleted"`
+	CreatedAt      string `json:"createdAt"`
+	LatestCommitId string `json:latestCommitId`
 }
 
 // BranchDBClient is a client for interacting with DynamoDB for branch-related operations.
