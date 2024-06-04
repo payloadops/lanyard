@@ -54,7 +54,8 @@ func TestCreateCommit(t *testing.T) {
 	err := client.CreateCommit(context.Background(), "org1", "project1", "prompt1", "branch1", commit)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, commit.CommitID)
-	assert.Equal(t, "1", commit.CommitID)
+	assert.NotEmpty(t, commit.VersionID)
+	assert.Equal(t, "1", commit.VersionID)
 }
 
 func TestGetCommit(t *testing.T) {

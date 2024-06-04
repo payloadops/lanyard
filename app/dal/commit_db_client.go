@@ -3,6 +3,7 @@ package dal
 import (
 	"context"
 	"fmt"
+	"github.com/payloadops/plato/app/utils"
 	"io"
 	"strings"
 	"time"
@@ -36,6 +37,7 @@ var _ CommitManager = &CommitDBClient{}
 type Commit struct {
 	CommitID  string `json:"commitId"`
 	UserID    string `json:"userId"`
+	VersionID string `json:"versionId"`
 	Message   string `json:"message"`
 	Content   string `json:"-"`
 	CreatedAt string `json:"createdAt"`
@@ -66,8 +68,15 @@ func createCommitCompositeKeys(orgID, promptID, branchName, commitID string) (st
 
 // CreateCommit creates a new commit in the DynamoDB table.
 func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, promptID, branchName string, commit *Commit) error {
+	ksuid, err := utils.GenerateKSUID()
+	if err != nil {
+		return fmt.Errorf("failed to create ksuid: %v", err)
+	}
+
+	commit.CommitID = ksuid
 	now := time.Now().UTC().Format(time.RFC3339)
 	commit.CreatedAt = now
+	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
 
 	// Upload the commit content to S3 and get the version ID
 	s3Key := fmt.Sprintf("prompts/%s/%s/%s/%s.txt", orgID, projectID, promptID, branchName)
@@ -80,7 +89,7 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 		return fmt.Errorf("failed to upload commit content to S3: %v", err)
 	}
 
-	commit.CommitID = aws.ToString(putObjectOutput.VersionId)
+	commit.VersionID = aws.ToString(putObjectOutput.VersionId)
 	content := commit.Content
 	commit.Content = "" // Clear the content before saving to DynamoDB
 
@@ -89,7 +98,6 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 		return fmt.Errorf("failed to marshal commit: %v", err)
 	}
 
-	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commit.CommitID)
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
 		"sk": &types.AttributeValueMemberS{Value: sk},
@@ -156,7 +164,7 @@ func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectID, prompt
 	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
 		Bucket:    aws.String(d.bucketName),
 		Key:       aws.String(s3Key),
-		VersionId: aws.String(commit.CommitID),
+		VersionId: aws.String(commit.VersionID),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get commit content from S3: %v", err)
