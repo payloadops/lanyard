@@ -7,6 +7,7 @@ import Regions from '../lib/constants/regions';
 import { disambiguator } from '../lib/util/disambiguator';
 import { S3Stack } from './s3-stack';
 import { StageProps } from 'aws-cdk-lib';
+import { RolesStack } from './roles-stack';
 
 interface CustomStageProps extends StageProps {
   imageTag: string;
@@ -22,11 +23,18 @@ export class Stage extends cdk.Stage {
         env: { account: props?.env?.account, region: props?.env?.region },
       });
 
+      const rolesStack = new RolesStack(this, disambiguator('RolesStack', stage, region), {
+        stage: stage,
+        env: { account: props?.env?.account, region: props?.env?.region },
+      })
+
       if (props?.env?.region === Regions.US_EAST_1) {
         new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
             env: { account: props?.env?.account, region: props?.env?.region },
           })
         const s3Stack = new S3Stack(this, disambiguator('S3Stack', stage, region), {
+            rolesStack: rolesStack,
+            stage: stage,
             env: { account: props?.env?.account, region: props?.env?.region },
         });
         bucketName = s3Stack.bucketName
