@@ -99,36 +99,7 @@ func TestGetCommit(t *testing.T) {
 	assert.Equal(t, "This is the commit content.", result.Content)
 }
 
-func TestListCommitsByBranch(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockDynamoDB := mocks.NewMockDynamoDBAPI(ctrl)
-	mockS3 := mocks.NewMockS3API(ctrl)
-	mockCache := cacheMocks.NewMockCache(ctrl)
-
-	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, &config.Config{
-		PromptBucket: "test-bucket",
-	})
-
-	commit := dal.Commit{
-		CommitID:  "commit1",
-		CreatedAt: time.Now().UTC().Format(time.RFC3339),
-	}
-
-	item, _ := attributevalue.MarshalMap(commit)
-	mockDynamoDB.EXPECT().
-		Query(gomock.Any(), gomock.Any()).
-		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
-
-	results, err := client.ListCommitsByBranch(context.Background(), "org1", "project1", "prompt1", "branch1")
-	assert.NoError(t, err)
-	assert.NotNil(t, results)
-	assert.Len(t, results, 1)
-	assert.Equal(t, "commit1", results[0].CommitID)
-}
-
-func TestGetLatestCommit(t *testing.T) {
+func TestGetCommit_Latest(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -166,4 +137,33 @@ func TestGetLatestCommit(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "commit1", result.CommitID)
+}
+
+func TestListCommitsByBranch(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDynamoDB := mocks.NewMockDynamoDBAPI(ctrl)
+	mockS3 := mocks.NewMockS3API(ctrl)
+	mockCache := cacheMocks.NewMockCache(ctrl)
+
+	client := dal.NewCommitDBClient(mockDynamoDB, mockS3, mockCache, &config.Config{
+		PromptBucket: "test-bucket",
+	})
+
+	commit := dal.Commit{
+		CommitID:  "commit1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+
+	item, _ := attributevalue.MarshalMap(commit)
+	mockDynamoDB.EXPECT().
+		Query(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
+
+	results, err := client.ListCommitsByBranch(context.Background(), "org1", "project1", "prompt1", "branch1")
+	assert.NoError(t, err)
+	assert.NotNil(t, results)
+	assert.Len(t, results, 1)
+	assert.Equal(t, "commit1", results[0].CommitID)
 }
