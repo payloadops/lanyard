@@ -10,7 +10,6 @@ interface S3StackProps extends StackProps {
   stage: string;
 }
 
-
 export class S3Stack extends cdk.Stack {
     readonly bucketName: string; 
     constructor(scope: Construct, id: string, props?: S3StackProps) {

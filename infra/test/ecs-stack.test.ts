@@ -8,7 +8,9 @@ import Stages from '../lib/constants/stages';
 
 test('ECS Cluster Created', () => {
   const app = new cdk.App();
-  const vpcStack = new VpcStack(app, 'TestVpcStack', Stages.DEV);
+  const vpcStack = new VpcStack(app, 'TestVpcStack', {
+    stage: Stages.DEV
+  });
   const stack = new EcsStack(app, 'TestEcsStack', {
     stage: "stage",
     bucketName: "b",
