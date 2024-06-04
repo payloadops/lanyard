@@ -19,7 +19,8 @@ export class Stage extends cdk.Stage {
       const region = props?.env?.region!;
       let bucketName: string | undefined = undefined;
 
-      const vpcStack = new VpcStack(this, disambiguator('PlatoVpcStack', stage, region), stage, {
+      const vpcStack = new VpcStack(this, disambiguator('PlatoVpcStack', stage, region), {
+        stage: stage,
         env: { account: props?.env?.account, region: props?.env?.region },
       });
 
@@ -29,7 +30,8 @@ export class Stage extends cdk.Stage {
       })
 
       if (props?.env?.region === Regions.US_EAST_1) {
-        new DynamoStack(this, disambiguator('DynamoStack', stage, region), stage, {
+        new DynamoStack(this, disambiguator('DynamoStack', stage, region), {
+            stage: stage,
             env: { account: props?.env?.account, region: props?.env?.region },
           })
         const s3Stack = new S3Stack(this, disambiguator('S3Stack', stage, region), {
@@ -45,6 +47,7 @@ export class Stage extends cdk.Stage {
       }
       
     //   new ElastiCacheStack(scope, disambiguator('ElasticacheStack'), vpcStack, {
+    //     stage: stage,
     //     env: { account: props?.env?.account, region: props?.env?.region },
     //   });
       

@@ -3,16 +3,20 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import Stages from './constants/stages';
 
+interface DynamoStackProps extends cdk.StackProps {
+  stage: string;
+}
+
 const REPLICATIONS_REGIONS: string[] = [];
 
 export class DynamoStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, stage: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: DynamoStackProps) {
     super(scope, id, props);
     new dynamodb.Table(this, 'ProjectsTable', {
         tableName: "Projects",
         partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
         sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-        replicationRegions: stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
+        replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableClass: dynamodb.TableClass.STANDARD,
         // removalPolicy: cdk.RemovalPolicy.RETAIN
