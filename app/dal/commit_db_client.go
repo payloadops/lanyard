@@ -18,6 +18,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
+// LatestID identifies the latest commit to a prompt's branch
+const LatestID = "latest"
+
 // CommitTTL represents the duration that a prompt can be stored in the cache
 const CommitTTL = 5 * time.Minute
 
@@ -128,6 +131,10 @@ func (d *CommitDBClient) CreateCommit(ctx context.Context, orgID, projectID, pro
 
 // GetCommit retrieves a commit by prompt ID, branch ID, and commit ID from the DynamoDB table.
 func (d *CommitDBClient) GetCommit(ctx context.Context, orgID, projectID, promptID, branchName, commitID string) (*Commit, error) {
+	if commitID == LatestID {
+		return d.getLatestCommit(ctx, orgID, projectID, promptID, branchName)
+	}
+
 	pk, sk := createCommitCompositeKeys(orgID, promptID, branchName, commitID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Commits"),
@@ -212,4 +219,68 @@ func (d *CommitDBClient) ListCommitsByBranch(ctx context.Context, orgID, project
 	}
 
 	return commits, nil
+}
+
+// getLatestCommit retrieves the latest commit for a specific branch from the DynamoDB table.
+func (d *CommitDBClient) getLatestCommit(ctx context.Context, orgID, projectID, promptID, branchName string) (*Commit, error) {
+	pk, _ := createCommitCompositeKeys(orgID, promptID, branchName, "")
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("Commits"),
+		KeyConditionExpression: aws.String("pk = :pk"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
+		},
+		ScanIndexForward: aws.Bool(false), // Retrieve results in descending order
+		Limit:            aws.Int32(1),    // Get only the latest commit
+	}
+
+	result, err := d.dynamoDb.Query(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
+	}
+
+	if len(result.Items) == 0 {
+		return nil, nil
+	}
+
+	var commit Commit
+	err = attributevalue.UnmarshalMap(result.Items[0], &commit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
+	}
+
+	// Try to get the content from the cache
+	cacheKey := fmt.Sprintf("commit:%s:%s:%s", promptID, branchName, commit.CommitID)
+	if content, err := d.cache.Get(ctx, cacheKey, CommitTTL); content != "" && err == nil {
+		commit.Content = content
+		return &commit, nil
+	}
+
+	// Retrieve the content from S3 using the branchName and VersionID if not in cache
+	s3Key := fmt.Sprintf("prompts/%s/%s/%s/%s.txt", orgID, projectID, promptID, branchName)
+	obj, err := d.s3.GetObject(ctx, &s3.GetObjectInput{
+		Bucket:    aws.String(d.bucketName),
+		Key:       aws.String(s3Key),
+		VersionId: aws.String(commit.VersionID),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get commit content from S3: %v", err)
+	}
+
+	defer obj.Body.Close()
+
+	content, err := io.ReadAll(obj.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read commit content: %v", err)
+	}
+
+	commit.Content = string(content)
+	// Cache the retrieved content
+	if err := d.cache.Set(ctx, cacheKey, commit.Content, CommitTTL); err != nil {
+		return nil, fmt.Errorf("failed to cache commit content: %v", err)
+	}
+
+	return &commit, nil
 }

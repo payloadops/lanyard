@@ -1490,7 +1490,6 @@ components:
         name: name
         description: description
         id: ""
-        prompt: prompt
         updatedAt: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
@@ -1507,11 +1506,6 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        prompt:
-          description: Contents of the prompt
-          maxLength: 50000
-          minLength: 1
-          type: string
         createdAt:
           description: Timestamp when the prompt was created
           format: date-time
@@ -1525,7 +1519,6 @@ components:
       example:
         name: name
         description: description
-        prompt: prompt
       properties:
         name:
           description: Name of the prompt
@@ -1535,11 +1528,6 @@ components:
         description:
           description: A brief description of the project
           maxLength: 180
-          minLength: 1
-          type: string
-        prompt:
-          description: Contents of the prompt
-          maxLength: 50000
           minLength: 1
           type: string
       required:

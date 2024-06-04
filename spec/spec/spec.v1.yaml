@@ -1450,11 +1450,6 @@ components:
           minLength: 1
           maxLength: 180
           description: A brief description of the project
-        prompt:
-          type: string
-          minLength: 1
-          maxLength: 50000
-          description: Contents of the prompt
         createdAt:
           type: string
           format: date-time
@@ -1479,11 +1474,6 @@ components:
           minLength: 1
           maxLength: 180
           description: A brief description of the project
-        prompt:
-          type: string
-          minLength: 1
-          maxLength: 50000
-          description: Contents of the prompt
 
     PromptStub:
       type: object

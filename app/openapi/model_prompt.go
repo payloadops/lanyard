@@ -26,9 +26,6 @@ type Prompt struct {
 	// A brief description of the project
 	Description string `json:"description,omitempty"`
 
-	// Contents of the prompt
-	Prompt string `json:"prompt,omitempty"`
-
 	// Timestamp when the prompt was created
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 
