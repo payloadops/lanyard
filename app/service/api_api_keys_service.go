@@ -3,12 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/openapi"
 	"github.com/payloadops/plato/app/utils"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 const (
@@ -113,11 +114,12 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 
 	apiKey := dal.APIKey{
 		ProjectID: projectId,
+		OrgID:     orgID,
 		Secret:    keySecret,
 		Scopes:    apiKeyInput.Scopes,
 	}
 
-	err = s.apiKeyClient.CreateAPIKey(ctx, orgID, &apiKey)
+	err = s.apiKeyClient.CreateAPIKey(ctx, &apiKey)
 	if err != nil {
 		s.logger.Error("failed to create API key",
 			zap.String("requestID", requestID),
@@ -327,7 +329,7 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 
 	// Update the API key with the new values
 	apiKey.Scopes = apiKeyInput.Scopes
-	err = s.apiKeyClient.UpdateAPIKey(ctx, orgID, apiKey)
+	err = s.apiKeyClient.UpdateAPIKey(ctx, apiKey)
 	if err != nil {
 		s.logger.Error("failed to update API key",
 			zap.String("requestID", requestID),

@@ -18,6 +18,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/payloadops/plato/app/auth"
 	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/plato/app/dal"
 )
 
 // requestTimeout defines the time that a handler will take to process the request before timing out.
@@ -43,7 +44,7 @@ const errMsgMinValueConstraint = "provided parameter is not respecting minimum v
 const errMsgMaxValueConstraint = "provided parameter is not respecting maximum value constraint"
 
 // NewRouter creates a new router for any number of api routers
-func NewRouter(cfg *config.Config, logger *zap.Logger, routers ...Router) chi.Router {
+func NewRouter(cfg *config.Config, logger *zap.Logger, apiKeyDBClient *dal.APIKeyDBClient, routers ...Router) chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
@@ -59,8 +60,10 @@ func NewRouter(cfg *config.Config, logger *zap.Logger, routers ...Router) chi.Ro
 			// Skip auth middleware for health check
 			if route.Pattern == "/v1/health" {
 				router.Method(route.Method, route.Pattern, handler)
+			} else if route.Pattern == "/v1/templates/{promptId}/{branchName}/{commitId}" {
+				router.Method(route.Method, route.Pattern, auth.APIKeyAuthMiddleware(cfg, logger, apiKeyDBClient)(handler))
 			} else {
-				router.Method(route.Method, route.Pattern, auth.AuthMiddleware(cfg, logger)(handler))
+				router.Method(route.Method, route.Pattern, auth.JWTAuthMiddleware(cfg, logger)(handler))
 			}
 		}
 	}

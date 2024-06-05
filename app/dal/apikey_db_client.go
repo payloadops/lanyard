@@ -19,9 +19,10 @@ const SecretLength = 32
 
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {
-	CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
-	UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error)
+	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
 }
@@ -31,6 +32,7 @@ var _ APIKeyManager = &APIKeyDBClient{}
 
 // APIKey represents an API key associated with a project.
 type APIKey struct {
+	OrgID     string   `json:"orgId"`
 	ProjectID string   `json:"projectId"`
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
@@ -57,15 +59,21 @@ func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, strin
 	return "Org#" + orgID + "Project#" + projectID, "APIKey#" + apiKeyID
 }
 
+// createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
+func createAPIKeyGSICompositeKeys(apiKeyID string) string {
+	return "APIKey#" + apiKeyID
+}
+
 // CreateAPIKey creates a new API key in the DynamoDB table.
-func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
+func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	apiKey.APIKeyID = ksuid
-	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
+	gsiPK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -77,8 +85,9 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey 
 	}
 
 	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
+		"pk":     &types.AttributeValueMemberS{Value: pk},
+		"sk":     &types.AttributeValueMemberS{Value: sk},
+		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -130,9 +139,40 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 	return &apiKey, nil
 }
 
+func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error) {
+	pk := createAPIKeyGSICompositeKeys(apiKeyID)
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String("APIKeys"),
+		Key: map[string]types.AttributeValue{
+			"GSI1PK": &types.AttributeValueMemberS{Value: pk},
+		},
+	}
+
+	result, err := d.service.GetItem(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
+	}
+
+	if result.Item == nil {
+		return nil, nil
+	}
+
+	var apiKey APIKey
+	err = attributevalue.UnmarshalMap(result.Item, &apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
+	}
+
+	if apiKey.Deleted {
+		return nil, nil
+	}
+
+	return &apiKey, nil
+}
+
 // UpdateAPIKey updates an existing API key in the DynamoDB table.
-func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
-	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error {
+	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
 	apiKey.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(apiKey)
