@@ -21,7 +21,7 @@ const SecretLength = 32
 type APIKeyManager interface {
 	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
-	GetAPIKeyByID(ctx context.Context, apiKeyID string, secret string) (*APIKey, error)
+	GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error)
 	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
@@ -139,7 +139,7 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 	return &apiKey, nil
 }
 
-func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string, secret string) (*APIKey, error) {
+func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error) {
 	pk := createAPIKeyGSICompositeKeys(apiKeyID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),

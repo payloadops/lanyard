@@ -79,18 +79,18 @@ func (mr *MockAPIKeyManagerMockRecorder) GetAPIKey(arg0, arg1, arg2, arg3 interf
 }
 
 // GetAPIKeyByID mocks base method.
-func (m *MockAPIKeyManager) GetAPIKeyByID(arg0 context.Context, arg1, arg2 string) (*dal.APIKey, error) {
+func (m *MockAPIKeyManager) GetAPIKeyByID(arg0 context.Context, arg1 string) (*dal.APIKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAPIKeyByID", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetAPIKeyByID", arg0, arg1)
 	ret0, _ := ret[0].(*dal.APIKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAPIKeyByID indicates an expected call of GetAPIKeyByID.
-func (mr *MockAPIKeyManagerMockRecorder) GetAPIKeyByID(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockAPIKeyManagerMockRecorder) GetAPIKeyByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKeyByID", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKeyByID), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKeyByID", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKeyByID), arg0, arg1)
 }
 
 // ListAPIKeysByProject mocks base method.

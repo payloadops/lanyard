@@ -26,19 +26,24 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := middleware.GetReqID(r.Context())
 			// Extract the token from the Authorization header
-			clientID := r.Header.Get("X-CLIENT-ID")
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				http.Error(w, "Missing Authorization Header", http.StatusUnauthorized)
+				return
+			}
+
+			clientID, clientSecret := strings.Split(authHeader, ":")[0], strings.Split(authHeader, ":")[1]
+
 			if clientID == "" {
-				http.Error(w, "Missing Client ID Header", http.StatusUnauthorized)
+				http.Error(w, "Client ID Not Found in Authorization Header", http.StatusUnauthorized)
 				return
 			}
-
-			clientSecret := r.Header.Get("X-CLIENT-SECRET")
 			if clientSecret == "" {
-				http.Error(w, "Missing Client Secret Header", http.StatusUnauthorized)
+				http.Error(w, "Client Secret Not Found in Authorization Header", http.StatusUnauthorized)
 				return
 			}
 
-			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID, clientSecret)
+			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID)
 
 			if err != nil && key.Deleted {
 				logger.Error("deleted key",
@@ -47,6 +52,16 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 				)
 
 				http.Error(w, "Cannot Use Deleted API Key", http.StatusUnauthorized)
+				return
+			}
+
+			if clientSecret != key.Secret {
+				logger.Error("invalid secret",
+					zap.String("requestID", requestID),
+					zap.Error(err),
+				)
+
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
