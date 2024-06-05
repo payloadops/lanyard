@@ -2,6 +2,9 @@ package service_test
 
 import (
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/payloadops/plato/app/dal"
 	"github.com/payloadops/plato/app/dal/mocks"
 	"github.com/payloadops/plato/app/openapi"
@@ -9,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
-	"net/http"
-	"testing"
 )
 
 func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
@@ -49,7 +50,7 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 	}
 
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().CreateAPIKey(ctx, "org1", gomock.Any()).Return(nil)
+	mockAPIKeyClient.EXPECT().CreateAPIKey(ctx, gomock.Any()).Return(nil)
 
 	response, err := service.GenerateApiKey(ctx, projectID, apiKeyInput)
 	assert.NoError(t, err)
@@ -138,7 +139,7 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
 	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(apiKey, nil)
-	mockAPIKeyClient.EXPECT().UpdateAPIKey(ctx, "org1", gomock.Any()).Return(nil)
+	mockAPIKeyClient.EXPECT().UpdateAPIKey(ctx, gomock.Any()).Return(nil)
 
 	response, err := service.UpdateApiKey(ctx, projectID, keyID, apiKeyInput)
 	assert.NoError(t, err)

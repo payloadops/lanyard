@@ -37,17 +37,17 @@ func (m *MockAPIKeyManager) EXPECT() *MockAPIKeyManagerMockRecorder {
 }
 
 // CreateAPIKey mocks base method.
-func (m *MockAPIKeyManager) CreateAPIKey(arg0 context.Context, arg1 string, arg2 *dal.APIKey) error {
+func (m *MockAPIKeyManager) CreateAPIKey(arg0 context.Context, arg1 *dal.APIKey) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateAPIKey", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "CreateAPIKey", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateAPIKey indicates an expected call of CreateAPIKey.
-func (mr *MockAPIKeyManagerMockRecorder) CreateAPIKey(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockAPIKeyManagerMockRecorder) CreateAPIKey(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).CreateAPIKey), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).CreateAPIKey), arg0, arg1)
 }
 
 // DeleteAPIKey mocks base method.
@@ -110,15 +110,15 @@ func (mr *MockAPIKeyManagerMockRecorder) ListAPIKeysByProject(arg0, arg1, arg2 i
 }
 
 // UpdateAPIKey mocks base method.
-func (m *MockAPIKeyManager) UpdateAPIKey(arg0 context.Context, arg1 string, arg2 *dal.APIKey) error {
+func (m *MockAPIKeyManager) UpdateAPIKey(arg0 context.Context, arg1 *dal.APIKey) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAPIKey", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateAPIKey", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAPIKey indicates an expected call of UpdateAPIKey.
-func (mr *MockAPIKeyManagerMockRecorder) UpdateAPIKey(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockAPIKeyManagerMockRecorder) UpdateAPIKey(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).UpdateAPIKey), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).UpdateAPIKey), arg0, arg1)
 }
