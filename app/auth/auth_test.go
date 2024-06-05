@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"encoding/base64"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,91 +19,136 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// generateTestToken generates a JWT token for testing with the specified secret, user ID, and organization ID.
-func generateTestToken(secret, userID, orgID string, expired bool) string {
-	expiresAt := time.Now().Add(time.Hour).Unix()
-	if expired {
-		expiresAt = time.Now().Add(-time.Hour).Unix()
-	}
-	claims := &Claims{
-		OrgID: orgID,
-		StandardClaims: jwt.StandardClaims{
-			Subject:   userID,
-			ExpiresAt: expiresAt,
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, _ := token.SignedString([]byte(secret))
-	return tokenString
-}
-
 func TestJWTAuthMiddleware(t *testing.T) {
 	cfg := &config.Config{
-		JWTSecret: "testsecret",
+		JWTSecret: "secret",
 	}
 
 	tests := []struct {
 		name           string
-		tokenString    string
+		authHeader     string
 		expectedStatus int
-		expectedUserID string
 		expectedOrgID  string
+		expectedUserID string
+		setupMocks     func() string
 	}{
 		{
-			name:           "Valid Token",
-			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1", false),
+			name:           "Valid JWT",
 			expectedStatus: http.StatusOK,
-			expectedUserID: "user1",
-			expectedOrgID:  "org1",
+			expectedOrgID:  "org123",
+			expectedUserID: "user123",
+			setupMocks: func() string {
+				claims := Claims{
+					OrgID: "org123",
+					StandardClaims: jwt.StandardClaims{
+						Subject:   "user123",
+						ExpiresAt: time.Now().Add(time.Hour).Unix(),
+					},
+				}
+				token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+				tokenString, _ := token.SignedString([]byte(cfg.JWTSecret))
+				return "Bearer " + tokenString
+			},
 		},
 		{
 			name:           "Missing Authorization Header",
-			tokenString:    "",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks:     nil,
 		},
 		{
-			name:           "Invalid Authorization Header",
-			tokenString:    "Bearer ",
+			name:           "Invalid Authorization Format",
+			authHeader:     "invalidFormat",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks:     nil,
 		},
 		{
-			name:           "Invalid Token",
-			tokenString:    "invalid.token",
+			name:           "Invalid Signing Method",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks: func() string {
+				token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.StandardClaims{
+					Subject:   "user123",
+					ExpiresAt: time.Now().Add(time.Hour).Unix(),
+				})
+				tokenString, _ := token.SignedString([]byte(cfg.JWTSecret))
+				return "Bearer " + tokenString
+			},
 		},
 		{
-			name:           "Expired Token",
-			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "org1", true),
+			name:           "Invalid JWT",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks: func() string {
+				return "Bearer invalidToken"
+			},
 		},
 		{
-			name:           "Missing sub",
-			tokenString:    generateTestToken(cfg.JWTSecret, "", "org1", true),
+			name:           "Expired JWT",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks: func() string {
+				claims := Claims{
+					OrgID: "org123",
+					StandardClaims: jwt.StandardClaims{
+						Subject:   "user123",
+						ExpiresAt: time.Now().Add(-time.Hour).Unix(),
+					},
+				}
+				token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+				tokenString, _ := token.SignedString([]byte(cfg.JWTSecret))
+				return "Bearer " + tokenString
+			},
 		},
 		{
-			name:           "Missing org",
-			tokenString:    generateTestToken(cfg.JWTSecret, "user1", "", true),
+			name:           "Missing OrgID",
 			expectedStatus: http.StatusUnauthorized,
+			setupMocks: func() string {
+				claims := Claims{
+					StandardClaims: jwt.StandardClaims{
+						Subject:   "user123",
+						ExpiresAt: time.Now().Add(time.Hour).Unix(),
+					},
+				}
+				token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+				tokenString, _ := token.SignedString([]byte(cfg.JWTSecret))
+				return "Bearer " + tokenString
+			},
+		},
+		{
+			name:           "Missing UserID",
+			expectedStatus: http.StatusUnauthorized,
+			setupMocks: func() string {
+				claims := Claims{
+					OrgID: "org123",
+					StandardClaims: jwt.StandardClaims{
+						ExpiresAt: time.Now().Add(time.Hour).Unix(),
+					},
+				}
+				token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+				tokenString, _ := token.SignedString([]byte(cfg.JWTSecret))
+				return "Bearer " + tokenString
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			authHeader := tt.authHeader
+			if tt.setupMocks != nil {
+				authHeader = tt.setupMocks()
+			}
+
 			r := chi.NewRouter()
 			r.Use(JWTAuthMiddleware(cfg, zap.NewNop()))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				userID := r.Context().Value("userID").(string)
-				orgID := r.Context().Value("orgID").(string)
+				orgID, _ := r.Context().Value("orgID").(string)   // Safely handle nil
+				userID, _ := r.Context().Value("userID").(string) // Safely handle nil
 
-				assert.Equal(t, tt.expectedUserID, userID)
 				assert.Equal(t, tt.expectedOrgID, orgID)
+				assert.Equal(t, tt.expectedUserID, userID)
 				w.WriteHeader(http.StatusOK)
 			})
 
 			req, _ := http.NewRequest("GET", "/", nil)
-			if tt.tokenString != "" {
-				req.Header.Set("Authorization", "Bearer "+tt.tokenString)
+			if authHeader != "" {
+				req.Header.Set("Authorization", authHeader)
 			}
 			rr := httptest.NewRecorder()
 			r.ServeHTTP(rr, req)
@@ -115,7 +162,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
-	mockAPIKeyDBClient := mocks.NewMockAPIKeyManager(mockCtrl)
+	mockAPIKeyManager := mocks.NewMockAPIKeyManager(mockCtrl)
 
 	cfg := &config.Config{}
 	tests := []struct {
@@ -128,12 +175,12 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 	}{
 		{
 			name:              "Valid API Key",
-			authHeader:        "validClientID:validSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
 			expectedStatus:    http.StatusOK,
 			expectedProjectID: "project123",
 			expectedOrgID:     "org123",
 			setupMocks: func() {
-				mockAPIKeyDBClient.EXPECT().
+				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "validClientID").
 					Return(&dal.APIKey{Secret: "validSecret", Deleted: false, ProjectID: "project123", OrgID: "org123"}, nil).Times(1)
 			},
@@ -156,64 +203,62 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		},
 		{
 			name:              "Non-existent API Key",
-			authHeader:        "nonexistentClientID:randomSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("nonexistentClientID:randomSecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
-				mockAPIKeyDBClient.EXPECT().
+				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "nonexistentClientID").
 					Return(nil, nil).Times(1) // Simulating key not found
 			},
 		},
 		{
 			name:              "Deleted API Key",
-			authHeader:        "deletedClientID:anySecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("deletedClientID:anySecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
-				mockAPIKeyDBClient.EXPECT().
+				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "deletedClientID").
 					Return(&dal.APIKey{Secret: "anySecret", Deleted: true}, nil).Times(1)
 			},
 		},
 		{
 			name:              "Invalid Client Secret",
-			authHeader:        "validClientID:invalidSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:invalidSecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
-				mockAPIKeyDBClient.EXPECT().
+				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "validClientID").
 					Return(&dal.APIKey{Secret: "validClientSecret", Deleted: false}, nil).Times(1)
 			},
 		},
 		{
 			name:              "Database Error",
-			authHeader:        "validClientID:validSecret",
-			expectedStatus:    http.StatusUnauthorized,
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
+			expectedStatus:    http.StatusInternalServerError,
 			expectedProjectID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
-				mockAPIKeyDBClient.EXPECT().
+				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "validClientID").
-					Return(nil, nil).Times(1) // Simulating key not found
+					Return(nil, fmt.Errorf("database error")).Times(1)
 			},
 		},
 	}
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.setupMocks != nil {
 				tt.setupMocks()
 			}
+
 			r := chi.NewRouter()
-			r.Use(APIKeyAuthMiddleware(cfg, zap.NewNop(), mockAPIKeyDBClient))
+			r.Use(APIKeyAuthMiddleware(cfg, zap.NewNop(), mockAPIKeyManager))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				projectID, _ := r.Context().Value("projectID").(string) // Safely handle nil
 				orgID, _ := r.Context().Value("orgID").(string)         // Safely handle nil

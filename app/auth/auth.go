@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -29,47 +30,61 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyManager 
 			// Extract the token from the Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				http.Error(w, "Missing Authorization Header", http.StatusUnauthorized)
+				http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 				return
 			}
 
-			splitHeader := strings.Split(authHeader, ":")
-			if len(splitHeader) != 2 {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+			// Check if the Authorization header is using Basic Auth
+			if !strings.HasPrefix(authHeader, "Basic ") {
+				http.Error(w, "Invalid Authorization header", http.StatusUnauthorized)
 				return
 			}
 
-			clientID, clientSecret := splitHeader[0], splitHeader[1]
-
-			key, err := apiKeyManager.GetAPIKey(r.Context(), clientID)
-
+			// Decode the Base64 encoded credentials
+			base64Credentials := strings.TrimPrefix(authHeader, "Basic ")
+			decodedCredentials, err := base64.StdEncoding.DecodeString(base64Credentials)
 			if err != nil {
-				logger.Error("unexpected error",
+				http.Error(w, "Invalid base64 encoding", http.StatusUnauthorized)
+				return
+			}
+
+			// Split the credentials into clientID and clientSecret
+			credentials := strings.SplitN(string(decodedCredentials), ":", 2)
+			if len(credentials) != 2 {
+				http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
+				return
+			}
+
+			clientID, clientSecret := credentials[0], credentials[1]
+			key, err := apiKeyManager.GetAPIKey(r.Context(), clientID)
+			if err != nil {
+				logger.Error("failed to get API key",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)
 
-				http.Error(w, "Unexpected Error", http.StatusInternalServerError)
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
 				return
 			}
 
 			if key == nil {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				http.Error(w, "Invalid API key", http.StatusUnauthorized)
 				return
 			}
 
 			if key.Deleted {
-				http.Error(w, "Cannot Use Deleted API Key", http.StatusUnauthorized)
+				logger.Warn("attempted use of deleted API key", zap.String("requestID", requestID))
+				http.Error(w, "Invalid API key", http.StatusUnauthorized)
 				return
 			}
 
 			if !utils.SecureCompare(clientSecret, key.Secret) {
-				logger.Error("invalid secret",
+				logger.Warn("invalid API key secret",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)
 
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				http.Error(w, "Invalid API Key", http.StatusUnauthorized)
 				return
 			}
 
@@ -92,13 +107,13 @@ func JWTAuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler
 			// Extract the token from the Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				http.Error(w, "Missing Authorization Header", http.StatusUnauthorized)
+				http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 				return
 			}
 
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 			if tokenString == authHeader {
-				http.Error(w, "Invalid Authorization Header", http.StatusUnauthorized)
+				http.Error(w, "Invalid Authorization header", http.StatusUnauthorized)
 				return
 			}
 
@@ -118,7 +133,7 @@ func JWTAuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler
 			})
 
 			if err != nil || !token.Valid {
-				logger.Error("invalid token",
+				logger.Warn("attempted use of invalid token",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)
