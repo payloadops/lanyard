@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"encoding/base64"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -128,7 +130,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 	}{
 		{
 			name:              "Valid API Key",
-			authHeader:        "validClientID:validSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
 			expectedStatus:    http.StatusOK,
 			expectedProjectID: "project123",
 			expectedOrgID:     "org123",
@@ -156,7 +158,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		},
 		{
 			name:              "Non-existent API Key",
-			authHeader:        "nonexistentClientID:randomSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("nonexistentClientID:randomSecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
@@ -168,7 +170,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		},
 		{
 			name:              "Deleted API Key",
-			authHeader:        "deletedClientID:anySecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("deletedClientID:anySecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
@@ -180,7 +182,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		},
 		{
 			name:              "Invalid Client Secret",
-			authHeader:        "validClientID:invalidSecret",
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:invalidSecret")),
 			expectedStatus:    http.StatusUnauthorized,
 			expectedProjectID: "",
 			expectedOrgID:     "",
@@ -192,26 +194,24 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		},
 		{
 			name:              "Database Error",
-			authHeader:        "validClientID:validSecret",
-			expectedStatus:    http.StatusUnauthorized,
+			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
+			expectedStatus:    http.StatusInternalServerError,
 			expectedProjectID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
 					GetAPIKeyByID(gomock.Any(), "validClientID").
-					Return(nil, nil).Times(1) // Simulating key not found
+					Return(nil, fmt.Errorf("database error")).Times(1)
 			},
 		},
 	}
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.setupMocks != nil {
 				tt.setupMocks()
 			}
+
 			r := chi.NewRouter()
 			r.Use(APIKeyAuthMiddleware(cfg, zap.NewNop(), mockAPIKeyDBClient))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
