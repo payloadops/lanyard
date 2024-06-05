@@ -6,11 +6,14 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
 	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/dal/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +35,7 @@ func generateTestToken(secret, userID, orgID string, expired bool) string {
 	return tokenString
 }
 
-func TestAuthMiddleware(t *testing.T) {
+func TestJWTAuthMiddleware(t *testing.T) {
 	cfg := &config.Config{
 		JWTSecret: "testsecret",
 	}
@@ -99,6 +102,130 @@ func TestAuthMiddleware(t *testing.T) {
 			req, _ := http.NewRequest("GET", "/", nil)
 			if tt.tokenString != "" {
 				req.Header.Set("Authorization", "Bearer "+tt.tokenString)
+			}
+			rr := httptest.NewRecorder()
+			r.ServeHTTP(rr, req)
+
+			assert.Equal(t, tt.expectedStatus, rr.Code)
+		})
+	}
+}
+
+func TestAPIKeyAuthMiddleware(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockAPIKeyDBClient := mocks.NewMockAPIKeyManager(mockCtrl)
+
+	cfg := &config.Config{}
+	tests := []struct {
+		name              string
+		authHeader        string
+		expectedStatus    int
+		expectedProjectID string
+		expectedOrgID     string
+		setupMocks        func()
+	}{
+		{
+			name:              "Valid API Key",
+			authHeader:        "validClientID:validSecret",
+			expectedStatus:    http.StatusOK,
+			expectedProjectID: "project123",
+			expectedOrgID:     "org123",
+			setupMocks: func() {
+				mockAPIKeyDBClient.EXPECT().
+					GetAPIKeyByID(gomock.Any(), "validClientID").
+					Return(&dal.APIKey{Secret: "validSecret", Deleted: false, ProjectID: "project123", OrgID: "org123"}, nil).Times(1)
+			},
+		},
+		{
+			name:              "Missing Authorization Header",
+			authHeader:        "",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks:        nil,
+		},
+		{
+			name:              "Invalid Authorization Format",
+			authHeader:        "invalidFormat",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks:        nil,
+		},
+		{
+			name:              "Non-existent API Key",
+			authHeader:        "nonexistentClientID:randomSecret",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks: func() {
+				mockAPIKeyDBClient.EXPECT().
+					GetAPIKeyByID(gomock.Any(), "nonexistentClientID").
+					Return(nil, nil).Times(1) // Simulating key not found
+			},
+		},
+		{
+			name:              "Deleted API Key",
+			authHeader:        "deletedClientID:anySecret",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks: func() {
+				mockAPIKeyDBClient.EXPECT().
+					GetAPIKeyByID(gomock.Any(), "deletedClientID").
+					Return(&dal.APIKey{Secret: "anySecret", Deleted: true}, nil).Times(1)
+			},
+		},
+		{
+			name:              "Invalid Client Secret",
+			authHeader:        "validClientID:invalidSecret",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks: func() {
+				mockAPIKeyDBClient.EXPECT().
+					GetAPIKeyByID(gomock.Any(), "validClientID").
+					Return(&dal.APIKey{Secret: "validClientSecret", Deleted: false}, nil).Times(1)
+			},
+		},
+		{
+			name:              "Database Error",
+			authHeader:        "validClientID:validSecret",
+			expectedStatus:    http.StatusUnauthorized,
+			expectedProjectID: "",
+			expectedOrgID:     "",
+			setupMocks: func() {
+				mockAPIKeyDBClient.EXPECT().
+					GetAPIKeyByID(gomock.Any(), "validClientID").
+					Return(nil, nil).Times(1) // Simulating key not found
+			},
+		},
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setupMocks != nil {
+				tt.setupMocks()
+			}
+			r := chi.NewRouter()
+			r.Use(APIKeyAuthMiddleware(cfg, zap.NewNop(), mockAPIKeyDBClient))
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				projectID, _ := r.Context().Value("projectID").(string) // Safely handle nil
+				orgID, _ := r.Context().Value("orgID").(string)         // Safely handle nil
+
+				assert.Equal(t, tt.expectedProjectID, projectID)
+				assert.Equal(t, tt.expectedOrgID, orgID)
+				w.WriteHeader(http.StatusOK)
+			})
+
+			req, _ := http.NewRequest("GET", "/", nil)
+			if tt.authHeader != "" {
+				req.Header.Set("Authorization", tt.authHeader)
 			}
 			rr := httptest.NewRecorder()
 			r.ServeHTTP(rr, req)

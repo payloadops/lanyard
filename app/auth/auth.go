@@ -22,7 +22,7 @@ type Claims struct {
 	OrgID string `json:"org"`
 }
 
-func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient *dal.APIKeyDBClient) func(http.Handler) http.Handler {
+func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyManager dal.APIKeyManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := middleware.GetReqID(r.Context())
@@ -41,7 +41,7 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 
 			clientID, clientSecret := splitHeader[0], splitHeader[1]
 
-			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID)
+			key, err := apiKeyManager.GetAPIKeyByID(r.Context(), clientID)
 
 			if err != nil {
 				logger.Error("unexpected error",
