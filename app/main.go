@@ -3,6 +3,13 @@ package main
 import (
 	"context"
 	"errors"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/payloadops/plato/app/cache"
@@ -15,12 +22,6 @@ import (
 	"github.com/payloadops/plato/app/service"
 	"github.com/payloadops/plato/app/tracing"
 	"go.uber.org/zap"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 // shutdownTimeout represents the time to wait in graceful-shutdown before force exiting
@@ -143,6 +144,7 @@ func main() {
 	router := openapi.NewRouter(
 		cfg,
 		logger,
+		apiKeyDBClient,
 		HealthCheckAPIController,
 		ProjectsAPIController,
 		PromptsAPIController,

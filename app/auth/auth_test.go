@@ -1,11 +1,12 @@
 package auth
 
 import (
-	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
@@ -85,7 +86,7 @@ func TestAuthMiddleware(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := chi.NewRouter()
-			r.Use(AuthMiddleware(cfg, zap.NewNop()))
+			r.Use(JWTAuthMiddleware(cfg, zap.NewNop()))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 				userID := r.Context().Value("userID").(string)
 				orgID := r.Context().Value("orgID").(string)

@@ -52,7 +52,7 @@ export class DynamoStack extends cdk.Stack {
         // removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
-    new dynamodb.Table(this, 'APIKeysTable', {
+    const apiKeysTable = new dynamodb.Table(this, 'APIKeysTable', {
       tableName: "APIKeys",
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
       sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
@@ -60,6 +60,11 @@ export class DynamoStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       tableClass: dynamodb.TableClass.STANDARD,
       // removalPolicy: cdk.RemovalPolicy.RETAIN
+  })
+  apiKeysTable.addGlobalSecondaryIndex({
+    indexName: 'APIKeyID-Secret-Index',
+    partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
+    sortKey: { name: 'GSI2PK', type: dynamodb.AttributeType.STRING },
   })
   }
 }

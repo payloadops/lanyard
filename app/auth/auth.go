@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-chi/chi/v5/middleware"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi/v5/middleware"
+	"go.uber.org/zap"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/plato/app/dal"
 )
 
 // Claims represents the JWT claims containing the standard claims, user ID, and organization ID.
@@ -19,9 +21,48 @@ type Claims struct {
 	OrgID string `json:"org"`
 }
 
-// AuthMiddleware returns a middleware function that validates the JWT token from the Authorization header.
+func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient *dal.APIKeyDBClient) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestID := middleware.GetReqID(r.Context())
+			// Extract the token from the Authorization header
+			clientID := r.Header.Get("X-CLIENT-ID")
+			if clientID == "" {
+				http.Error(w, "Missing Client ID Header", http.StatusUnauthorized)
+				return
+			}
+
+			clientSecret := r.Header.Get("X-CLIENT-SECRET")
+			if clientSecret == "" {
+				http.Error(w, "Missing Client Secret Header", http.StatusUnauthorized)
+				return
+			}
+
+			key, err := apiKeyDBClient.GetAPIKeyByIDAndSecret(r.Context(), clientID, clientSecret)
+
+			if err != nil && key.Deleted {
+				logger.Error("deleted key",
+					zap.String("requestID", requestID),
+					zap.Error(err),
+				)
+
+				http.Error(w, "Cannot Use Deleted API Key", http.StatusUnauthorized)
+				return
+			}
+
+			// Set the user and org context
+			ctx := context.WithValue(r.Context(), "orgID", key.OrgID)
+			ctx = context.WithValue(ctx, "projectID", key.ProjectID)
+
+			// Call the next handler with the new context
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// JWTAuthMiddleware returns a middleware function that validates the JWT token from the Authorization header.
 // It sets the user ID and organization ID in the request context if the token is valid.
-func AuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler) http.Handler {
+func JWTAuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestID := middleware.GetReqID(r.Context())

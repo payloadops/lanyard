@@ -21,6 +21,7 @@ const SecretLength = 32
 type APIKeyManager interface {
 	CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
 	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
+	GetAPIKeyByIDAndSecret(ctx context.Context, apiKeyID string, secret string) (*APIKey, error)
 	UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
@@ -31,6 +32,7 @@ var _ APIKeyManager = &APIKeyDBClient{}
 
 // APIKey represents an API key associated with a project.
 type APIKey struct {
+	OrgID     string   `json:"orgId"`
 	ProjectID string   `json:"projectId"`
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
@@ -57,6 +59,11 @@ func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, strin
 	return "Org#" + orgID + "Project#" + projectID, "APIKey#" + apiKeyID
 }
 
+// createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
+func createAPIKeyGSICompositeKeys(apiKeyID, secret string) (string, string) {
+	return "APIKey#" + apiKeyID, "Secret#" + secret
+}
+
 // CreateAPIKey creates a new API key in the DynamoDB table.
 func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
 	ksuid, err := utils.GenerateKSUID()
@@ -66,6 +73,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey 
 
 	apiKey.APIKeyID = ksuid
 	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+	gsiPK, gsiSK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID, apiKey.Secret)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -77,8 +85,10 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey 
 	}
 
 	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
+		"pk":     &types.AttributeValueMemberS{Value: pk},
+		"sk":     &types.AttributeValueMemberS{Value: sk},
+		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
+		"GSI1SK": &types.AttributeValueMemberS{Value: gsiSK},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -105,6 +115,38 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
 			"sk": &types.AttributeValueMemberS{Value: sk},
+		},
+	}
+
+	result, err := d.service.GetItem(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
+	}
+
+	if result.Item == nil {
+		return nil, nil
+	}
+
+	var apiKey APIKey
+	err = attributevalue.UnmarshalMap(result.Item, &apiKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
+	}
+
+	if apiKey.Deleted {
+		return nil, nil
+	}
+
+	return &apiKey, nil
+}
+
+func (d *APIKeyDBClient) GetAPIKeyByIDAndSecret(ctx context.Context, apiKeyID string, secret string) (*APIKey, error) {
+	pk, sk := createAPIKeyGSICompositeKeys(apiKeyID, secret)
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String("APIKeys"),
+		Key: map[string]types.AttributeValue{
+			"GSI1PK": &types.AttributeValueMemberS{Value: pk},
+			"GSI1SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
