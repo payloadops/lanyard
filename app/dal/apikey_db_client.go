@@ -87,7 +87,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	item := map[string]types.AttributeValue{
 		"pk":     &types.AttributeValueMemberS{Value: pk},
 		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
-		"GSISK":  &types.AttributeValueMemberS{Value: gsiSK},
+		"GSI1SK": &types.AttributeValueMemberS{Value: gsiSK},
 	}
 	for k, v := range av {
 		item[k] = v

@@ -63,6 +63,7 @@ export class DynamoStack extends cdk.Stack {
   apiKeysTable.addGlobalSecondaryIndex({
     indexName: 'Org-Project-Index',
     partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
+    sortKey: { name: 'GSI1SK', type: dynamodb.AttributeType.STRING },
   })
   }
 }
