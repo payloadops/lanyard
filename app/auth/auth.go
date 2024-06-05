@@ -38,7 +38,7 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 				return
 			}
 
-			key, err := apiKeyDBClient.GetAPIKeyByIDAndSecret(r.Context(), clientID, clientSecret)
+			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID, clientSecret)
 
 			if err != nil && key.Deleted {
 				logger.Error("deleted key",
