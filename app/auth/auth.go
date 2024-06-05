@@ -43,11 +43,6 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 
 			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID)
 
-			if key == nil {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
-				return
-			}
-
 			if err != nil {
 				logger.Error("unexpected error",
 					zap.String("requestID", requestID),
@@ -55,6 +50,11 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 				)
 
 				http.Error(w, "Unexpected Error", http.StatusInternalServerError)
+				return
+			}
+
+			if key == nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
