@@ -20,8 +20,7 @@ const SecretLength = 32
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {
 	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
-	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
-	GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error)
+	GetAPIKey(ctx context.Context, apiKeyID string) (*APIKey, error)
 	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
@@ -106,39 +105,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	return nil
 }
 
-// GetAPIKey retrieves an API key by org ID, project ID and API key ID from the DynamoDB table.
-func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) (*APIKey, error) {
-	pk := createAPIKeyCompositeKeys(apiKeyID)
-	input := &dynamodb.GetItemInput{
-		TableName: aws.String("APIKeys"),
-		Key: map[string]types.AttributeValue{
-			"pk": &types.AttributeValueMemberS{Value: pk},
-		},
-	}
-
-	result, err := d.service.GetItem(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
-	}
-
-	if result.Item == nil {
-		return nil, nil
-	}
-
-	var apiKey APIKey
-	err = attributevalue.UnmarshalMap(result.Item, &apiKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
-	}
-
-	if apiKey.Deleted {
-		return nil, nil
-	}
-
-	return &apiKey, nil
-}
-
-func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error) {
+func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, apiKeyID string) (*APIKey, error) {
 	pk := createAPIKeyCompositeKeys(apiKeyID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),

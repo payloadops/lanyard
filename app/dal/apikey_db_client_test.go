@@ -58,35 +58,7 @@ func TestGetAPIKey(t *testing.T) {
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetAPIKey(context.Background(), "org1", "proj1", "key1")
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, "key1", result.Secret)
-}
-
-func TestGetAPIKeyById(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewAPIKeyDBClient(mockSvc)
-
-	apiKey := dal.APIKey{
-		ProjectID: "proj1",
-		APIKeyID:  "key1",
-		Secret:    "key1",
-		OrgID:     "org1",
-		Scopes:    []string{"scope1", "scope2"},
-		CreatedAt: time.Now().UTC().Format(time.RFC3339),
-		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
-	}
-
-	item, _ := attributevalue.MarshalMap(apiKey)
-	mockSvc.EXPECT().
-		GetItem(gomock.Any(), gomock.Any()).
-		Return(&dynamodb.GetItemOutput{Item: item}, nil)
-
-	result, err := client.GetAPIKeyByID(context.Background(), "key1")
+	result, err := client.GetAPIKey(context.Background(), "key1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "key1", result.Secret)
