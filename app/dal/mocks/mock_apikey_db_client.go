@@ -64,33 +64,18 @@ func (mr *MockAPIKeyManagerMockRecorder) DeleteAPIKey(arg0, arg1, arg2, arg3 int
 }
 
 // GetAPIKey mocks base method.
-func (m *MockAPIKeyManager) GetAPIKey(arg0 context.Context, arg1, arg2, arg3 string) (*dal.APIKey, error) {
+func (m *MockAPIKeyManager) GetAPIKey(arg0 context.Context, arg1 string) (*dal.APIKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAPIKey", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "GetAPIKey", arg0, arg1)
 	ret0, _ := ret[0].(*dal.APIKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAPIKey indicates an expected call of GetAPIKey.
-func (mr *MockAPIKeyManagerMockRecorder) GetAPIKey(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockAPIKeyManagerMockRecorder) GetAPIKey(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKey), arg0, arg1, arg2, arg3)
-}
-
-// GetAPIKeyByID mocks base method.
-func (m *MockAPIKeyManager) GetAPIKeyByID(arg0 context.Context, arg1 string) (*dal.APIKey, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAPIKeyByID", arg0, arg1)
-	ret0, _ := ret[0].(*dal.APIKey)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAPIKeyByID indicates an expected call of GetAPIKeyByID.
-func (mr *MockAPIKeyManagerMockRecorder) GetAPIKeyByID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKeyByID", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKeyByID), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKey), arg0, arg1)
 }
 
 // ListAPIKeysByProject mocks base method.

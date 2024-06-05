@@ -20,8 +20,7 @@ const SecretLength = 32
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {
 	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
-	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
-	GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error)
+	GetAPIKey(ctx context.Context, apiKeyID string) (*APIKey, error)
 	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
@@ -54,13 +53,13 @@ func NewAPIKeyDBClient(service DynamoDBAPI) *APIKeyDBClient {
 	}
 }
 
-// createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
-func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, string) {
-	return "Org#" + orgID + "Project#" + projectID, "APIKey#" + apiKeyID
+// createAPIKeyGSICompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
+func createAPIKeyGSICompositeKey(orgID, projectID string) string {
+	return "Org#" + orgID + "Project#" + projectID
 }
 
-// createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
-func createAPIKeyGSICompositeKeys(apiKeyID string) string {
+// createAPIKeyCompositeKey generates the partition key (pk) for an API key.
+func createAPIKeyCompositeKey(apiKeyID string) string {
 	return "APIKey#" + apiKeyID
 }
 
@@ -72,8 +71,8 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	}
 
 	apiKey.APIKeyID = ksuid
-	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
-	gsiPK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID)
+	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
+	gsiPK := createAPIKeyGSICompositeKey(apiKey.OrgID, apiKey.ProjectID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -86,7 +85,6 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	item := map[string]types.AttributeValue{
 		"pk":     &types.AttributeValueMemberS{Value: pk},
-		"sk":     &types.AttributeValueMemberS{Value: sk},
 		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
 	}
 	for k, v := range av {
@@ -106,45 +104,12 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	return nil
 }
 
-// GetAPIKey retrieves an API key by org ID, project ID and API key ID from the DynamoDB table.
-func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) (*APIKey, error) {
-	pk, sk := createAPIKeyCompositeKeys(orgID, projectID, apiKeyID)
+func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, apiKeyID string) (*APIKey, error) {
+	pk := createAPIKeyCompositeKey(apiKeyID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
-			"sk": &types.AttributeValueMemberS{Value: sk},
-		},
-	}
-
-	result, err := d.service.GetItem(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
-	}
-
-	if result.Item == nil {
-		return nil, nil
-	}
-
-	var apiKey APIKey
-	err = attributevalue.UnmarshalMap(result.Item, &apiKey)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
-	}
-
-	if apiKey.Deleted {
-		return nil, nil
-	}
-
-	return &apiKey, nil
-}
-
-func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string) (*APIKey, error) {
-	pk := createAPIKeyGSICompositeKeys(apiKeyID)
-	input := &dynamodb.GetItemInput{
-		TableName: aws.String("APIKeys"),
-		Key: map[string]types.AttributeValue{
-			"GSI1PK": &types.AttributeValueMemberS{Value: pk},
 		},
 	}
 
@@ -172,7 +137,7 @@ func (d *APIKeyDBClient) GetAPIKeyByID(ctx context.Context, apiKeyID string) (*A
 
 // UpdateAPIKey updates an existing API key in the DynamoDB table.
 func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error {
-	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
+	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
 	apiKey.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(apiKey)
@@ -182,7 +147,6 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -203,7 +167,7 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 // DeleteAPIKey marks an API key as deleted by org ID, project ID, and API key ID in the DynamoDB table.
 func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error {
-	pk, sk := createAPIKeyCompositeKeys(orgID, projectID, apiKeyID)
+	pk := createAPIKeyCompositeKey(apiKeyID)
 	update := map[string]types.AttributeValueUpdate{
 		"Deleted": {
 			Value:  &types.AttributeValueMemberBOOL{Value: true},
@@ -219,7 +183,6 @@ func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, api
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
-			"sk": &types.AttributeValueMemberS{Value: sk},
 		},
 		AttributeUpdates:    update,
 		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
@@ -235,13 +198,13 @@ func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, api
 
 // ListAPIKeysByProject retrieves all API keys for a specific project from the DynamoDB table.
 func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error) {
-	pk, _ := createAPIKeyCompositeKeys(orgID, projectID, "")
+	gsiPK := createAPIKeyGSICompositeKey(orgID, projectID)
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("APIKeys"),
-		KeyConditionExpression: aws.String("pk = :pk"),
+		KeyConditionExpression: aws.String("GSI1PK = :gsi1PK"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":pk": &types.AttributeValueMemberS{
-				Value: pk,
+			":gsi1PK": &types.AttributeValueMemberS{
+				Value: gsiPK,
 			},
 		},
 	}

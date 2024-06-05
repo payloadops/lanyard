@@ -134,7 +134,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			expectedOrgID:     "org123",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
-					GetAPIKeyByID(gomock.Any(), "validClientID").
+					GetAPIKey(gomock.Any(), "validClientID").
 					Return(&dal.APIKey{Secret: "validSecret", Deleted: false, ProjectID: "project123", OrgID: "org123"}, nil).Times(1)
 			},
 		},
@@ -162,7 +162,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
-					GetAPIKeyByID(gomock.Any(), "nonexistentClientID").
+					GetAPIKey(gomock.Any(), "nonexistentClientID").
 					Return(nil, nil).Times(1) // Simulating key not found
 			},
 		},
@@ -174,7 +174,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
-					GetAPIKeyByID(gomock.Any(), "deletedClientID").
+					GetAPIKey(gomock.Any(), "deletedClientID").
 					Return(&dal.APIKey{Secret: "anySecret", Deleted: true}, nil).Times(1)
 			},
 		},
@@ -186,7 +186,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
-					GetAPIKeyByID(gomock.Any(), "validClientID").
+					GetAPIKey(gomock.Any(), "validClientID").
 					Return(&dal.APIKey{Secret: "validClientSecret", Deleted: false}, nil).Times(1)
 			},
 		},
@@ -198,7 +198,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyDBClient.EXPECT().
-					GetAPIKeyByID(gomock.Any(), "validClientID").
+					GetAPIKey(gomock.Any(), "validClientID").
 					Return(nil, nil).Times(1) // Simulating key not found
 			},
 		},
