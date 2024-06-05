@@ -13,6 +13,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/payloadops/plato/app/config"
 	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/plato/app/utils"
 )
 
 // Claims represents the JWT claims containing the standard claims, user ID, and organization ID.
@@ -32,30 +33,37 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyDBClient
 				return
 			}
 
-			clientID, clientSecret := strings.Split(authHeader, ":")[0], strings.Split(authHeader, ":")[1]
+			splitHeader := strings.Split(authHeader, ":")
+			if len(splitHeader) != 2 {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
 
-			if clientID == "" {
-				http.Error(w, "Client ID Not Found in Authorization Header", http.StatusUnauthorized)
-				return
-			}
-			if clientSecret == "" {
-				http.Error(w, "Client Secret Not Found in Authorization Header", http.StatusUnauthorized)
-				return
-			}
+			clientID, clientSecret := splitHeader[0], splitHeader[1]
 
 			key, err := apiKeyDBClient.GetAPIKeyByID(r.Context(), clientID)
 
-			if err != nil && key.Deleted {
-				logger.Error("deleted key",
+			if key == nil {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+
+			if err != nil {
+				logger.Error("unexpected error",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)
 
+				http.Error(w, "Unexpected Error", http.StatusInternalServerError)
+				return
+			}
+
+			if key.Deleted {
 				http.Error(w, "Cannot Use Deleted API Key", http.StatusUnauthorized)
 				return
 			}
 
-			if clientSecret != key.Secret {
+			if !utils.SecureCompare(clientSecret, key.Secret) {
 				logger.Error("invalid secret",
 					zap.String("requestID", requestID),
 					zap.Error(err),
