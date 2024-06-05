@@ -60,8 +60,8 @@ func createAPIKeyCompositeKeys(orgID, projectID, apiKeyID string) (string, strin
 }
 
 // createAPIKeyCompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
-func createAPIKeyGSICompositeKeys(apiKeyID, secret string) (string, string) {
-	return "APIKey#" + apiKeyID, "Secret#" + secret
+func createAPIKeyGSICompositeKeys(apiKeyID string) string {
+	return "APIKey#" + apiKeyID
 }
 
 // CreateAPIKey creates a new API key in the DynamoDB table.
@@ -73,7 +73,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	apiKey.APIKeyID = ksuid
 	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
-	gsiPK, gsiSK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID, apiKey.Secret)
+	gsiPK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -88,7 +88,6 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 		"pk":     &types.AttributeValueMemberS{Value: pk},
 		"sk":     &types.AttributeValueMemberS{Value: sk},
 		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
-		"GSI1SK": &types.AttributeValueMemberS{Value: gsiSK},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -141,12 +140,11 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, orgID, projectID, apiKey
 }
 
 func (d *APIKeyDBClient) GetAPIKeyByIDAndSecret(ctx context.Context, apiKeyID string, secret string) (*APIKey, error) {
-	pk, sk := createAPIKeyGSICompositeKeys(apiKeyID, secret)
+	pk := createAPIKeyGSICompositeKeys(apiKeyID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("APIKeys"),
 		Key: map[string]types.AttributeValue{
 			"GSI1PK": &types.AttributeValueMemberS{Value: pk},
-			"GSI1SK": &types.AttributeValueMemberS{Value: sk},
 		},
 	}
 
