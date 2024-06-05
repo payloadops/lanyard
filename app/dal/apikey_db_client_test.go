@@ -2,6 +2,9 @@ package dal_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -9,8 +12,6 @@ import (
 	"github.com/payloadops/plato/app/dal/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
-	"testing"
-	"time"
 )
 
 func TestCreateAPIKey(t *testing.T) {
@@ -23,6 +24,7 @@ func TestCreateAPIKey(t *testing.T) {
 	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
 		Secret:    "key1",
+		OrgID:     "org1",
 		Scopes:    []string{"scope1", "scope2"},
 	}
 
@@ -30,7 +32,7 @@ func TestCreateAPIKey(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreateAPIKey(context.Background(), "org1", apiKey)
+	err := client.CreateAPIKey(context.Background(), apiKey)
 	assert.NoError(t, err)
 }
 
@@ -45,6 +47,7 @@ func TestGetAPIKey(t *testing.T) {
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
 		Secret:    "key1",
+		OrgID:     "org1",
 		Scopes:    []string{"scope1", "scope2"},
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 		UpdatedAt: time.Now().UTC().Format(time.RFC3339),
@@ -71,6 +74,7 @@ func TestUpdateAPIKey(t *testing.T) {
 	apiKey := &dal.APIKey{
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
+		OrgID:     "org1",
 		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 	}
@@ -79,7 +83,7 @@ func TestUpdateAPIKey(t *testing.T) {
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.UpdateAPIKey(context.Background(), "org1", apiKey)
+	err := client.UpdateAPIKey(context.Background(), apiKey)
 	assert.NoError(t, err)
 }
 
@@ -108,6 +112,7 @@ func TestListAPIKeysByProject(t *testing.T) {
 	apiKey := dal.APIKey{
 		ProjectID: "proj1",
 		APIKeyID:  "key1",
+		OrgID:     "org1",
 		Secret:    "key1",
 		Scopes:    []string{"scope1", "scope2"},
 		CreatedAt: time.Now().UTC().Format(time.RFC3339),
