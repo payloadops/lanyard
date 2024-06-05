@@ -19,10 +19,10 @@ const SecretLength = 32
 
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {
-	CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	GetAPIKey(ctx context.Context, orgId, projectID, apiKeyID string) (*APIKey, error)
 	GetAPIKeyByIDAndSecret(ctx context.Context, apiKeyID string, secret string) (*APIKey, error)
-	UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error
+	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
 	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
 }
@@ -65,14 +65,14 @@ func createAPIKeyGSICompositeKeys(apiKeyID, secret string) (string, string) {
 }
 
 // CreateAPIKey creates a new API key in the DynamoDB table.
-func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
+func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	apiKey.APIKeyID = ksuid
-	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
 	gsiPK, gsiSK := createAPIKeyGSICompositeKeys(apiKey.APIKeyID, apiKey.Secret)
 
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -173,8 +173,8 @@ func (d *APIKeyDBClient) GetAPIKeyByIDAndSecret(ctx context.Context, apiKeyID st
 }
 
 // UpdateAPIKey updates an existing API key in the DynamoDB table.
-func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, orgID string, apiKey *APIKey) error {
-	pk, sk := createAPIKeyCompositeKeys(orgID, apiKey.ProjectID, apiKey.APIKeyID)
+func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error {
+	pk, sk := createAPIKeyCompositeKeys(apiKey.OrgID, apiKey.ProjectID, apiKey.APIKeyID)
 	apiKey.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
 	av, err := attributevalue.MarshalMap(apiKey)
