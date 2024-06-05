@@ -27,7 +27,7 @@ func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
 	keyID := "key1"
 
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
 	mockAPIKeyClient.EXPECT().DeleteAPIKey(ctx, "org1", projectID, keyID).Return(nil)
 
 	response, err := service.DeleteApiKey(ctx, projectID, keyID)
@@ -75,7 +75,7 @@ func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
 	keyID := "key1"
 
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
 
 	response, err := service.GetApiKey(ctx, projectID, keyID)
 	assert.NoError(t, err)
@@ -138,7 +138,7 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 	}
 
 	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, "org1", projectID, keyID).Return(apiKey, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(apiKey, nil)
 	mockAPIKeyClient.EXPECT().UpdateAPIKey(ctx, gomock.Any()).Return(nil)
 
 	response, err := service.UpdateApiKey(ctx, projectID, keyID, apiKeyInput)

@@ -55,7 +55,7 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 	}
 
 	// Check if the API key exists
-	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
+	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, keyId)
 	if err != nil {
 		s.logger.Error("failed to get API key",
 			zap.String("requestID", requestID),
@@ -182,7 +182,7 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
 	}
 
-	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
+	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, keyId)
 	if err != nil {
 		s.logger.Error("failed to get API key",
 			zap.String("requestID", requestID),
@@ -315,7 +315,7 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 	}
 
 	// Check if the API key exists
-	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, orgID, projectId, keyId)
+	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, keyId)
 	if err != nil {
 		s.logger.Error("failed to get API key",
 			zap.String("requestID", requestID),
