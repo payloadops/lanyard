@@ -41,7 +41,7 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyManager 
 
 			clientID, clientSecret := splitHeader[0], splitHeader[1]
 
-			key, err := apiKeyManager.GetAPIKeyByID(r.Context(), clientID)
+			key, err := apiKeyManager.GetAPIKey(r.Context(), clientID)
 
 			if err != nil {
 				logger.Error("unexpected error",
