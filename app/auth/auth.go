@@ -73,7 +73,7 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyManager 
 			}
 
 			if key.Deleted {
-				logger.Warn("attempted use of deleted API key", zap.String("requestID", requestID))
+				logger.Warn("use of deleted API key", zap.String("requestID", requestID))
 				http.Error(w, "Invalid API key", http.StatusUnauthorized)
 				return
 			}
@@ -133,7 +133,7 @@ func JWTAuthMiddleware(cfg *config.Config, logger *zap.Logger) func(http.Handler
 			})
 
 			if err != nil || !token.Valid {
-				logger.Warn("attempted use of invalid token",
+				logger.Warn("invalid token",
 					zap.String("requestID", requestID),
 					zap.Error(err),
 				)
