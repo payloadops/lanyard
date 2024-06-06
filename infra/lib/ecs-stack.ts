@@ -78,7 +78,6 @@ export class EcsStack extends cdk.Stack {
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', props.stage, region), {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
-      desiredCount: 1, // Default is 1
       healthCheck: {
          command: [ "CMD-SHELL", "curl -f http://localhost:8080/v1/health || exit 1" ],
          interval: cdk.Duration.seconds(30),
