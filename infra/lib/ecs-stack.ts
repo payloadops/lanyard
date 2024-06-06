@@ -78,7 +78,7 @@ export class EcsStack extends cdk.Stack {
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, disambiguator('PlatoFargateService', props.stage, region), {
       cluster: cluster, // Required
       cpu: 256, // Default is 256
-      desiredCount: 2, // Default is 1
+      desiredCount: 1, // Default is 1
       healthCheck: {
          command: [ "CMD-SHELL", "curl -f http://localhost:8080/v1/health || exit 1" ],
          interval: cdk.Duration.seconds(30),
@@ -112,6 +112,7 @@ export class EcsStack extends cdk.Stack {
       securityGroups: [securityGroup],
       domainName: domain,
       domainZone: zone,
+      assignPublicIp: true,
       protocol: ApplicationProtocol.HTTPS,
       listenerPort: 443,
       certificate: certificate,
@@ -125,8 +126,8 @@ export class EcsStack extends cdk.Stack {
     const scaling = fargateService.service.autoScaleTaskCount({ minCapacity: MIN_CAPACITY, maxCapacity: MAX_CAPACITY});
     scaling.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 70,
-      scaleInCooldown: cdk.Duration.minutes(10),
-      scaleOutCooldown: cdk.Duration.minutes(10),
+      scaleInCooldown: cdk.Duration.minutes(5),
+      scaleOutCooldown: cdk.Duration.minutes(5),
     });
   }
 }
