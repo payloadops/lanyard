@@ -127,31 +127,34 @@ func (d *PromptDBClient) GetPrompt(ctx context.Context, orgID, projectID, prompt
 	return &prompt, nil
 }
 
-// UpdatePrompt updates an existing prompt in the DynamoDB table.
+// UpdatePrompt updates the name, description, and updatedAt fields of an existing prompt in the DynamoDB table.
 func (d *PromptDBClient) UpdatePrompt(ctx context.Context, orgID string, projectID string, prompt *Prompt) error {
 	pk, sk := createPromptCompositeKeys(orgID, projectID, prompt.PromptID)
 	prompt.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
-	av, err := attributevalue.MarshalMap(prompt)
-	if err != nil {
-		return fmt.Errorf("failed to marshal prompt: %v", err)
+	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	exprAttrNames := map[string]string{
+		"#name":        "Name",
+		"#description": "Description",
+		"#updatedAt":   "UpdatedAt",
 	}
 
-	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
-	}
-	for k, v := range av {
-		item[k] = v
+	exprAttrValues := map[string]types.AttributeValue{
+		":name":        &types.AttributeValueMemberS{Value: prompt.Name},
+		":description": &types.AttributeValueMemberS{Value: prompt.Description},
+		":updatedAt":   &types.AttributeValueMemberS{Value: prompt.UpdatedAt},
 	}
 
-	input := &dynamodb.PutItemInput{
-		TableName:           aws.String("Prompts"),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
+	input := &dynamodb.UpdateItemInput{
+		TableName:                 aws.String("Prompts"),
+		Key:                       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: pk}, "sk": &types.AttributeValueMemberS{Value: sk}},
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		ConditionExpression:       aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
 	}
 
-	_, err = d.service.PutItem(ctx, input)
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
 		return fmt.Errorf("failed to update item in DynamoDB: %v", err)
 	}
