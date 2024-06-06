@@ -1274,6 +1274,313 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  
+  /projects/{projectId}/prompts/{promptId}/tests:
+    get:
+      summary: List all test cases for a template
+      description: |
+        Retrieves a list of all test cases associated with a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
+
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+
+      operationId: listTestCases
+      tags:
+        - Test Cases
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved a list of all test cases associated with the prompt.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestCase'
+        '404':
+          description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the retrieval of commit information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new test case for a prompt
+      description: |
+        Creates a new test case for a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
+
+        **Features**:
+        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
+        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
+        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
+
+        **Use Cases**:
+        - Developers committing new changes or features to a branch.
+        - Content managers updating prompt content and documenting the changes.
+        - Teams collaborating on a project and needing a clear record of each member's contributions.
+
+      operationId: createTestCase
+      tags:
+        - Test Cases
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch is being committed to.
+      requestBody:
+        required: true
+        description: Contains the necessary information for creating a new test case, such as...
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+      responses:
+        '201':
+          description: Commit created successfully and is now part of the branch history.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+        '400':
+          description: Invalid input, such as missing required fields or malformed data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The specified branch was not found, and thus the commit could not be created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the creation of a new commit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/prompts/{promptId}/tests/{testId}:
+    get:
+      summary: Get a test cases for a template
+      description: |
+        Retrieves a list of all test cases associated with a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
+
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+
+      operationId: getTestCase
+      tags:
+        - Test Cases
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved the test cases associated with the prompt.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestCase'
+        '404':
+          description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the retrieval of commit information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    update:
+      summary: Update a given test case for a prompt
+      description: |
+        Creates a new test case for a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
+
+        **Features**:
+        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
+        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
+        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
+
+        **Use Cases**:
+        - Developers committing new changes or features to a branch.
+        - Content managers updating prompt content and documenting the changes.
+        - Teams collaborating on a project and needing a clear record of each member's contributions.
+
+      operationId: updateTestCase
+      tags:
+        - Test Cases
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch is being committed to.
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch is being committed to.
+      requestBody:
+        required: true
+        description: Contains the necessary information for creating a new test case, such as...
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+      responses:
+        '201':
+          description: Commit created successfully and is now part of the branch history.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+        '400':
+          description: Invalid input, such as missing required fields or malformed data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The specified branch was not found, and thus the commit could not be created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the creation of a new commit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      
+    delete:
+      summary: Delete a test cases for a template
+      description: |
+        Retrieves a list of all test cases associated with a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
+
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+
+      operationId: deleteTestCase
+      tags:
+        - Test Cases
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the project.
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt whose branch commits are being listed.
+      responses:
+        '200':
+          description: Successfully retrieved the test cases associated with the prompt.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestCase'
+        '404':
+          description: No branch found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the retrieval of commit information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:
@@ -1569,6 +1876,60 @@ components:
           minLength: 1
           maxLength: 180
           description: Message describing the changes in this commit
+
+    TestCase:
+      type: object
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the test case of the branch
+        name:
+          type: string
+          format: date-time
+          description: Timestamp when this test case was updated
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+          description: Content of the prompt in this test case
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when this test case was updated
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this test case was created
+
+    TestCaseInput:
+      type: object
+      required:
+        - content
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Content of the prompt in this commit
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+          description: Content of the prompt in this test case
+
+    Parameter:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 30
+          description: Timestamp when this test case was updated
+        value:
+          type: string
+          minLength: 1
+          description: Timestamp when this test case was updated
 
     Error:
       type: object
