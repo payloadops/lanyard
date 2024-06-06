@@ -15,8 +15,8 @@ export class VpcStack extends Stack {
     super(scope, id, props);
     const region = props?.env?.region!
 
-    // this.vpc = new ec2.Vpc(this, disambiguator("PlatoVpc", props?.stage!, region), {
-    //     maxAzs: 2 // Default is all AZs in region
-    // });
+    this.vpc = new ec2.Vpc(this, disambiguator("PlatoVpc", props?.stage!, region), {
+        maxAzs: 2 // Default is all AZs in region
+    });
   }
 }
