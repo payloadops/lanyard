@@ -75,8 +75,19 @@ func TestUpdateProject(t *testing.T) {
 	}
 
 	mockSvc.EXPECT().
-		PutItem(gomock.Any(), gomock.Any()).
-		Return(&dynamodb.PutItemOutput{}, nil)
+		UpdateItem(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
+			assert.Equal(t, "Org#org1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Project#proj1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Project1", input.ExpressionAttributeValues[":name"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Description1", input.ExpressionAttributeValues[":description"].(*types.AttributeValueMemberS).Value)
+			assert.NotEmpty(t, input.ExpressionAttributeValues[":updatedAt"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "SET #name = :name, #description = :description, #updatedAt = :updatedAt", *input.UpdateExpression)
+			assert.Equal(t, "Name", input.ExpressionAttributeNames["#name"])
+			assert.Equal(t, "Description", input.ExpressionAttributeNames["#description"])
+			assert.Equal(t, "UpdatedAt", input.ExpressionAttributeNames["#updatedAt"])
+			return &dynamodb.UpdateItemOutput{}, nil
+		})
 
 	err := client.UpdateProject(context.Background(), "org1", project)
 	assert.NoError(t, err)

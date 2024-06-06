@@ -36,9 +36,9 @@ type APIKey struct {
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
 	Scopes    []string `json:"scopes"`
-	Deleted   bool
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	Deleted   bool     `json:"deleted"`
+	CreatedAt string   `json:"createdAt"`
+	UpdatedAt string   `json:"updatedAt"`
 }
 
 // APIKeyDBClient is a client for interacting with DynamoDB for API key-related operations.
@@ -135,29 +135,31 @@ func (d *APIKeyDBClient) GetAPIKey(ctx context.Context, apiKeyID string) (*APIKe
 	return &apiKey, nil
 }
 
-// UpdateAPIKey updates an existing API key in the DynamoDB table.
+// UpdateAPIKey updates the scopes and updatedAt fields of an existing API key in the DynamoDB table.
 func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error {
 	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
 	apiKey.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
-	av, err := attributevalue.MarshalMap(apiKey)
-	if err != nil {
-		return fmt.Errorf("failed to marshal API key: %v", err)
+	updateExpr := "SET #scopes = :scopes, #updatedAt = :updatedAt"
+	exprAttrNames := map[string]string{
+		"#scopes":    "Scopes",
+		"#updatedAt": "UpdatedAt",
 	}
 
-	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-	}
-	for k, v := range av {
-		item[k] = v
+	exprAttrValues := map[string]types.AttributeValue{
+		":scopes":    &types.AttributeValueMemberSS{Value: apiKey.Scopes},
+		":updatedAt": &types.AttributeValueMemberS{Value: apiKey.UpdatedAt},
 	}
 
-	input := &dynamodb.PutItemInput{
-		TableName: aws.String("APIKeys"),
-		Item:      item,
+	input := &dynamodb.UpdateItemInput{
+		TableName:                 aws.String("APIKeys"),
+		Key:                       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: pk}},
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
 	}
 
-	_, err = d.service.PutItem(ctx, input)
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
 		return fmt.Errorf("failed to update item in DynamoDB: %v", err)
 	}

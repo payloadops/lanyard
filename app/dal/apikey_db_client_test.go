@@ -72,16 +72,21 @@ func TestUpdateAPIKey(t *testing.T) {
 	client := dal.NewAPIKeyDBClient(mockSvc)
 
 	apiKey := &dal.APIKey{
-		ProjectID: "proj1",
-		APIKeyID:  "key1",
-		OrgID:     "org1",
-		Secret:    "key1",
-		Scopes:    []string{"scope1", "scope2"},
+		APIKeyID: "key1",
+		Scopes:   []string{"scope1", "scope2"},
 	}
 
 	mockSvc.EXPECT().
-		PutItem(gomock.Any(), gomock.Any()).
-		Return(&dynamodb.PutItemOutput{}, nil)
+		UpdateItem(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
+			assert.Equal(t, "APIKey#key1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, []string{"scope1", "scope2"}, input.ExpressionAttributeValues[":scopes"].(*types.AttributeValueMemberSS).Value)
+			assert.NotEmpty(t, input.ExpressionAttributeValues[":updatedAt"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "SET #scopes = :scopes, #updatedAt = :updatedAt", *input.UpdateExpression)
+			assert.Equal(t, "Scopes", input.ExpressionAttributeNames["#scopes"])
+			assert.Equal(t, "UpdatedAt", input.ExpressionAttributeNames["#updatedAt"])
+			return &dynamodb.UpdateItemOutput{}, nil
+		})
 
 	err := client.UpdateAPIKey(context.Background(), apiKey)
 	assert.NoError(t, err)

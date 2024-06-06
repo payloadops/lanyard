@@ -127,31 +127,33 @@ func (d *ProjectDBClient) GetProject(ctx context.Context, orgID, projectID strin
 	return &project, nil
 }
 
-// UpdateProject updates an existing project in the DynamoDB table.
+// UpdateProject updates the name, description, and updatedAt fields of an existing project in the DynamoDB table.
 func (d *ProjectDBClient) UpdateProject(ctx context.Context, orgID string, project *Project) error {
 	pk, sk := createProjectCompositeKeys(orgID, project.ProjectID)
 	project.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
-	av, err := attributevalue.MarshalMap(project)
-	if err != nil {
-		return fmt.Errorf("failed to marshal project: %v", err)
+	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	exprAttrNames := map[string]string{
+		"#name":        "Name",
+		"#description": "Description",
+		"#updatedAt":   "UpdatedAt",
 	}
 
-	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
-	}
-	for k, v := range av {
-		item[k] = v
+	exprAttrValues := map[string]types.AttributeValue{
+		":name":        &types.AttributeValueMemberS{Value: project.Name},
+		":description": &types.AttributeValueMemberS{Value: project.Description},
+		":updatedAt":   &types.AttributeValueMemberS{Value: project.UpdatedAt},
 	}
 
-	input := &dynamodb.PutItemInput{
-		TableName:           aws.String("Projects"),
-		Item:                item,
-		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
+	input := &dynamodb.UpdateItemInput{
+		TableName:                 aws.String("Projects"),
+		Key:                       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: pk}, "sk": &types.AttributeValueMemberS{Value: sk}},
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
 	}
 
-	_, err = d.service.PutItem(ctx, input)
+	_, err := d.service.UpdateItem(ctx, input)
 	if err != nil {
 		return fmt.Errorf("failed to update item in DynamoDB: %v", err)
 	}
