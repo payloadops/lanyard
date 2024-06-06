@@ -40,11 +40,11 @@ export class EcsStack extends cdk.Stack {
     const ecsTaskRole = iam.Role.fromRoleArn(this, disambiguator('ecsTaskRole', props.stage, region), cdk.Fn.importValue(`ecsTaskRole-${region}`));
     
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', props.stage, region), {
-      // vpc: vpc
+      vpc: vpc
     });
 
-    // const securityGroup = new ec2.SecurityGroup(this, disambiguator('ServiceSecurityGroup', props.stage, region), { vpc });
-    // securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
+    const securityGroup = new ec2.SecurityGroup(this, disambiguator('ServiceSecurityGroup', props.stage, region), { vpc });
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443), 'Allow HTTPS traffic');
 
     const ecrRepository = ecr.Repository.fromRepositoryArn(this, disambiguator('ServiceRepository', props.stage, region), `arn:aws:ecr:${Regions.US_EAST_1}:${Accounts.DEV}:repository/app`)
 
@@ -108,7 +108,7 @@ export class EcsStack extends cdk.Stack {
        },
       memoryLimitMiB: 512, // Default is 512
       publicLoadBalancer: true, // Default is true,
-      // securityGroups: [securityGroup],
+      securityGroups: [securityGroup],
       domainName: domain,
       domainZone: zone,
       assignPublicIp: true,
