@@ -203,6 +203,7 @@ func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projec
 	gsiPK := createAPIKeyGSICompositeKey(orgID, projectID)
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("APIKeys"),
+		IndexName:              aws.String("Org-Project-Index"),
 		KeyConditionExpression: aws.String("GSI1PK = :gsi1PK"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":gsi1PK": &types.AttributeValueMemberS{
