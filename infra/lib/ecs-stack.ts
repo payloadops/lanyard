@@ -37,7 +37,7 @@ export class EcsStack extends cdk.Stack {
 
     const ecsExecutionRole = iam.Role.fromRoleArn(this, disambiguator('ecsExecutionRole', props.stage, region), cdk.Fn.importValue(`ecsExecutionRole-${region}`));
 
-    const ecsTaskRole = iam.Role.fromRoleArn(this, disambiguator('ecsTaskRole', props.stage, region), cdk.Fn.importValue(`ecsTaskRole-${this.region}`));
+    const ecsTaskRole = iam.Role.fromRoleArn(this, disambiguator('ecsTaskRole', props.stage, region), cdk.Fn.importValue(`ecsTaskRole-${region}`));
     
     const cluster = new ecs.Cluster(this, disambiguator('Cluster', props.stage, region), {
       vpc: vpc
