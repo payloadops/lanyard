@@ -1840,7 +1840,7 @@ components:
         parameters:
           type: array
           items:
-            $ref: '#/components/schemas/TestCaseParameter'
+            $ref: '#/components/schemas/Parameter'
           description: Content of the template in this test case
         updatedAt:
           type: string
@@ -1864,10 +1864,10 @@ components:
         parameters:
           type: array
           items:
-            $ref: '#/components/schemas/TestCaseParameter'
+            $ref: '#/components/schemas/Parameter'
           description: Content of the template in this test case
 
-    TestCaseParameter:
+    Parameter:
       type: object
       properties:
         key:
