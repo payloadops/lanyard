@@ -34,12 +34,11 @@ var _ TestCaseManager = &TestCaseDBClient{}
 
 // TestCase represents a test case in the system.
 type TestCase struct {
-	TestCaseID string    `json:"testCaseId"`
-	Name       string    `json:"name"`
-	Parameters Parameter `json:"parameters"`
-	Deleted    bool      `json:"deleted"`
-	CreatedAt  string    `json:"createdAt"`
-	UpdatedAt  string    `json:"updatedAt"`
+	TestCaseID string `json:"testCaseId"`
+	Name       string `json:"name"`
+	Deleted    bool   `json:"deleted"`
+	CreatedAt  string `json:"createdAt"`
+	UpdatedAt  string `json:"updatedAt"`
 }
 
 // Parameter represents a test case parameter in the system.
@@ -70,7 +69,7 @@ func createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID strin
 	return fmt.Sprintf("Org#%sPrompt#%sTestCase#%s", orgID, promptID, testCaseID), fmt.Sprintf("Parameter#%s", parameterID)
 }
 
-// CreateTestCase creates a new prompt in the DynamoDB table.
+// CreateTestCase creates a new test case in the DynamoDB table.
 func (d *TestCaseDBClient) CreateTestCase(ctx context.Context, orgID, promptID string, testCase *TestCase) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
@@ -110,7 +109,7 @@ func (d *TestCaseDBClient) CreateTestCase(ctx context.Context, orgID, promptID s
 	return nil
 }
 
-// GetTestCase retrieves a prompt by orgID, project ID, and prompt ID from the DynamoDB table.
+// GetTestCase retrieves a test case by orgID, prompt ID, and test case ID from the DynamoDB table.
 func (d *TestCaseDBClient) GetTestCase(ctx context.Context, orgID, promptID, testCaseID string) (*TestCase, error) {
 	pk, sk := createTestCaseCompositeKeys(orgID, promptID, testCaseID)
 
@@ -144,7 +143,7 @@ func (d *TestCaseDBClient) GetTestCase(ctx context.Context, orgID, promptID, tes
 	return &prompt, nil
 }
 
-// UpdateTestCase updates the name, description, and updatedAt fields of an existing prompt in the DynamoDB table.
+// UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
 func (d *TestCaseDBClient) UpdateTestCase(ctx context.Context, orgID, promptID string, testCase *TestCase) error {
 	pk, sk := createTestCaseCompositeKeys(orgID, promptID, testCase.TestCaseID)
 	testCase.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
@@ -178,7 +177,7 @@ func (d *TestCaseDBClient) UpdateTestCase(ctx context.Context, orgID, promptID s
 	return nil
 }
 
-// DeleteTestCase marks a prompt as deleted by org ID, project ID, and prompt ID in the DynamoDB table.
+// DeleteTestCase marks a prompt as deleted by org ID, prompt ID, and test case ID in the DynamoDB table.
 func (d *TestCaseDBClient) DeleteTestCase(ctx context.Context, orgID, promptID, testCaseID string) error {
 	pk, sk := createTestCaseCompositeKeys(orgID, promptID, testCaseID)
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -212,7 +211,7 @@ func (d *TestCaseDBClient) DeleteTestCase(ctx context.Context, orgID, promptID, 
 	return nil
 }
 
-// ListTestCasesByProject retrieves all prompts belonging to a specific project from the DynamoDB table.
+// ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
 func (d *TestCaseDBClient) ListTestCasesByProject(ctx context.Context, orgID string, promptID string) ([]TestCase, error) {
 	pk, _ := createTestCaseCompositeKeys(orgID, promptID, "")
 	input := &dynamodb.QueryInput{
