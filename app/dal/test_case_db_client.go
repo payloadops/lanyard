@@ -43,9 +43,8 @@ type TestCase struct {
 
 // TestCaseParameter represents a test case parameter in the system.
 type TestCaseParameter struct {
-	ParameterID string `json:"testCaseId"`
-	Key         string `json:"key"`
-	Value       string `json:"value"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 // TestCaseDBClient is a client for interacting with DynamoDB for prompt-related operations.
@@ -65,8 +64,8 @@ func createTestCaseCompositeKeys(orgID, promptID, testCaseID string) (string, st
 	return fmt.Sprintf("Org#%sPrompt#%s", orgID, promptID), fmt.Sprintf("TestCase#%s", testCaseID)
 }
 
-func createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID string) (string, string) {
-	return fmt.Sprintf("Org#%sPrompt#%sTestCase#%s", orgID, promptID, testCaseID), fmt.Sprintf("Parameter#%s", parameterID)
+func createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey string) (string, string) {
+	return fmt.Sprintf("Org#%sPrompt#%sTestCase#%s", orgID, promptID, testCaseID), fmt.Sprintf("Parameter#%s", parameterKey)
 }
 
 // CreateTestCase creates a new test case in the DynamoDB table.
@@ -243,17 +242,11 @@ func (d *TestCaseDBClient) ListTestCases(ctx context.Context, orgID, promptID st
 		results = append(results, testCase)
 	}
 
-	return testCases, nil
+	return results, nil
 }
 
 func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
-	ksuid, err := utils.GenerateKSUID()
-	if err != nil {
-		return fmt.Errorf("failed to create ksuid: %v", err)
-	}
-
-	parameter.ParameterID = ksuid
-	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.ParameterID)
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.Key)
 
 	av, err := attributevalue.MarshalMap(parameter)
 	if err != nil {
@@ -281,9 +274,9 @@ func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, p
 	return nil
 }
 
-// GetTestCase retrieves a test case by orgID, prompt ID, and test case ID from the DynamoDB table.
-func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCaseParameter, error) {
-	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID)
+// GetTestCase retrieves a test case parameter by orgID, prompt ID, test case ID, and key from the DynamoDB table.
+func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterKey string) (*TestCaseParameter, error) {
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey)
 
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("TestCases"),
@@ -313,7 +306,7 @@ func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, prom
 
 // UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
 func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
-	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.ParameterID)
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.Key)
 
 	updateExpr := "SET #key = :key, #value = :value"
 	exprAttrNames := map[string]string{
@@ -343,9 +336,9 @@ func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, p
 	return nil
 }
 
-// DeleteTestCase marks a testCase as deleted by org ID, prompt ID, and test case ID in the DynamoDB table.
-func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) error {
-	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID)
+// DeleteTestCase marks a testCase as deleted by org ID, prompt ID, test case ID, and test case parameter key in the DynamoDB table.
+func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterKey string) error {
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey)
 	now := time.Now().UTC().Format(time.RFC3339)
 
 	update := map[string]types.AttributeValueUpdate{
@@ -406,5 +399,5 @@ func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, pr
 		results = append(results, parameter)
 	}
 
-	return parameters, nil
+	return results, nil
 }

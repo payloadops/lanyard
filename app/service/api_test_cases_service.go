@@ -81,13 +81,25 @@ func (s *TestCasesAPIService) CreateTestCase(ctx context.Context, projectID stri
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
-	var parameters []openapi.TestCaseParameter
-	// TODO create parameters
+	for _, parameterInput := range testCaseInput.Parameters {
+		parameter := &dal.TestCaseParameter{
+			Key:   parameterInput.Key,
+			Value: parameterInput.Value,
+		}
+		err := s.testCaseClient.CreateTestCaseParameter(ctx, orgID, promptID, testCase.TestCaseID, parameter)
+		if err != nil {
+			s.logger.Error("failed to create test case parameters",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+		}
+	}
 
 	response := openapi.TestCase{
 		Id:         testCase.TestCaseID,
 		Name:       testCase.Name,
-		Parameters: parameters,
+		Parameters: testCaseInput.Parameters,
 		CreatedAt:  createdAt,
 		UpdatedAt:  updatedAt,
 	}
@@ -132,7 +144,26 @@ func (s *TestCasesAPIService) DeleteTestCase(ctx context.Context, projectID, pro
 		return openapi.Response(http.StatusNotFound, nil), errors.New("testCase not found")
 	}
 
-	// TODO delete test case params
+	parameterItems, err := s.testCaseClient.ListTestCaseParameters(ctx, orgID, promptID, testCaseID)
+	if err != nil {
+		s.logger.Error("failed to get test case parameters",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+	}
+
+	// We could batch delete, but this would mean we would have to limit the size of test case params to 100, which could make sense.
+	for _, parameterItem := range parameterItems {
+		s.testCaseClient.DeleteTestCaseParameter(ctx, orgID, promptID, testCaseID, parameterItem.Key)
+		if err != nil {
+			s.logger.Error("failed to delete test case parameter",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+		}
+	}
 
 	err = s.testCaseClient.DeleteTestCase(ctx, orgID, promptID, testCaseID)
 	if err != nil {
@@ -172,7 +203,7 @@ func (s *TestCasesAPIService) GetTestCase(ctx context.Context, projectID, prompt
 
 	testCase, err := s.testCaseClient.GetTestCase(ctx, orgID, promptID, testCaseID)
 	if err != nil {
-		s.logger.Error("failed to get testCase",
+		s.logger.Error("failed to get test case",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
@@ -200,8 +231,22 @@ func (s *TestCasesAPIService) GetTestCase(ctx context.Context, projectID, prompt
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
-	var parameters []openapi.TestCaseParameter
-	// TODO get parameters
+	parameterItems, err := s.testCaseClient.ListTestCaseParameters(ctx, orgID, promptID, testCaseID)
+	if err != nil {
+		s.logger.Error("failed to get test case parameters",
+			zap.String("requestID", requestID),
+			zap.Error(err),
+		)
+		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+	}
+
+	parameters := make([]openapi.TestCaseParameter, len(parameterItems))
+	for i, parameterItem := range parameterItems {
+		parameters[i] = openapi.TestCaseParameter{
+			Key:   parameterItem.Key,
+			Value: parameterItem.Value,
+		}
+	}
 
 	response := openapi.TestCase{
 		Id:         testCase.TestCaseID,
@@ -342,13 +387,25 @@ func (s *TestCasesAPIService) UpdateTestCase(ctx context.Context, projectID, pro
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
 
-	var parameters []openapi.TestCaseParameter
-	// TODO update parameters
+	for _, parameterInput := range testCaseInput.Parameters {
+		parameter := &dal.TestCaseParameter{
+			Key:   parameterInput.Key,
+			Value: parameterInput.Value,
+		}
+		err := s.testCaseClient.UpdateTestCaseParameter(ctx, orgID, promptID, testCaseID, parameter)
+		if err != nil {
+			s.logger.Error("failed to get test case parameters",
+				zap.String("requestID", requestID),
+				zap.Error(err),
+			)
+			return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
+		}
+	}
 
 	response := openapi.TestCase{
 		Id:         testCase.TestCaseID,
 		Name:       testCase.Name,
-		Parameters: parameters,
+		Parameters: testCaseInput.Parameters,
 		CreatedAt:  createdAt,
 		UpdatedAt:  updatedAt,
 	}

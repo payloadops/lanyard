@@ -17,7 +17,7 @@ import (
 
 type TestCase struct {
 
-	// Unique identifier for the test case of the branch
+	// Unique identifier for the test case of the prompt
 	Id string `json:"id,omitempty"`
 
 	// Name of this test case

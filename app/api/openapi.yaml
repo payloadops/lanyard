@@ -1947,7 +1947,7 @@ components:
         id:
           allOf:
           - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the test case of the branch
+          description: Unique identifier for the test case of the prompt
         name:
           description: Name of this test case
           maxLength: 30
@@ -1995,12 +1995,12 @@ components:
         key: key
       properties:
         key:
-          description: Timestamp when this test case was updated
+          description: Test case parameter key.
           maxLength: 30
           minLength: 1
           type: string
         value:
-          description: Timestamp when this test case was updated
+          description: Test case parameter value.
           minLength: 1
           type: string
       type: object
