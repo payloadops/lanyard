@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Payload Ops API
-  description: The Payload Ops API streamlines management of AI templates, projects, organizations, teams, and users through conventional HTTP requests. This platform enables efficient automation and control of resources, providing robust tools for developers to manage settings, memberships, and activities seamlessly.
+  description: The Payload Ops API streamlines management of AI prompts, projects, organizations, teams, and users through conventional HTTP requests. This platform enables efficient automation and control of resources, providing robust tools for developers to manage settings, memberships, and activities seamlessly.
   version: "1.0"
   contact:
     name: Payload Ops Team
@@ -30,6 +30,7 @@ paths:
         - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
         
         **Use Cases**:
+        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
         - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
         - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
         
@@ -132,7 +133,7 @@ paths:
     get:
       summary: Retrieve a project by ID
       description: |
-        Retrieves detailed information about a specific project using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the project, including its metadata, associated templates, and configuration settings.
+        Retrieves detailed information about a specific project using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the project, including its metadata, associated prompts, and configuration settings.
 
         **Key Features**:
         - **Comprehensive Details**: Provides all relevant information about the project, including descriptions, member roles, and other metadata.
@@ -548,31 +549,31 @@ paths:
 
   /projects/{projectId}/prompts:
     get:
-      summary: List all templates in a project
+      summary: List all prompts in a project
       description: |
-        Retrieves a comprehensive list of all templates associated with a specific project. This operation is essential for users to view and manage all the templates under a project, facilitating quick access to any particular template and understanding the scope of the project's content.
+        Retrieves a comprehensive list of all prompts associated with a specific project. This operation is essential for users to view and manage all the prompts under a project, facilitating quick access to any particular prompt and understanding the scope of the project's content.
 
         **Key Features**:
-        - **Comprehensive Overview**: Provides a complete list of all templates, helping in the overall management and navigation of project content.
-        - **Efficient Project Management**: Enables project managers and team members to quickly assess the progress and status of various templates within the project.
+        - **Comprehensive Overview**: Provides a complete list of all prompts, helping in the overall management and navigation of project content.
+        - **Efficient Project Management**: Enables project managers and team members to quickly assess the progress and status of various prompts within the project.
 
         **Use Cases**:
-        - Developers and content creators looking to overview or navigate through all the templates associated with a specific project.
-        - Useful in scenarios where multiple teams or stakeholders need to review or access template information collectively.
+        - Developers and content creators looking to overview or navigate through all the prompts associated with a specific project.
+        - Useful in scenarios where multiple teams or stakeholders need to review or access prompt information collectively.
 
       operationId: listPrompts
       tags:
-        - Templates
+        - Prompts
       parameters:
         - name: projectId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the project whose templates are to be listed.
+          description: The unique identifier of the project whose prompts are to be listed.
       responses:
         '200':
-          description: Successfully retrieved a list of all templates in the specified project.
+          description: Successfully retrieved a list of all prompts in the specified project.
           content:
             application/json:
               schema:
@@ -586,45 +587,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of templates.
+          description: A server error occurred, preventing the retrieval of prompts.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     post:
-      summary: Create a new template in a project
+      summary: Create a new prompt in a project
       description: |
-        Creates a new template within a specified project. This endpoint is crucial for expanding project content by adding new templates, allowing users to input initial details for a new template which then becomes part of the project's documentation or content offerings.
+        Creates a new prompt within a specified project. This endpoint is crucial for expanding project content by adding new prompts, allowing users to input initial details for a new prompt which then becomes part of the project's documentation or content offerings.
 
         **Key Features**:
         - **Content Expansion**: Allows for the easy addition of new content to a project, supporting dynamic growth and updates.
-        - **Customizable Input**: Users can define various attributes of the template such as title, description, and specific content parameters through the `PromptInput` schema.
+        - **Customizable Input**: Users can define various attributes of the prompt such as title, description, and specific content parameters through the `PromptInput` schema.
 
         **Use Cases**:
-        - Content managers and creators adding new thematic templates or content pieces to existing projects.
-        - Automating content creation processes by integrating with content management systems that can trigger template creations through API calls.
+        - Content managers and creators adding new thematic prompts or content pieces to existing projects.
+        - Automating content creation processes by integrating with content management systems that can trigger prompt creations through API calls.
 
       operationId: createPrompt
       tags:
-        - Templates
+        - Prompts
       parameters:
         - name: projectId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the project within which the new template is to be created.
+          description: The unique identifier of the project within which the new prompt is to be created.
       requestBody:
         required: true
-        description: Contains the necessary attributes for creating a new template, such as title, description, and any specific content elements.
+        description: Contains the necessary attributes for creating a new prompt, such as title, description, and any specific content elements.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PromptInput'
       responses:
         '201':
-          description: The template was created successfully and is now part of the project.
+          description: The prompt was created successfully and is now part of the project.
           content:
             application/json:
               schema:
@@ -642,7 +643,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the creation of the new template.
+          description: A server error occurred, preventing the creation of the new prompt.
           content:
             application/json:
               schema:
@@ -650,17 +651,17 @@ paths:
 
   /projects/{projectId}/prompts/{promptId}:
     get:
-      summary: Retrieve a specific template within a project
+      summary: Retrieve a specific prompt within a project
       description: |
-        Retrieves detailed information about a specific template within a project, including its content, metadata, and any associated versioning details. This endpoint is essential for users who need to view the current state of a template or to fetch its details for further processing or display.
+        Retrieves detailed information about a specific prompt within a project, including its content, metadata, and any associated versioning details. This endpoint is essential for users who need to view the current state of a prompt or to fetch its details for further processing or display.
 
         **Key Usage**:
-        - Viewing the complete details of a template for editorial or review purposes.
-        - Fetching template data for integration with other tools or services.
+        - Viewing the complete details of a prompt for editorial or review purposes.
+        - Fetching prompt data for integration with other tools or services.
 
       operationId: getPrompt
       tags:
-        - Templates
+        - Prompts
       parameters:
         - name: projectId
           in: path
@@ -668,44 +669,44 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template being retrieved.
+          description: The unique identifier of the prompt being retrieved.
       responses:
         '200':
-          description: Successfully retrieved detailed information about the template.
+          description: Successfully retrieved detailed information about the prompt.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Prompt'
         '404':
-          description: Either the template or the project was not found.
+          description: Either the prompt or the project was not found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of the template.
+          description: A server error occurred, preventing the retrieval of the prompt.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     put:
-      summary: Update a specific template in a project
+      summary: Update a specific prompt in a project
       description: |
-        Updates the content or metadata of a specific template within a project. This operation allows users to modify existing templates to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of template content.
+        Updates the content or metadata of a specific prompt within a project. This operation allows users to modify existing prompts to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of prompt content.
 
         **Key Usage**:
-        - Modifying the text or other properties of a template as part of content management workflows.
-        - Updating template settings or configurations based on new inputs or feedback.
+        - Modifying the text or other properties of a prompt as part of content management workflows.
+        - Updating prompt settings or configurations based on new inputs or feedback.
 
       operationId: updatePrompt
       tags:
-        - Templates
+        - Prompts
       parameters:
         - name: projectId
           in: path
@@ -713,22 +714,22 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template being updated.
+          description: The unique identifier of the prompt being updated.
       requestBody:
         required: true
-        description: JSON payload containing the updated data for the template.
+        description: JSON payload containing the updated data for the prompt.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PromptInput'
       responses:
         '200':
-          description: The template was updated successfully.
+          description: The prompt was updated successfully.
           content:
             application/json:
               schema:
@@ -740,30 +741,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Either the template or the project was not found.
+          description: Either the prompt or the project was not found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the update of the template.
+          description: A server error occurred, preventing the update of the prompt.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     delete:
-      summary: Delete a specific template from a project
+      summary: Delete a specific prompt from a project
       description: |
-        Deletes a specific template from a project, removing it permanently from the system. This operation is used when a template is no longer needed or relevant, or as part of content cleanup and management strategies.
+        Deletes a specific prompt from a project, removing it permanently from the system. This operation is used when a prompt is no longer needed or relevant, or as part of content cleanup and management strategies.
 
         **Key Usage**:
-        - Removing outdated or irrelevant templates to maintain a clean and efficient project environment.
-        - Complying with data retention policies by deleting templates that are no longer necessary.
+        - Removing outdated or irrelevant prompts to maintain a clean and efficient project environment.
+        - Complying with data retention policies by deleting prompts that are no longer necessary.
 
       operationId: deletePrompt
       tags:
-        - Templates
+        - Prompts
       parameters:
         - name: projectId
           in: path
@@ -771,23 +772,23 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template to be deleted.
+          description: The unique identifier of the prompt to be deleted.
       responses:
         '204':
-          description: The template was deleted successfully; no content is returned.
+          description: The prompt was deleted successfully; no content is returned.
         '404':
-          description: Either the template or the project was not found.
+          description: Either the prompt or the project was not found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the deletion of the template.
+          description: A server error occurred, preventing the deletion of the prompt.
           content:
             application/json:
               schema:
@@ -795,13 +796,13 @@ paths:
 
   /projects/{projectId}/prompts/{promptId}/branches:
     get:
-      summary: List all branches of a specific template
+      summary: List all branches of a specific prompt
       description: |
-        Retrieves a list of all branches associated with a specific template. This operation is essential for tracking the evolution of content within the template, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
+        Retrieves a list of all branches associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
         
         **Usage**:
         - Facilitates the management of multiple branch versions.
-        - Enables stakeholders to review historical changes and progress on a template.
+        - Enables stakeholders to review historical changes and progress on a prompt.
         - Supports collaborative review by providing access to various branch submissions.
 
       operationId: listPromptBranches
@@ -814,15 +815,15 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template for which branches are being listed.
+          description: The unique identifier of the prompt for which branches are being listed.
       responses:
         '200':
-          description: Successfully retrieved a list of all branches for the specified template.
+          description: Successfully retrieved a list of all branches for the specified prompt.
           content:
             application/json:
               schema:
@@ -830,7 +831,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Branch'
         '404':
-          description: The specified template was not found.
+          description: The specified prompt was not found.
           content:
             application/json:
               schema:
@@ -843,9 +844,9 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     post:
-      summary: Create a new branch for a template
+      summary: Create a new branch for a prompt
       description: |
-        Creates a new branch version for a specific template. This endpoint allows users to start a new revision cycle by submitting initial branch content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
+        Creates a new branch version for a specific prompt. This endpoint allows users to start a new revision cycle by submitting initial branch content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
         
         **Usage**:
         - Initiates a new branch for collaborative editing or further development.
@@ -865,12 +866,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template for which a new branch is being created.
+          description: The unique identifier of the prompt for which a new branch is being created.
       requestBody:
         required: true
         description: Contains the necessary information for creating a new branch, such as initial content or metadata.
@@ -892,7 +893,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: The specified template was not found, and thus the branch could not be created.
+          description: The specified prompt was not found, and thus the branch could not be created.
           content:
             application/json:
               schema:
@@ -908,7 +909,7 @@ paths:
     get:
       summary: Retrieve a specific branch
       description: |
-        Retrieves detailed information about a specific branch of a template. This endpoint is crucial for accessing the current state and details of a branch, including its creation date, name, and associated template ID. 
+        Retrieves detailed information about a specific branch of a prompt. This endpoint is crucial for accessing the current state and details of a branch, including its creation date, name, and associated prompt ID. 
 
         **Features**:
         - **Branch Identification**: Provides unique identifiers for branches, allowing for precise tracking and management.
@@ -920,7 +921,7 @@ paths:
         - Integrating branch data into other systems for enhanced content lifecycle management.
 
         **Key Parameters**:
-        - `templateId`: Identifies the template to which the branch belongs.
+        - `promptId`: Identifies the prompt to which the branch belongs.
         - `branchName`: Specifies the name of the branch to retrieve.
 
       operationId: getBranch
@@ -933,12 +934,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template.
+          description: The unique identifier of the prompt.
         - name: branchName
           in: path
           required: true
@@ -968,7 +969,7 @@ paths:
     delete:
       summary: Delete a specific branch
       description: |
-        Deletes a specific branch of a template. This endpoint allows users to remove an entire branch and its associated commit history from a template. 
+        Deletes a specific branch of a prompt. This endpoint allows users to remove an entire branch and its associated commit history from a prompt. 
 
         **Features**:
         - **Branch Removal**: Enables the deletion of branches that are no longer needed or are obsolete, maintaining a clean and organized development environment.
@@ -980,7 +981,7 @@ paths:
         - Automated systems enforcing branch retention policies by deleting branches past their retention period.
 
         **Key Parameters**:
-        - `templateId`: Identifies the template whose branch is being deleted.
+        - `promptId`: Identifies the prompt whose branch is being deleted.
         - `branchName`: Specifies the name of the branch to delete.
 
       operationId: deleteBranch
@@ -993,12 +994,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch is being deleted.
+          description: The unique identifier of the prompt whose branch is being deleted.
         - name: branchName
           in: path
           required: true
@@ -1025,7 +1026,7 @@ paths:
     get:
       summary: List all commits of a specific branch
       description: |
-        Retrieves a list of all commit histories associated with a specific branch of a template. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
+        Retrieves a list of all commit histories associated with a specific branch of a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
 
         **Features**:
         - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
@@ -1047,12 +1048,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the prompt whose branch commits are being listed.
         - name: branchName
           in: path
           required: true
@@ -1084,7 +1085,7 @@ paths:
     post:
       summary: Create a new commit for a branch
       description: |
-        Creates a new commit for a specific branch of a template. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
+        Creates a new commit for a specific branch of a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
 
         **Features**:
         - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
@@ -1093,7 +1094,7 @@ paths:
 
         **Use Cases**:
         - Developers committing new changes or features to a branch.
-        - Content managers updating template content and documenting the changes.
+        - Content managers updating prompt content and documenting the changes.
         - Teams collaborating on a project and needing a clear record of each member's contributions.
 
       operationId: createBranchCommit
@@ -1106,12 +1107,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch is being committed to.
+          description: The unique identifier of the prompt whose branch is being committed to.
         - name: branchName
           in: path
           required: true
@@ -1177,12 +1178,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template.
+          description: The unique identifier of the prompt.
         - name: branchName
           in: path
           required: true
@@ -1217,6 +1218,7 @@ paths:
                 $ref: '#/components/schemas/Error'
 
   /templates/{promptId}/{branchName}/{commitId}:
+  /templates/{promptId}/{branchName}/{commitId}:
     get:
       summary: Retrieve a specific commit or the latest commit of a branch
       description: |
@@ -1236,12 +1238,12 @@ paths:
       tags:
         - Commits
       parameters:
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template.
+          description: The unique identifier of the prompt.
         - name: branchName
           in: path
           required: true
@@ -1277,9 +1279,9 @@ paths:
   
   /projects/{projectId}/prompts/{promptId}/tests:
     get:
-      summary: List all test cases for the given template
+      summary: List all test cases for a template
       description: |
-        Retrieves a list of all test cases associated with a template.
+        Retrieves a list of all test cases associated with a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
 
         **Features**:
         - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
@@ -1301,15 +1303,15 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the prompt whose branch commits are being listed.
       responses:
         '200':
-          description: Successfully retrieved a list of all test cases associated with the given template.
+          description: Successfully retrieved a list of all test cases associated with the prompt.
           content:
             application/json:
               schema:
@@ -1323,14 +1325,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of test cases.
+          description: A server error occurred, preventing the retrieval of commit information.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     post:
-      summary: Create a new test case for a template
+      summary: Create a new test case for a prompt
       description: |
         Creates a new test case for a template.
 
@@ -1344,12 +1346,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch is being committed to.
+          description: The unique identifier of the prompt whose branch is being committed to.
       requestBody:
         required: true
         description: Contains the necessary information for creating a new test case, such as name and list of test parameters.
@@ -1399,12 +1401,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the prompt whose branch commits are being listed.
         - name: testId
           in: path
           required: true
@@ -1413,7 +1415,7 @@ paths:
           description: The unique identifier of the test case.
       responses:
         '200':
-          description: Successfully retrieved the test cases associated with the template.
+          description: Successfully retrieved the test cases associated with the prompt.
           content:
             application/json:
               schema:
@@ -1448,12 +1450,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch is being committed to.
+          description: The unique identifier of the prompt whose branch is being committed to.
         - name: testId
           in: path
           required: true
@@ -1508,12 +1510,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: templateId
+        - name: promptId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the prompt whose branch commits are being listed.
         - name: testId
           in: path
           required: true
@@ -1706,12 +1708,12 @@ components:
         id:
           allOf:
             - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the template
+          description: Unique identifier for the prompt
         name:
           type: string
           minLength: 1
           maxLength: 30
-          description: Name of the template
+          description: Name of the prompt
         description:
           type: string
           minLength: 1
@@ -1720,11 +1722,11 @@ components:
         createdAt:
           type: string
           format: date-time
-          description: Timestamp when the template was created
+          description: Timestamp when the prompt was created
         updatedAt:
           type: string
           format: date-time
-          description: Timestamp when the template was last updated
+          description: Timestamp when the prompt was last updated
 
     PromptInput:
       type: object
@@ -1735,7 +1737,7 @@ components:
           type: string
           minLength: 1
           maxLength: 30
-          description: Name of the template
+          description: Name of the prompt
         description:
           type: string
           minLength: 1
@@ -1748,12 +1750,12 @@ components:
         id:
           allOf:
             - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the template
+          description: Unique identifier for the prompt
         name:
           type: string
           minLength: 1
           maxLength: 30
-          description: Name of the template
+          description: Name of the prompt
         description:
           type: string
           minLength: 1
@@ -1763,15 +1765,15 @@ components:
           type: string
           minLength: 1
           maxLength: 180
-          description: A 180 character preview of the template
+          description: A 180 character preview of the prompt
         createdAt:
           type: string
           format: date-time
-          description: Timestamp when the template was created
+          description: Timestamp when the prompt was created
         updatedAt:
           type: string
           format: date-time
-          description: Timestamp when the template was last updated
+          description: Timestamp when the prompt was last updated
 
     Branch:
       type: object
@@ -1780,7 +1782,7 @@ components:
           type: string
           minLength: 1
           maxLength: 30
-          description: Branch name unique to the template
+          description: Branch name unique to the prompt
         createdAt:
           type: string
           format: date-time
@@ -1795,7 +1797,7 @@ components:
           type: string
           minLength: 1
           maxLength: 30
-          description: Branch name unique to the template
+          description: Branch name unique to the prompt
 
     Commit:
       type: object
@@ -1807,7 +1809,7 @@ components:
         content:
           type: string
           minLength: 1
-          description: Content of the template in this commit
+          description: Content of the prompt in this commit
         message:
           type: string
           minLength: 1
@@ -1830,7 +1832,7 @@ components:
         content:
           type: string
           minLength: 1
-          description: Content of the template in this commit
+          description: Content of the prompt in this commit
         message:
           type: string
           minLength: 1
@@ -1852,7 +1854,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Parameter'
-          description: Content of the template in this test case
+          description: Content of the prompt in this test case
         updatedAt:
           type: string
           format: date-time
@@ -1871,12 +1873,12 @@ components:
           type: string
           minLength: 1
           maxLength: 30
-          description: Content of the template in this commit
+          description: Content of the prompt in this commit
         parameters:
           type: array
           items:
             $ref: '#/components/schemas/Parameter'
-          description: Content of the template in this test case
+          description: Content of the prompt in this test case
 
     Parameter:
       type: object
