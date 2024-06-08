@@ -22,11 +22,11 @@ type TestCaseManager interface {
 	DeleteTestCase(ctx context.Context, orgID, promptID, testCaseID string) error
 	ListTestCases(ctx context.Context, orgID, promptID string) ([]TestCase, error)
 
-	CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error
-	GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCase, error)
-	UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error
+	CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error
+	GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCaseParameter, error)
+	UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error
 	DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) error
-	ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCase, error)
+	ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCaseParameter, error)
 }
 
 // Ensure TestCaseDBClient implements the TestCaseManager interface
@@ -41,8 +41,8 @@ type TestCase struct {
 	UpdatedAt  string `json:"updatedAt"`
 }
 
-// Parameter represents a test case parameter in the system.
-type Parameter struct {
+// TestCaseParameter represents a test case parameter in the system.
+type TestCaseParameter struct {
 	ParameterID string `json:"testCaseId"`
 	Key         string `json:"key"`
 	Value       string `json:"value"`
@@ -246,7 +246,7 @@ func (d *TestCaseDBClient) ListTestCases(ctx context.Context, orgID, promptID st
 	return testCases, nil
 }
 
-func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error {
+func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
@@ -282,7 +282,7 @@ func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, p
 }
 
 // GetTestCase retrieves a test case by orgID, prompt ID, and test case ID from the DynamoDB table.
-func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCase, error) {
+func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCaseParameter, error) {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID)
 
 	input := &dynamodb.GetItemInput{
@@ -302,24 +302,20 @@ func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, prom
 		return nil, nil
 	}
 
-	var testCase TestCase
-	err = attributevalue.UnmarshalMap(result.Item, &testCase)
+	var parameter TestCaseParameter
+	err = attributevalue.UnmarshalMap(result.Item, &parameter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
-	if testCase.Deleted {
-		return nil, nil
-	}
-
-	return &testCase, nil
+	return &parameter, nil
 }
 
 // UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
-func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error {
+func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.ParameterID)
 
-	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	updateExpr := "SET #key = :key, #value = :value"
 	exprAttrNames := map[string]string{
 		"#key":   "Key",
 		"#value": "Value",
@@ -382,7 +378,7 @@ func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, p
 }
 
 // ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
-func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCase, error) {
+func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCaseParameter, error) {
 	pk, _ := createParameterCompositeKeys(orgID, promptID, testCaseID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("TestCases"),
@@ -399,19 +395,16 @@ func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, pr
 		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
-	var testCases []TestCase
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &testCases)
+	var parameters []TestCaseParameter
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &parameters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
 	}
 
-	results := []TestCase{}
-	for _, testCase := range testCases {
-		if testCase.Deleted {
-			continue
-		}
-		results = append(results, testCase)
+	results := []TestCaseParameter{}
+	for _, parameter := range parameters {
+		results = append(results, parameter)
 	}
 
-	return testCases, nil
+	return parameters, nil
 }
