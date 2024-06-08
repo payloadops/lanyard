@@ -30,7 +30,7 @@ paths:
         - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
         
         **Use Cases**:
-        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues templately.
+        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
         - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
         
         **Response Details**:
@@ -1216,7 +1216,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /prompts/{promptId}/{branchName}/{commitId}:
+  /templates/{promptId}/{branchName}/{commitId}:
     get:
       summary: Retrieve a specific commit or the latest commit of a branch
       description: |
