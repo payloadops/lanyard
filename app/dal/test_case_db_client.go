@@ -43,8 +43,11 @@ type TestCase struct {
 
 // TestCaseParameter represents a test case parameter in the system.
 type TestCaseParameter struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key       string `json:"key"`
+	Value     string `json:"value"`
+	Deleted   bool   `json:"deleted"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 // TestCaseDBClient is a client for interacting with DynamoDB for prompt-related operations.
@@ -252,6 +255,10 @@ func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, p
 		return fmt.Errorf("failed to marshal test case parameter: %v", err)
 	}
 
+	now := time.Now().UTC().Format(time.RFC3339)
+	parameter.CreatedAt = now
+	parameter.UpdatedAt = now
+
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},
 		"sk": &types.AttributeValueMemberS{Value: sk},
@@ -300,6 +307,10 @@ func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, prom
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
+	if parameter.Deleted {
+		return nil, nil
+	}
+
 	return &parameter, nil
 }
 
@@ -307,15 +318,19 @@ func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, prom
 func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.Key)
 
-	updateExpr := "SET #key = :key, #value = :value"
+	updateExpr := "SET #key = :key, #value = :value, #updatedAt = :updatedAt"
 	exprAttrNames := map[string]string{
-		"#key":   "Key",
-		"#value": "Value",
+		"#key":       "Key",
+		"#value":     "Value",
+		"#updatedAt": "UpdatedAt",
 	}
 
+	now := time.Now().UTC().Format(time.RFC3339)
+
 	exprAttrValues := map[string]types.AttributeValue{
-		":key":   &types.AttributeValueMemberS{Value: parameter.Key},
-		":value": &types.AttributeValueMemberS{Value: parameter.Value},
+		":key":       &types.AttributeValueMemberS{Value: parameter.Key},
+		":value":     &types.AttributeValueMemberS{Value: parameter.Value},
+		":updatedAt": &types.AttributeValueMemberS{Value: now},
 	}
 
 	input := &dynamodb.UpdateItemInput{
