@@ -1359,6 +1359,294 @@ paths:
       summary: Retrieve a specific commit or the latest commit of a branch
       tags:
       - Commits
+  /projects/{projectId}/prompts/{promptId}/tests:
+    get:
+      description: |
+        Retrieves a list of all test cases associated with a prompt.
+      operationId: listTestCases
+      parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the prompt whose test cases are being
+          listed.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TestCase'
+                type: array
+          description: Successfully retrieved a list of all test cases associated
+            with the prompt.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No test case found matching the specified identifiers.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the retrieval of test\
+            \ cases."
+      summary: List all test cases for a prompt
+      tags:
+      - Test Cases
+    post:
+      description: |
+        Creates a new test case for a prompt.
+      operationId: createTestCase
+      parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the prompt whose test case is being
+          created.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+        description: "Contains the necessary information for creating a new test case,\
+          \ such as name and list of test parameters."
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+          description: Test case created successfully.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "Invalid input, such as missing required fields or malformed\
+            \ data."
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "The specified prompt was not found, and thus the test case\
+            \ could not be created."
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the creation of a new\
+            \ test case."
+      summary: Create a new test case for a prompt
+      tags:
+      - Test Cases
+  /projects/{projectId}/prompts/{promptId}/tests/{testId}:
+    delete:
+      description: |
+        Deletes a test case for a given prompt.
+      operationId: deleteTestCase
+      parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the prompt whose test case are being
+          deleted.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the test case.
+        explode: false
+        in: path
+        name: testId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TestCase'
+                type: array
+          description: Successfully deleted the test cases associated with the prompt.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No branch found matching the specified identifiers.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the deleting the test\
+            \ case."
+      summary: Delete a test cases for a given prompt
+      tags:
+      - Test Cases
+    get:
+      description: |
+        Retrieves a test case.
+      operationId: getTestCase
+      parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the prompt whose test case is being
+          retrieved.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the test case.
+        explode: false
+        in: path
+        name: testId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TestCase'
+                type: array
+          description: Successfully retrieved the test case associated with the prompt.
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: No test case found matching the specified identifiers.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the retrieval of test\
+            \ case."
+      summary: Get a test cases for a given prompt.
+      tags:
+      - Test Cases
+    put:
+      description: |
+        Updates a test case for a given prompt.
+      operationId: updateTestCase
+      parameters:
+      - description: The unique identifier of the project.
+        explode: false
+        in: path
+        name: projectId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the prompt whose test case is being
+          updated.
+        explode: false
+        in: path
+        name: promptId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the test case.
+        explode: false
+        in: path
+        name: testId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+        description: "Contains the necessary information for updating a test case,\
+          \ such as name and a list of testing parameters."
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCase'
+          description: Test case updated successfully.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "Invalid input, such as missing required fields or malformed\
+            \ data."
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified test case was not found.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing updates to the test case."
+      summary: Update a test case for a given prompt.
+      tags:
+      - Test Cases
 components:
   schemas:
     KSUID:
@@ -1643,6 +1931,77 @@ components:
           type: string
       required:
       - content
+      type: object
+    TestCase:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        name: 2000-01-23T04:56:07.000+00:00
+        id: ""
+        parameters:
+        - value: value
+          key: key
+        - value: value
+          key: key
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the test case of the branch
+        name:
+          description: Timestamp when this test case was updated
+          format: date-time
+          type: string
+        parameters:
+          description: Content of the prompt in this test case
+          items:
+            $ref: '#/components/schemas/TestCaseParameter'
+          type: array
+        updatedAt:
+          description: Timestamp when this test case was updated
+          format: date-time
+          type: string
+        createdAt:
+          description: Timestamp when this test case was created
+          format: date-time
+          type: string
+      type: object
+    TestCaseInput:
+      example:
+        name: name
+        parameters:
+        - value: value
+          key: key
+        - value: value
+          key: key
+      properties:
+        name:
+          description: Name of this test case
+          maxLength: 30
+          minLength: 1
+          type: string
+        parameters:
+          description: List of parameters for this test case
+          items:
+            $ref: '#/components/schemas/TestCaseParameter'
+          type: array
+      required:
+      - content
+      type: object
+    TestCaseParameter:
+      example:
+        value: value
+        key: key
+      properties:
+        key:
+          description: Timestamp when this test case was updated
+          maxLength: 30
+          minLength: 1
+          type: string
+        value:
+          description: Timestamp when this test case was updated
+          minLength: 1
+          type: string
       type: object
     Error:
       example:

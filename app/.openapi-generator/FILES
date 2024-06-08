@@ -6,6 +6,7 @@ openapi/api_commits.go
 openapi/api_health_check.go
 openapi/api_projects.go
 openapi/api_prompts.go
+openapi/api_test_cases.go
 openapi/helpers.go
 openapi/impl.go
 openapi/logger.go
@@ -23,3 +24,6 @@ openapi/model_project_input.go
 openapi/model_prompt.go
 openapi/model_prompt_input.go
 openapi/model_prompt_stub.go
+openapi/model_test_case.go
+openapi/model_test_case_input.go
+openapi/model_test_case_parameter.go

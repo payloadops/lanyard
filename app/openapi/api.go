@@ -76,6 +76,17 @@ type PromptsAPIRouter interface {
 	UpdatePrompt(http.ResponseWriter, *http.Request)
 }
 
+// TestCasesAPIRouter defines the required methods for binding the api requests to a responses for the TestCasesAPI
+// The TestCasesAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a TestCasesAPIServicer to perform the required actions, then write the service results to the http response.
+type TestCasesAPIRouter interface {
+	CreateTestCase(http.ResponseWriter, *http.Request)
+	DeleteTestCase(http.ResponseWriter, *http.Request)
+	GetTestCase(http.ResponseWriter, *http.Request)
+	ListTestCases(http.ResponseWriter, *http.Request)
+	UpdateTestCase(http.ResponseWriter, *http.Request)
+}
+
 // APIKeysAPIServicer defines the api actions for the APIKeysAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
@@ -140,4 +151,16 @@ type PromptsAPIServicer interface {
 	GetPrompt(context.Context, string, string) (ImplResponse, error)
 	ListPrompts(context.Context, string) (ImplResponse, error)
 	UpdatePrompt(context.Context, string, string, PromptInput) (ImplResponse, error)
+}
+
+// TestCasesAPIServicer defines the api actions for the TestCasesAPI service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type TestCasesAPIServicer interface {
+	CreateTestCase(context.Context, string, string, TestCaseInput) (ImplResponse, error)
+	DeleteTestCase(context.Context, string, string, string) (ImplResponse, error)
+	GetTestCase(context.Context, string, string, string) (ImplResponse, error)
+	ListTestCases(context.Context, string, string) (ImplResponse, error)
+	UpdateTestCase(context.Context, string, string, string, TestCaseInput) (ImplResponse, error)
 }
