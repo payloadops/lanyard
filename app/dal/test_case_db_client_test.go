@@ -197,7 +197,7 @@ func TestUpdateTestCaseParameter(t *testing.T) {
 			assert.Equal(t, "Parameter#key1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "key1", input.ExpressionAttributeValues[":key"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "value1", input.ExpressionAttributeValues[":value"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "SET #key = :key, #value = :value", *input.UpdateExpression)
+			assert.Equal(t, "SET #key = :key, #value = :value, #updatedAt = :updatedAt", *input.UpdateExpression)
 			assert.Equal(t, "Value", input.ExpressionAttributeNames["#value"])
 			assert.Equal(t, "Key", input.ExpressionAttributeNames["#key"])
 			return &dynamodb.UpdateItemOutput{}, nil
