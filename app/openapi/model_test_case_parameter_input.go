@@ -11,7 +11,7 @@
 
 package openapi
 
-type TestCaseParameter struct {
+type TestCaseParameterInput struct {
 
 	// Test case parameter key.
 	Key string `json:"key,omitempty"`
@@ -20,12 +20,12 @@ type TestCaseParameter struct {
 	Value string `json:"value,omitempty"`
 }
 
-// AssertTestCaseParameterRequired checks if the required fields are not zero-ed
-func AssertTestCaseParameterRequired(obj TestCaseParameter) error {
+// AssertTestCaseParameterInputRequired checks if the required fields are not zero-ed
+func AssertTestCaseParameterInputRequired(obj TestCaseParameterInput) error {
 	return nil
 }
 
-// AssertTestCaseParameterConstraints checks if the values respects the defined constraints
-func AssertTestCaseParameterConstraints(obj TestCaseParameter) error {
+// AssertTestCaseParameterInputConstraints checks if the values respects the defined constraints
+func AssertTestCaseParameterInputConstraints(obj TestCaseParameterInput) error {
 	return nil
 }

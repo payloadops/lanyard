@@ -104,6 +104,7 @@ func main() {
 	branchDBClient := dal.NewBranchDBClient(dynamoClient)
 	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg)
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
+	testCaseDBClient := dal.NewTestCaseDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService(logger)
@@ -131,6 +132,11 @@ func main() {
 		projectDBClient,
 		logger,
 	)
+	TestCasesAPIService := service.NewTestCasesAPIService(
+		promptDBClient,
+		testCaseDBClient,
+		logger,
+	)
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
@@ -139,6 +145,7 @@ func main() {
 	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
 	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
+	TestCasesAPIController := openapi.NewTestCasesAPIController(TestCasesAPIService)
 
 	// Initialize router
 	router := openapi.NewRouter(
@@ -151,6 +158,7 @@ func main() {
 		BranchesAPIController,
 		CommitsAPIController,
 		APIKeysAPIController,
+		TestCasesAPIController,
 	)
 
 	// Initialize server

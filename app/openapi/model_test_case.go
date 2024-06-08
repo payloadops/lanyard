@@ -17,13 +17,13 @@ import (
 
 type TestCase struct {
 
-	// Unique identifier for the test case of the branch
+	// Unique identifier for the test case of the prompt
 	Id string `json:"id,omitempty"`
 
-	// Timestamp when this test case was updated
-	Name time.Time `json:"name,omitempty"`
+	// Name of this test case
+	Name string `json:"name,omitempty"`
 
-	// Content of the prompt in this test case
+	// Content of the parameters in this test case
 	Parameters []TestCaseParameter `json:"parameters,omitempty"`
 
 	// Timestamp when this test case was updated
