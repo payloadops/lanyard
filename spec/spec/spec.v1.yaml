@@ -1321,17 +1321,7 @@ paths:
     post:
       summary: Create a new test case for a template
       description: |
-        Creates a new test case for a template. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
-
-        **Features**:
-        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
-        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
-        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
-
-        **Use Cases**:
-        - Developers committing new changes or features to a branch.
-        - Content managers updating template content and documenting the changes.
-        - Teams collaborating on a project and needing a clear record of each member's contributions.
+        Creates a new test case for a template.
 
       operationId: createTestCase
       tags:
@@ -1351,14 +1341,14 @@ paths:
           description: The unique identifier of the template whose branch is being committed to.
       requestBody:
         required: true
-        description: Contains the necessary information for creating a new test case, such as...
+        description: Contains the necessary information for creating a new test case, such as name and list of test parameters.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/TestCaseInput'
       responses:
         '201':
-          description: Commit created successfully and is now part of the branch history.
+          description: Test case created successfully.
           content:
             application/json:
               schema:
@@ -1370,13 +1360,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: The specified branch was not found, and thus the commit could not be created.
+          description: The specified branch was not found, and thus the test case could not be created.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the creation of a new commit.
+          description: A server error occurred, preventing the creation of a new test case.
           content:
             application/json:
               schema:
@@ -1384,19 +1374,9 @@ paths:
 
   /projects/{projectId}/prompts/{promptId}/tests/{testId}:
     get:
-      summary: Get a test cases for a template
+      summary: Get a test cases for a given template.
       description: |
-        Retrieves a list of all test cases associated with a template. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
-
-        **Features**:
-        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
-        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
-        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
-
-        **Use Cases**:
-        - Developers reviewing commit histories to understand the development process of a branch.
-        - Content managers analyzing changes for quality control and consistency.
-        - Compliance officers auditing changes for regulatory adherence.
+        Retrieves a test case.
 
       operationId: getTestCase
       tags:
@@ -1419,7 +1399,7 @@ paths:
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the test case.
       responses:
         '200':
           description: Successfully retrieved the test cases associated with the template.
@@ -1436,26 +1416,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of commit information.
+          description: A server error occurred, preventing the retrieval of test case.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     update:
-      summary: Update a given test case for a template
+      summary: Update a test case for a given template.
       description: |
-        Creates a new test case for a template. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
-
-        **Features**:
-        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
-        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
-        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
-
-        **Use Cases**:
-        - Developers committing new changes or features to a branch.
-        - Content managers updating template content and documenting the changes.
-        - Teams collaborating on a project and needing a clear record of each member's contributions.
+        Updates a test case for a given template.
 
       operationId: updateTestCase
       tags:
@@ -1478,17 +1448,17 @@ paths:
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch is being committed to.
+          description: The unique identifier of the test case.
       requestBody:
         required: true
-        description: Contains the necessary information for creating a new test case, such as...
+        description: Contains the necessary information for updating a test case, such as name and a list of testing parameters.
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/TestCaseInput'
       responses:
         '201':
-          description: Commit created successfully and is now part of the branch history.
+          description: Test case updated successfully.
           content:
             application/json:
               schema:
@@ -1500,32 +1470,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: The specified branch was not found, and thus the commit could not be created.
+          description: The specified test case was not found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the creation of a new commit.
+          description: A server error occurred, preventing updates to the test case.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
       
     delete:
-      summary: Delete a test cases for a template
+      summary: Delete a test cases for a given template
       description: |
-        Retrieves a list of all test cases associated with a template. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
-
-        **Features**:
-        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
-        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
-        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
-
-        **Use Cases**:
-        - Developers reviewing commit histories to understand the development process of a branch.
-        - Content managers analyzing changes for quality control and consistency.
-        - Compliance officers auditing changes for regulatory adherence.
+        Deletes a test case for a given template.
 
       operationId: deleteTestCase
       tags:
@@ -1548,10 +1508,10 @@ paths:
           required: true
           schema:
             type: string
-          description: The unique identifier of the template whose branch commits are being listed.
+          description: The unique identifier of the test case.
       responses:
         '200':
-          description: Successfully retrieved the test cases associated with the template.
+          description: Successfully deleted the test cases associated with the template.
           content:
             application/json:
               schema:
@@ -1565,7 +1525,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of commit information.
+          description: A server error occurred, preventing the deleting the test case.
           content:
             application/json:
               schema:
