@@ -409,7 +409,11 @@ func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, pr
 	}
 
 	results := []TestCaseParameter{}
-	results = append(results, parameters...)
+	for _, parameter := range parameters {
+		if !parameter.Deleted {
+			results = append(results, parameter)
+		}
+	}
 
 	return results, nil
 }
