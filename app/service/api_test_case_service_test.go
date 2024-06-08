@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
@@ -30,11 +31,14 @@ func TestTestCaseAPIService_CreateTestCase(t *testing.T) {
 		Name: "TestCase1",
 		Parameters: []openapi.TestCaseParameter{
 			{Key: "paramKey1", Value: "paramVal1"},
-			{Key: "paramKey2", Value: "paramVal2"},
 		},
 	}
 
-	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockTestCaseClient.EXPECT().CreateTestCase(ctx, "org1", promptID, &dal.TestCase{Name: testCaseInput.Name}).Return(nil)
+	mockTestCaseClient.EXPECT().CreateTestCaseParameter(ctx, "org1", promptID, gomock.Any(), &dal.TestCaseParameter{
+		Key: "paramKey1", Value: "paramVal1",
+	}).Return(nil)
 
 	response, err := service.CreateTestCase(ctx, projectID, promptID, testCaseInput)
 	assert.NoError(t, err)
@@ -59,8 +63,14 @@ func TestTestCaseAPIService_DeleteTestCase(t *testing.T) {
 	promptID := "prompt1"
 	testCaseID := "testCase1"
 
-	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
 	mockTestCaseClient.EXPECT().GetTestCase(ctx, "org1", promptID, testCaseID).Return(&dal.TestCase{}, nil)
+	mockTestCaseClient.EXPECT().ListTestCaseParameters(ctx, "org1", promptID, testCaseID).Return([]dal.TestCaseParameter{
+		{
+			Key: "paramKey1", Value: "paramVal1",
+		},
+	}, nil)
+	mockTestCaseClient.EXPECT().DeleteTestCaseParameter(ctx, "org1", promptID, testCaseID, "paramKey1")
 	mockTestCaseClient.EXPECT().DeleteTestCase(ctx, "org1", promptID, testCaseID).Return(nil)
 
 	response, err := service.DeleteTestCase(ctx, projectID, promptID, testCaseID)
@@ -89,8 +99,12 @@ func TestTestCaseAPIService_GetTestCase(t *testing.T) {
 		},
 	}
 
-	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(nil)
-	mockTestCaseClient.EXPECT().GetTestCase(ctx, "org1", promptID, testCaseID).Return(testCase, nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockTestCaseClient.EXPECT().GetTestCase(ctx, "org1", promptID, testCaseID).Return(&dal.TestCase{
+		Name:       "TestCase1",
+		TestCaseID: testCaseID,
+	}, nil)
+	mockTestCaseClient.EXPECT().ListTestCaseParameters(ctx, "org1", promptID, testCaseID).Return([]dal.TestCaseParameter{}, nil)
 
 	response, err := service.GetTestCase(ctx, projectID, promptID, testCaseID)
 	assert.NoError(t, err)
@@ -98,7 +112,7 @@ func TestTestCaseAPIService_GetTestCase(t *testing.T) {
 	assert.NotNil(t, response.Body)
 	testCase, ok := response.Body.(openapi.TestCase)
 	assert.True(t, ok)
-	assert.Equal(t, promptID, testCase.Id)
+	assert.Equal(t, testCaseID, testCase.Id)
 }
 
 func TestTestCaseAPIService_ListTestCases(t *testing.T) {
@@ -115,14 +129,14 @@ func TestTestCaseAPIService_ListTestCases(t *testing.T) {
 	testCase1 := dal.TestCase{
 		TestCaseID: "testCase1",
 		Name:       "TestCase1",
-		UpdatedAt:  "",
-		CreatedAt:  "",
+		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:  time.Now().UTC().Format(time.RFC3339),
 	}
 	testCase2 := dal.TestCase{
 		TestCaseID: "testCase2",
 		Name:       "TestCase2",
-		UpdatedAt:  "",
-		CreatedAt:  "",
+		CreatedAt:  time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:  time.Now().UTC().Format(time.RFC3339),
 	}
 
 	testCases := []dal.TestCase{
@@ -130,7 +144,7 @@ func TestTestCaseAPIService_ListTestCases(t *testing.T) {
 		testCase2,
 	}
 
-	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
 	mockTestCaseClient.EXPECT().ListTestCases(ctx, "org1", promptID).Return(testCases, nil)
 
 	response, err := service.ListTestCases(ctx, projectID, promptID)
@@ -160,21 +174,19 @@ func TestTestCaseAPIService_UpdateTestCase(t *testing.T) {
 		Name: "TestCase1",
 		Parameters: []openapi.TestCaseParameter{
 			{Key: "paramKey1", Value: "paramVal1"},
-			{Key: "paramKey2", Value: "paramVal2"},
 		},
 	}
-	testCase := openapi.TestCase{
-		Id:   "testCase1",
-		Name: "TestCase1",
-		Parameters: []openapi.TestCaseParameter{
-			{Key: "paramKey1", Value: "paramVal1"},
-			{Key: "paramKey2", Value: "paramVal2"},
-		},
+	testCase := dal.TestCase{
+		TestCaseID: "testCase1",
+		Name:       "TestCase1",
 	}
 
-	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(nil)
-	mockTestCaseClient.EXPECT().GetTestCase(ctx, "org1", promptID, testCaseID).Return(testCase, nil)
-	mockTestCaseClient.EXPECT().UpdateTestCase(ctx, "org1", projectID, gomock.Any()).Return(nil)
+	mockPromptClient.EXPECT().GetPrompt(ctx, "org1", projectID, promptID).Return(&dal.Prompt{}, nil)
+	mockTestCaseClient.EXPECT().GetTestCase(ctx, "org1", promptID, testCaseID).Return(&testCase, nil)
+	mockTestCaseClient.EXPECT().UpdateTestCase(ctx, "org1", promptID, gomock.Any()).Return(nil)
+	mockTestCaseClient.EXPECT().UpdateTestCaseParameter(ctx, "org1", promptID, testCaseID, &dal.TestCaseParameter{
+		Key: "paramKey1", Value: "paramVal1",
+	})
 
 	response, err := service.UpdateTestCase(ctx, projectID, promptID, "testCase1", testCaseInput)
 	assert.NoError(t, err)

@@ -54,7 +54,7 @@ func (s *TestCasesAPIService) CreateTestCase(ctx context.Context, projectID stri
 		Name: testCaseInput.Name,
 	}
 
-	err = s.testCaseClient.CreateTestCase(ctx, orgID, projectID, testCase)
+	err = s.testCaseClient.CreateTestCase(ctx, orgID, promptID, testCase)
 	if err != nil {
 		s.logger.Error("failed to create test case",
 			zap.String("requestID", requestID),
@@ -189,7 +189,7 @@ func (s *TestCasesAPIService) GetTestCase(ctx context.Context, projectID, prompt
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, projectID)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		s.logger.Error("failed to get prompt",
 			zap.String("requestID", requestID),
@@ -271,7 +271,7 @@ func (s *TestCasesAPIService) ListTestCases(ctx context.Context, projectID, prom
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, projectID)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		s.logger.Error("failed to get prompt",
 			zap.String("requestID", requestID),
@@ -335,7 +335,7 @@ func (s *TestCasesAPIService) UpdateTestCase(ctx context.Context, projectID, pro
 	}
 
 	// Check if the prompt exists
-	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, projectID)
+	prompt, err := s.promptClient.GetPrompt(ctx, orgID, projectID, promptID)
 	if err != nil {
 		s.logger.Error("failed to get prompt",
 			zap.String("requestID", requestID),
