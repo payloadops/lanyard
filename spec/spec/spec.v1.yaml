@@ -668,7 +668,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -713,7 +713,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -771,7 +771,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -814,7 +814,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -865,7 +865,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -920,7 +920,7 @@ paths:
         - Integrating branch data into other systems for enhanced content lifecycle management.
 
         **Key Parameters**:
-        - `promptId`: Identifies the template to which the branch belongs.
+        - `templateId`: Identifies the template to which the branch belongs.
         - `branchName`: Specifies the name of the branch to retrieve.
 
       operationId: getBranch
@@ -933,7 +933,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -980,7 +980,7 @@ paths:
         - Automated systems enforcing branch retention policies by deleting branches past their retention period.
 
         **Key Parameters**:
-        - `promptId`: Identifies the template whose branch is being deleted.
+        - `templateId`: Identifies the template whose branch is being deleted.
         - `branchName`: Specifies the name of the branch to delete.
 
       operationId: deleteBranch
@@ -993,7 +993,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1047,7 +1047,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1106,7 +1106,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1177,7 +1177,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1236,7 +1236,7 @@ paths:
       tags:
         - Commits
       parameters:
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1280,6 +1280,17 @@ paths:
       summary: List all test cases for the given template
       description: |
         Retrieves a list of all test cases associated with a template.
+
+        **Features**:
+        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
+        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
+        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
+
+        **Use Cases**:
+        - Developers reviewing commit histories to understand the development process of a branch.
+        - Content managers analyzing changes for quality control and consistency.
+        - Compliance officers auditing changes for regulatory adherence.
+
       operationId: listTestCases
       tags:
         - Test Cases
@@ -1290,12 +1301,12 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the template.
+          description: The unique identifier of the template whose branch commits are being listed.
       responses:
         '200':
           description: Successfully retrieved a list of all test cases associated with the given template.
@@ -1333,7 +1344,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1388,7 +1399,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1437,7 +1448,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
@@ -1497,7 +1508,7 @@ paths:
           schema:
             type: string
           description: The unique identifier of the project.
-        - name: promptId
+        - name: templateId
           in: path
           required: true
           schema:
