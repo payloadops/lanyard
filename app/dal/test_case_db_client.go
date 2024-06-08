@@ -24,7 +24,7 @@ type TestCaseManager interface {
 
 	CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error
 	GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCase, error)
-	UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameter *Parameter) error
+	UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error
 	DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) error
 	ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCase, error)
 }
@@ -212,7 +212,7 @@ func (d *TestCaseDBClient) DeleteTestCase(ctx context.Context, orgID, promptID, 
 }
 
 // ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
-func (d *TestCaseDBClient) ListTestCasesByProject(ctx context.Context, orgID string, promptID string) ([]TestCase, error) {
+func (d *TestCaseDBClient) ListTestCases(ctx context.Context, orgID, promptID string) ([]TestCase, error) {
 	pk, _ := createTestCaseCompositeKeys(orgID, promptID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("TestCases"),
