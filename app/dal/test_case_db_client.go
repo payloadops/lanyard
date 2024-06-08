@@ -147,11 +147,10 @@ func (d *TestCaseDBClient) UpdateTestCase(ctx context.Context, orgID, promptID s
 	pk, sk := createTestCaseCompositeKeys(orgID, promptID, testCase.TestCaseID)
 	testCase.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
 
-	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	updateExpr := "SET #name = :name, #updatedAt = :updatedAt"
 	exprAttrNames := map[string]string{
-		"#name":        "Name",
-		"#description": "Description",
-		"#updatedAt":   "UpdatedAt",
+		"#name":      "Name",
+		"#updatedAt": "UpdatedAt",
 	}
 
 	exprAttrValues := map[string]types.AttributeValue{
