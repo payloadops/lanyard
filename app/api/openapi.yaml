@@ -1935,7 +1935,7 @@ components:
     TestCase:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
-        name: 2000-01-23T04:56:07.000+00:00
+        name: name
         id: ""
         parameters:
         - value: value
@@ -1949,11 +1949,12 @@ components:
           - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the test case of the branch
         name:
-          description: Timestamp when this test case was updated
-          format: date-time
+          description: Name of this test case
+          maxLength: 30
+          minLength: 1
           type: string
         parameters:
-          description: Content of the prompt in this test case
+          description: Content of the parameters in this test case
           items:
             $ref: '#/components/schemas/TestCaseParameter'
           type: array

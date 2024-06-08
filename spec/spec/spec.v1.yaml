@@ -1836,13 +1836,14 @@ components:
           description: Unique identifier for the test case of the branch
         name:
           type: string
-          format: date-time
-          description: Timestamp when this test case was updated
+          minLength: 1
+          maxLength: 30
+          description: Name of this test case
         parameters:
           type: array
           items:
             $ref: '#/components/schemas/TestCaseParameter'
-          description: Content of the prompt in this test case
+          description: Content of the parameters in this test case
         updatedAt:
           type: string
           format: date-time
