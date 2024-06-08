@@ -1423,7 +1423,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-    update:
+    put:
       summary: Update a test case for a given prompt.
       description: |
         Updates a test case for a given prompt.
