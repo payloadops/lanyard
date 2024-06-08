@@ -81,9 +81,8 @@ func TestUpdateTestCase(t *testing.T) {
 			assert.Equal(t, "TestCase#testCase1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "TestCase1", input.ExpressionAttributeValues[":name"].(*types.AttributeValueMemberS).Value)
 			assert.NotEmpty(t, input.ExpressionAttributeValues[":updatedAt"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "SET #name = :name, #description = :description, #updatedAt = :updatedAt", *input.UpdateExpression)
+			assert.Equal(t, "SET #name = :name, #updatedAt = :updatedAt", *input.UpdateExpression)
 			assert.Equal(t, "Name", input.ExpressionAttributeNames["#name"])
-			assert.Equal(t, "Description", input.ExpressionAttributeNames["#description"])
 			assert.Equal(t, "UpdatedAt", input.ExpressionAttributeNames["#updatedAt"])
 			return &dynamodb.UpdateItemOutput{}, nil
 		})
