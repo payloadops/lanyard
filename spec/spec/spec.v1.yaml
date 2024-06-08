@@ -1861,12 +1861,12 @@ components:
           type: string
           minLength: 1
           maxLength: 30
-          description: Content of the prompt in this commit
+          description: Name of this test case
         parameters:
           type: array
           items:
             $ref: '#/components/schemas/TestCaseParameter'
-          description: Content of the prompt in this test case
+          description: List of parameters for this test case
 
     TestCaseParameter:
       type: object
