@@ -257,7 +257,7 @@ func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, p
 
 	av, err := attributevalue.MarshalMap(parameter)
 	if err != nil {
-		return fmt.Errorf("failed to marshal test case: %v", err)
+		return fmt.Errorf("failed to marshal test case parameter: %v", err)
 	}
 
 	item := map[string]types.AttributeValue{
@@ -321,14 +321,13 @@ func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, p
 
 	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
 	exprAttrNames := map[string]string{
-		"#name":        "Name",
-		"#description": "Description",
-		"#updatedAt":   "UpdatedAt",
+		"#key":   "Key",
+		"#value": "Value",
 	}
 
 	exprAttrValues := map[string]types.AttributeValue{
-		":name":      &types.AttributeValueMemberS{Value: testCase.Name},
-		":updatedAt": &types.AttributeValueMemberS{Value: testCase.UpdatedAt},
+		":key":   &types.AttributeValueMemberS{Value: parameter.Key},
+		":value": &types.AttributeValueMemberS{Value: parameter.Value},
 	}
 
 	input := &dynamodb.UpdateItemInput{
