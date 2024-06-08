@@ -1279,7 +1279,7 @@ paths:
   
   /projects/{projectId}/prompts/{promptId}/tests:
     get:
-      summary: List all test cases for a template
+      summary: List all test cases for a prompt
       description: |
         Retrieves a list of all test cases associated with a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
 
@@ -1334,7 +1334,7 @@ paths:
     post:
       summary: Create a new test case for a prompt
       description: |
-        Creates a new test case for a template.
+        Creates a new test case for a prompt.
 
       operationId: createTestCase
       tags:
@@ -1387,7 +1387,7 @@ paths:
 
   /projects/{projectId}/prompts/{promptId}/tests/{testId}:
     get:
-      summary: Get a test cases for a given template.
+      summary: Get a test cases for a given prompt.
       description: |
         Retrieves a test case.
 
@@ -1436,9 +1436,9 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     update:
-      summary: Update a test case for a given template.
+      summary: Update a test case for a given prompt.
       description: |
-        Updates a test case for a given template.
+        Updates a test case for a given prompt.
 
       operationId: updateTestCase
       tags:
@@ -1496,9 +1496,9 @@ paths:
                 $ref: '#/components/schemas/Error'
       
     delete:
-      summary: Delete a test cases for a given template
+      summary: Delete a test cases for a given prompt
       description: |
-        Deletes a test case for a given template.
+        Deletes a test case for a given prompt.
 
       operationId: deleteTestCase
       tags:
@@ -1524,7 +1524,7 @@ paths:
           description: The unique identifier of the test case.
       responses:
         '200':
-          description: Successfully deleted the test cases associated with the template.
+          description: Successfully deleted the test cases associated with the prompt.
           content:
             application/json:
               schema:
