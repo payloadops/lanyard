@@ -12,9 +12,9 @@ import (
 	"github.com/payloadops/plato/app/utils"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_prompt_db_client.go "github.com/payloadops/plato/app/dal" TestCaseManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_test_case_db_client.go "github.com/payloadops/plato/app/dal" TestCaseManager
 
-// TestCaseManager defines the operations available for managing prompts.
+// TestCaseManager defines the operations available for managing test cases.
 type TestCaseManager interface {
 	CreateTestCase(ctx context.Context, orgID, promptID string, testCase *TestCase) error
 	GetTestCase(ctx context.Context, orgID, promptID, testCaseID string) (*TestCase, error)
@@ -85,7 +85,7 @@ func (d *TestCaseDBClient) CreateTestCase(ctx context.Context, orgID, promptID s
 
 	av, err := attributevalue.MarshalMap(testCase)
 	if err != nil {
-		return fmt.Errorf("failed to marshal prompt: %v", err)
+		return fmt.Errorf("failed to marshal test case: %v", err)
 	}
 
 	item := map[string]types.AttributeValue{
@@ -130,17 +130,17 @@ func (d *TestCaseDBClient) GetTestCase(ctx context.Context, orgID, promptID, tes
 		return nil, nil
 	}
 
-	var prompt TestCase
-	err = attributevalue.UnmarshalMap(result.Item, &prompt)
+	var testCase TestCase
+	err = attributevalue.UnmarshalMap(result.Item, &testCase)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
 	}
 
-	if prompt.Deleted {
+	if testCase.Deleted {
 		return nil, nil
 	}
 
-	return &prompt, nil
+	return &testCase, nil
 }
 
 // UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
@@ -177,7 +177,7 @@ func (d *TestCaseDBClient) UpdateTestCase(ctx context.Context, orgID, promptID s
 	return nil
 }
 
-// DeleteTestCase marks a prompt as deleted by org ID, prompt ID, and test case ID in the DynamoDB table.
+// DeleteTestCase marks a testCase as deleted by org ID, prompt ID, and test case ID in the DynamoDB table.
 func (d *TestCaseDBClient) DeleteTestCase(ctx context.Context, orgID, promptID, testCaseID string) error {
 	pk, sk := createTestCaseCompositeKeys(orgID, promptID, testCaseID)
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -229,19 +229,19 @@ func (d *TestCaseDBClient) ListTestCasesByProject(ctx context.Context, orgID str
 		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
 	}
 
-	var prompts []TestCase
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &prompts)
+	var testCases []TestCase
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &testCases)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
 	}
 
 	results := []TestCase{}
-	for _, prompt := range prompts {
-		if prompt.Deleted {
+	for _, testCase := range testCases {
+		if testCase.Deleted {
 			continue
 		}
-		results = append(results, prompt)
+		results = append(results, testCase)
 	}
 
-	return prompts, nil
+	return testCases, nil
 }
