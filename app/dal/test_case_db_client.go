@@ -245,3 +245,174 @@ func (d *TestCaseDBClient) ListTestCasesByProject(ctx context.Context, orgID str
 
 	return testCases, nil
 }
+
+func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error {
+	ksuid, err := utils.GenerateKSUID()
+	if err != nil {
+		return fmt.Errorf("failed to create ksuid: %v", err)
+	}
+
+	parameter.ParameterID = ksuid
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.ParameterID)
+
+	av, err := attributevalue.MarshalMap(parameter)
+	if err != nil {
+		return fmt.Errorf("failed to marshal test case: %v", err)
+	}
+
+	item := map[string]types.AttributeValue{
+		"pk": &types.AttributeValueMemberS{Value: pk},
+		"sk": &types.AttributeValueMemberS{Value: sk},
+	}
+	for k, v := range av {
+		item[k] = v
+	}
+
+	input := &dynamodb.PutItemInput{
+		TableName: aws.String("TestCases"),
+		Item:      item,
+	}
+
+	_, err = d.service.PutItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to put item in DynamoDB: %v", err)
+	}
+
+	return nil
+}
+
+// GetTestCase retrieves a test case by orgID, prompt ID, and test case ID from the DynamoDB table.
+func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) (*TestCase, error) {
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID)
+
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String("TestCases"),
+		Key: map[string]types.AttributeValue{
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
+		},
+	}
+
+	result, err := d.service.GetItem(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
+	}
+
+	if result.Item == nil {
+		return nil, nil
+	}
+
+	var testCase TestCase
+	err = attributevalue.UnmarshalMap(result.Item, &testCase)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
+	}
+
+	if testCase.Deleted {
+		return nil, nil
+	}
+
+	return &testCase, nil
+}
+
+// UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
+func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *Parameter) error {
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.ParameterID)
+
+	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	exprAttrNames := map[string]string{
+		"#name":        "Name",
+		"#description": "Description",
+		"#updatedAt":   "UpdatedAt",
+	}
+
+	exprAttrValues := map[string]types.AttributeValue{
+		":name":      &types.AttributeValueMemberS{Value: testCase.Name},
+		":updatedAt": &types.AttributeValueMemberS{Value: testCase.UpdatedAt},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		TableName:                 aws.String("TestCases"),
+		Key:                       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: pk}, "sk": &types.AttributeValueMemberS{Value: sk}},
+		UpdateExpression:          aws.String(updateExpr),
+		ExpressionAttributeNames:  exprAttrNames,
+		ExpressionAttributeValues: exprAttrValues,
+		ConditionExpression:       aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to update item in DynamoDB: %v", err)
+	}
+
+	return nil
+}
+
+// DeleteTestCase marks a testCase as deleted by org ID, prompt ID, and test case ID in the DynamoDB table.
+func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterID string) error {
+	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterID)
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	update := map[string]types.AttributeValueUpdate{
+		"Deleted": {
+			Value:  &types.AttributeValueMemberBOOL{Value: true},
+			Action: types.AttributeActionPut,
+		},
+		"UpdatedAt": {
+			Value:  &types.AttributeValueMemberS{Value: now},
+			Action: types.AttributeActionPut,
+		},
+	}
+
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String("TestCases"),
+		Key: map[string]types.AttributeValue{
+			"pk": &types.AttributeValueMemberS{Value: pk},
+			"sk": &types.AttributeValueMemberS{Value: sk},
+		},
+		AttributeUpdates:    update,
+		ConditionExpression: aws.String("attribute_exists(pk) AND attribute_exists(sk)"),
+	}
+
+	_, err := d.service.UpdateItem(ctx, input)
+	if err != nil {
+		return fmt.Errorf("failed to delete item in DynamoDB: %v", err)
+	}
+
+	return nil
+}
+
+// ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
+func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCase, error) {
+	pk, _ := createParameterCompositeKeys(orgID, promptID, testCaseID, "")
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("TestCases"),
+		KeyConditionExpression: aws.String("pk = :pk"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":pk": &types.AttributeValueMemberS{
+				Value: pk,
+			},
+		},
+	}
+
+	result, err := d.service.Query(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
+	}
+
+	var testCases []TestCase
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &testCases)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
+	}
+
+	results := []TestCase{}
+	for _, testCase := range testCases {
+		if testCase.Deleted {
+			continue
+		}
+		results = append(results, testCase)
+	}
+
+	return testCases, nil
+}
