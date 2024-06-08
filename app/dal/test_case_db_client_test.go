@@ -162,9 +162,8 @@ func TestGetTestCaseParameter(t *testing.T) {
 	client := dal.NewTestCaseDBClient(mockSvc)
 
 	parameter := &dal.TestCaseParameter{
-		Key:         "key1",
-		Value:       "value1",
-		ParameterID: "parameter1",
+		Key:   "key1",
+		Value: "value1",
 	}
 
 	item, _ := attributevalue.MarshalMap(parameter)
@@ -172,7 +171,7 @@ func TestGetTestCaseParameter(t *testing.T) {
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetTestCaseParameter(context.Background(), "org1", "prompt1", "testCase1", "parameter1")
+	result, err := client.GetTestCaseParameter(context.Background(), "org1", "prompt1", "testCase1", "key1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "key1", result.Key)
@@ -187,16 +186,15 @@ func TestUpdateTestCaseParameter(t *testing.T) {
 	client := dal.NewTestCaseDBClient(mockSvc)
 
 	parameter := &dal.TestCaseParameter{
-		Key:         "key1",
-		Value:       "value1",
-		ParameterID: "parameter1",
+		Key:   "key1",
+		Value: "value1",
 	}
 
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
 			assert.Equal(t, "Org#org1Prompt#prompt1TestCase#testCase1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "Parameter#parameter1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Parameter#key1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "key1", input.ExpressionAttributeValues[":key"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "value1", input.ExpressionAttributeValues[":value"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "SET #key = :key, #value = :value", *input.UpdateExpression)
@@ -232,9 +230,8 @@ func TestListTestCaseParameters(t *testing.T) {
 	client := dal.NewTestCaseDBClient(mockSvc)
 
 	parameter := &dal.TestCaseParameter{
-		Key:         "key1",
-		Value:       "value1",
-		ParameterID: "parameter1",
+		Key:   "key1",
+		Value: "value1",
 	}
 
 	item, _ := attributevalue.MarshalMap(parameter)
