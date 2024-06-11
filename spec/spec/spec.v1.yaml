@@ -1407,9 +1407,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TestCase'
+                $ref: '#/components/schemas/TestCase'
         '404':
           description: No test case found matching the specified identifiers.
           content:
