@@ -1560,9 +1560,7 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  $ref: '#/components/schemas/TestCase'
-                type: array
+                $ref: '#/components/schemas/TestCase'
           description: Successfully retrieved the test case associated with the prompt.
         "404":
           content:
