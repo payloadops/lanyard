@@ -67,6 +67,7 @@ func createTestCaseCompositeKeys(orgID, promptID, testCaseID string) (string, st
 	return fmt.Sprintf("Org#%sPrompt#%s", orgID, promptID), fmt.Sprintf("TestCase#%s", testCaseID)
 }
 
+// createParameterCompositeKeys generates the partition key (pk) and sort key (sk) for a prompt.
 func createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey string) (string, string) {
 	return fmt.Sprintf("Org#%sPrompt#%sTestCase#%s", orgID, promptID, testCaseID), fmt.Sprintf("Parameter#%s", parameterKey)
 }
@@ -212,7 +213,7 @@ func (d *TestCaseDBClient) DeleteTestCase(ctx context.Context, orgID, promptID, 
 	return nil
 }
 
-// ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
+// ListTestCases retrieves all test cases belonging to a specific prompt from the DynamoDB table.
 func (d *TestCaseDBClient) ListTestCases(ctx context.Context, orgID, promptID string) ([]TestCase, error) {
 	pk, _ := createTestCaseCompositeKeys(orgID, promptID, "")
 	input := &dynamodb.QueryInput{
@@ -247,6 +248,7 @@ func (d *TestCaseDBClient) ListTestCases(ctx context.Context, orgID, promptID st
 	return results, nil
 }
 
+// CreateTestCaseParameter creates a test case parameter belonging to a specific test case from the DynamoDB table.
 func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.Key)
 
@@ -280,7 +282,7 @@ func (d *TestCaseDBClient) CreateTestCaseParameter(ctx context.Context, orgID, p
 	return nil
 }
 
-// GetTestCase retrieves a test case parameter by orgID, prompt ID, test case ID, and key from the DynamoDB table.
+// GetTestCaseParameter retrieves a test case parameter by orgID, prompt ID, test case ID, and key from the DynamoDB table.
 func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterKey string) (*TestCaseParameter, error) {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey)
 
@@ -314,7 +316,7 @@ func (d *TestCaseDBClient) GetTestCaseParameter(ctx context.Context, orgID, prom
 	return &parameter, nil
 }
 
-// UpdateTestCase updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
+// UpdateTestCaseParameter updates the name, and updatedAt fields of an existing test case in the DynamoDB table.
 func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID string, parameter *TestCaseParameter) error {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameter.Key)
 
@@ -350,7 +352,7 @@ func (d *TestCaseDBClient) UpdateTestCaseParameter(ctx context.Context, orgID, p
 	return nil
 }
 
-// DeleteTestCase marks a testCase as deleted by org ID, prompt ID, test case ID, and test case parameter key in the DynamoDB table.
+// DeleteTestCaseParameter marks a TestCase as deleted by org ID, prompt ID, test case ID, and test case parameter key in the DynamoDB table.
 func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, promptID, testCaseID, parameterKey string) error {
 	pk, sk := createParameterCompositeKeys(orgID, promptID, testCaseID, parameterKey)
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -384,7 +386,7 @@ func (d *TestCaseDBClient) DeleteTestCaseParameter(ctx context.Context, orgID, p
 	return nil
 }
 
-// ListTestCasesByProject retrieves all test cases belonging to a specific prompt from the DynamoDB table.
+// ListTestCaseParameters retrieves all test case parameters belonging to a specific test case from the DynamoDB table.
 func (d *TestCaseDBClient) ListTestCaseParameters(ctx context.Context, orgID, promptID, testCaseID string) ([]TestCaseParameter, error) {
 	pk, _ := createParameterCompositeKeys(orgID, promptID, testCaseID, "")
 	input := &dynamodb.QueryInput{
