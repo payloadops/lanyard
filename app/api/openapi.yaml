@@ -15,8 +15,8 @@ servers:
 - description: Sandbox server (uses test data)
   url: https://sandbox-api.payloadops.com/v1
 security:
-- ApiKeyAuth: []
 - BearerAuth: []
+- BasicAuth: []
 paths:
   /health:
     get:
@@ -611,6 +611,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of prompts."
+      security:
+      - BearerAuth: []
       summary: List all prompts in a project
       tags:
       - Prompts
@@ -673,6 +675,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the creation of the new\
             \ prompt."
+      security:
+      - BearerAuth: []
       summary: Create a new prompt in a project
       tags:
       - Prompts
@@ -717,6 +721,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the deletion of the prompt."
+      security:
+      - BearerAuth: []
       summary: Delete a specific prompt from a project
       tags:
       - Prompts
@@ -764,6 +770,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of the prompt."
+      security:
+      - BearerAuth: []
       summary: Retrieve a specific prompt within a project
       tags:
       - Prompts
@@ -825,6 +833,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the update of the prompt."
+      security:
+      - BearerAuth: []
       summary: Update a specific prompt in a project
       tags:
       - Prompts
@@ -879,6 +889,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of branch\
             \ data."
+      security:
+      - BearerAuth: []
       summary: List all branches of a specific prompt
       tags:
       - Branches
@@ -949,6 +961,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the creation of a new\
             \ branch."
+      security:
+      - BearerAuth: []
       summary: Create a new branch for a prompt
       tags:
       - Branches
@@ -1007,6 +1021,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the deletion of the branch."
+      security:
+      - BearerAuth: []
       summary: Delete a specific branch
       tags:
       - Branches
@@ -1070,6 +1086,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of the branch."
+      security:
+      - BearerAuth: []
       summary: Retrieve a specific branch
       tags:
       - Branches
@@ -1137,6 +1155,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of commit\
             \ information."
+      security:
+      - BearerAuth: []
       summary: List all commits of a specific branch
       tags:
       - Commits
@@ -1216,6 +1236,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the creation of a new\
             \ commit."
+      security:
+      - BearerAuth: []
       summary: Create a new commit for a branch
       tags:
       - Commits
@@ -1290,6 +1312,8 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of the branch\
             \ commit."
+      security:
+      - BearerAuth: []
       summary: Retrieve a specific commit or the latest commit of a branch
       tags:
       - Commits
@@ -1356,13 +1380,24 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of the branch\
             \ commit."
+      security:
+      - BearerAuth: []
+      - BasicAuth: []
       summary: Retrieve a specific commit or the latest commit of a branch
       tags:
       - Commits
   /projects/{projectId}/prompts/{promptId}/tests:
     get:
       description: |
-        Retrieves a list of all test cases associated with a prompt.
+        Retrieves a comprehensive list of all test cases associated with a specific prompt. This operation is essential for users to view and manage all test cases under a prompt, facilitating efficient testing and validation of prompt content.
+
+        **Key Features**:
+        - **Comprehensive Overview**: Provides a complete list of all test cases, aiding in the overall management and execution of tests.
+        - **Efficient Test Management**: Enables users to quickly assess the status and coverage of various test cases for the prompt.
+
+        **Use Cases**:
+        - Quality assurance teams reviewing all test cases associated with a specific prompt.
+        - Developers and testers looking to manage and execute test cases efficiently.
       operationId: listTestCases
       parameters:
       - description: The unique identifier of the project.
@@ -1410,7 +1445,15 @@ paths:
       - Test Cases
     post:
       description: |
-        Creates a new test case for a prompt.
+        Creates a new test case for a specific prompt. This endpoint is crucial for expanding the testing coverage of a prompt by adding new test cases, allowing users to define initial details for a new test case which then becomes part of the prompt's testing suite.
+
+        **Key Features**:
+        - **Test Expansion**: Allows for the addition of new test cases to a prompt, supporting dynamic testing and validation.
+        - **Customizable Input**: Users can define various attributes of the test case such as name, parameters, and expected outcomes through the `TestCaseInput` schema.
+
+        **Use Cases**:
+        - Quality assurance teams adding new test cases to validate prompt functionality.
+        - Automating test case creation processes by integrating with test management systems that can trigger test case creations through API calls.
       operationId: createTestCase
       parameters:
       - description: The unique identifier of the project.
@@ -1436,7 +1479,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TestCaseInput'
         description: "Contains the necessary information for creating a new test case,\
-          \ such as name and list of test parameters."
+          \ such as name and a list of test parameters."
         required: true
       responses:
         "201":
@@ -1472,7 +1515,11 @@ paths:
   /projects/{projectId}/prompts/{promptId}/tests/{testId}:
     delete:
       description: |
-        Deletes a test case for a given prompt.
+        Deletes a specific test case from a prompt. This operation is used when a test case is no longer needed or relevant, or as part of test suite cleanup and management strategies.
+
+        **Key Usage**:
+        - Removing outdated or irrelevant test cases to maintain a clean and efficient testing environment.
+        - Complying with data retention policies by deleting test cases that are no longer necessary.
       operationId: deleteTestCase
       parameters:
       - description: The unique identifier of the project.
@@ -1483,7 +1530,7 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt whose test case are being
+      - description: The unique identifier of the prompt whose test case is being
           deleted.
         explode: false
         in: path
@@ -1501,33 +1548,31 @@ paths:
           type: string
         style: simple
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/TestCase'
-                type: array
-          description: Successfully deleted the test cases associated with the prompt.
+        "204":
+          description: The test case was deleted successfully; no content is returned.
         "404":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: No branch found matching the specified identifiers.
+          description: No test case found matching the specified identifiers.
         "500":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deleting the test\
+          description: "A server error occurred, preventing the deletion of the test\
             \ case."
-      summary: Delete a test cases for a given prompt
+      summary: Delete a specific test case from a prompt
       tags:
       - Test Cases
     get:
       description: |
-        Retrieves a test case.
+        Retrieves detailed information about a specific test case associated with a prompt. This operation is essential for users who need to view the current state of a test case or to fetch its details for further analysis or execution.
+
+        **Key Usage**:
+        - Viewing the complete details of a test case for review or execution purposes.
+        - Fetching test case data for integration with other testing tools or systems.
       operationId: getTestCase
       parameters:
       - description: The unique identifier of the project.
@@ -1560,9 +1605,7 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  $ref: '#/components/schemas/TestCase'
-                type: array
+                $ref: '#/components/schemas/TestCase'
           description: Successfully retrieved the test case associated with the prompt.
         "404":
           content:
@@ -1575,14 +1618,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of test\
+          description: "A server error occurred, preventing the retrieval of the test\
             \ case."
-      summary: Get a test cases for a given prompt.
+      summary: Retrieve a specific test case for a prompt
       tags:
       - Test Cases
     put:
       description: |
-        Updates a test case for a given prompt.
+        Updates the details of a specific test case associated with a prompt. This operation allows users to modify existing test cases to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of test case content.
+
+        **Key Usage**:
+        - Modifying the parameters or expected outcomes of a test case as part of test management workflows.
+        - Updating test case settings or configurations based on new inputs or feedback.
       operationId: updateTestCase
       parameters:
       - description: The unique identifier of the project.
@@ -1619,7 +1666,7 @@ paths:
           \ such as name and a list of testing parameters."
         required: true
       responses:
-        "201":
+        "200":
           content:
             application/json:
               schema:
@@ -1644,7 +1691,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing updates to the test case."
-      summary: Update a test case for a given prompt.
+      summary: Update a specific test case for a prompt
       tags:
       - Test Cases
 components:
@@ -1987,7 +2034,8 @@ components:
             $ref: '#/components/schemas/TestCaseParameter'
           type: array
       required:
-      - content
+      - name
+      - parameters
       type: object
     TestCaseParameter:
       example:
@@ -2013,28 +2061,6 @@ components:
           type: string
       type: object
   securitySchemes:
-    ApiKeyAuth:
-      description: |
-        API Key authentication provides a straightforward method for clients to authenticate requests. This scheme expects an API key to be supplied in the headers of each request. Clients must include the API key in the 'X-API-KEY' header field.
-
-        **How to use**:
-        - Obtain an API key from the API provider.
-        - Include the API key in the header of each request to the API as follows:
-          ```
-          X-API-KEY: {api_key}
-          ```
-        - The API validates the key against its database, and if the key is valid, allows access to the requested resources.
-
-        **Advantages**:
-        - Simple and easy to implement.
-        - Suitable for accessing public APIs where security requirements are not excessively strict.
-
-        **Limitations**:
-        - Less secure than more complex authentication methods, such as tokens, as API keys can be easily exposed in transit or storage.
-        - API keys do not expire by default and revoking them requires direct intervention.
-      in: header
-      name: X-API-KEY
-      type: apiKey
     BearerAuth:
       bearerFormat: JWT
       description: |
@@ -2061,4 +2087,25 @@ components:
         ```
         Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiw
       scheme: bearer
+      type: http
+    BasicAuth:
+      description: |
+        Basic authentication requires the user to provide an API key ID as the username and an API key secret as the password. This method is simple and effective for scenarios where high security is not the primary concern.
+
+        **How to use**:
+        - Obtain an API key ID and secret from the API provider.
+        - Include the API key ID and secret in the HTTP request's Authorization header using the Basic scheme. The header must be in the format:
+          ```
+          Authorization: Basic {base64_encode(api_key_id:api_key_secret)}
+          ```
+        - The API will decode the credentials and validate them against its database. If valid, access to the requested resources is granted.
+
+        **Advantages**:
+        - Simple and easy to implement.
+        - Useful for development and testing environments.
+
+        **Limitations**:
+        - Less secure as credentials are encoded but not encrypted. Should only be used over HTTPS to protect credentials in transit.
+        - Credentials are static and do not expire unless explicitly rotated or revoked.
+      scheme: basic
       type: http

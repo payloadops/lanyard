@@ -117,7 +117,7 @@ func (c *TestCasesAPIController) CreateTestCase(w http.ResponseWriter, r *http.R
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteTestCase - Delete a test cases for a given prompt
+// DeleteTestCase - Delete a specific test case from a prompt
 func (c *TestCasesAPIController) DeleteTestCase(w http.ResponseWriter, r *http.Request) {
 	projectIdParam := chi.URLParam(r, "projectId")
 	if projectIdParam == "" {
@@ -144,7 +144,7 @@ func (c *TestCasesAPIController) DeleteTestCase(w http.ResponseWriter, r *http.R
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// GetTestCase - Get a test cases for a given prompt.
+// GetTestCase - Retrieve a specific test case for a prompt
 func (c *TestCasesAPIController) GetTestCase(w http.ResponseWriter, r *http.Request) {
 	projectIdParam := chi.URLParam(r, "projectId")
 	if projectIdParam == "" {
@@ -193,7 +193,7 @@ func (c *TestCasesAPIController) ListTestCases(w http.ResponseWriter, r *http.Re
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateTestCase - Update a test case for a given prompt.
+// UpdateTestCase - Update a specific test case for a prompt
 func (c *TestCasesAPIController) UpdateTestCase(w http.ResponseWriter, r *http.Request) {
 	projectIdParam := chi.URLParam(r, "projectId")
 	if projectIdParam == "" {

@@ -14,14 +14,24 @@ package openapi
 type TestCaseInput struct {
 
 	// Name of this test case
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 
 	// List of parameters for this test case
-	Parameters []TestCaseParameter `json:"parameters,omitempty"`
+	Parameters []TestCaseParameter `json:"parameters"`
 }
 
 // AssertTestCaseInputRequired checks if the required fields are not zero-ed
 func AssertTestCaseInputRequired(obj TestCaseInput) error {
+	elements := map[string]interface{}{
+		"name":       obj.Name,
+		"parameters": obj.Parameters,
+	}
+	for name, el := range elements {
+		if isZero := IsZeroValue(el); isZero {
+			return &RequiredError{Field: name}
+		}
+	}
+
 	for _, el := range obj.Parameters {
 		if err := AssertTestCaseParameterRequired(el); err != nil {
 			return err
