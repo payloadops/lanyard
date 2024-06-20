@@ -15,8 +15,8 @@ servers:
     description: Sandbox server (uses test data)
 
 security:
-  - ApiKeyAuth: []
   - BearerAuth: []
+  - BasicAuth: []
 
 paths:
   /health:
@@ -563,6 +563,8 @@ paths:
       operationId: listPrompts
       tags:
         - Prompts
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -608,6 +610,8 @@ paths:
       operationId: createPrompt
       tags:
         - Prompts
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -661,6 +665,8 @@ paths:
       operationId: getPrompt
       tags:
         - Prompts
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -706,6 +712,8 @@ paths:
       operationId: updatePrompt
       tags:
         - Prompts
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -764,6 +772,8 @@ paths:
       operationId: deletePrompt
       tags:
         - Prompts
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -807,6 +817,8 @@ paths:
       operationId: listPromptBranches
       tags:
         - Branches
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -858,6 +870,8 @@ paths:
       operationId: createPromptBranch
       tags:
         - Branches
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -926,6 +940,8 @@ paths:
       operationId: getBranch
       tags:
         - Branches
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -986,6 +1002,8 @@ paths:
       operationId: deleteBranch
       tags:
         - Branches
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -1040,6 +1058,8 @@ paths:
       operationId: listBranchCommits
       tags:
         - Commits
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -1099,6 +1119,8 @@ paths:
       operationId: createBranchCommit
       tags:
         - Commits
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -1170,6 +1192,8 @@ paths:
       operationId: getBranchCommit
       tags:
         - Commits
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: projectId
           in: path
@@ -1235,6 +1259,9 @@ paths:
       operationId: getTemplateCommit
       tags:
         - Commits
+      security:
+        - BearerAuth: [ ]
+        - BasicAuth: [ ]
       parameters:
         - name: promptId
           in: path
@@ -1279,7 +1306,15 @@ paths:
     get:
       summary: List all test cases for a prompt
       description: |
-        Retrieves a list of all test cases associated with a prompt.
+        Retrieves a comprehensive list of all test cases associated with a specific prompt. This operation is essential for users to view and manage all test cases under a prompt, facilitating efficient testing and validation of prompt content.
+        
+        **Key Features**:
+        - **Comprehensive Overview**: Provides a complete list of all test cases, aiding in the overall management and execution of tests.
+        - **Efficient Test Management**: Enables users to quickly assess the status and coverage of various test cases for the prompt.
+        
+        **Use Cases**:
+        - Quality assurance teams reviewing all test cases associated with a specific prompt.
+        - Developers and testers looking to manage and execute test cases efficiently.
 
       operationId: listTestCases
       tags:
@@ -1322,7 +1357,15 @@ paths:
     post:
       summary: Create a new test case for a prompt
       description: |
-        Creates a new test case for a prompt.
+        Creates a new test case for a specific prompt. This endpoint is crucial for expanding the testing coverage of a prompt by adding new test cases, allowing users to define initial details for a new test case which then becomes part of the prompt's testing suite.
+        
+        **Key Features**:
+        - **Test Expansion**: Allows for the addition of new test cases to a prompt, supporting dynamic testing and validation.
+        - **Customizable Input**: Users can define various attributes of the test case such as name, parameters, and expected outcomes through the `TestCaseInput` schema.
+        
+        **Use Cases**:
+        - Quality assurance teams adding new test cases to validate prompt functionality.
+        - Automating test case creation processes by integrating with test management systems that can trigger test case creations through API calls.
 
       operationId: createTestCase
       tags:
@@ -1342,7 +1385,7 @@ paths:
           description: The unique identifier of the prompt whose test case is being created.
       requestBody:
         required: true
-        description: Contains the necessary information for creating a new test case, such as name and list of test parameters.
+        description: Contains the necessary information for creating a new test case, such as name and a list of test parameters.
         content:
           application/json:
             schema:
@@ -1375,9 +1418,13 @@ paths:
 
   /projects/{projectId}/prompts/{promptId}/tests/{testId}:
     get:
-      summary: Get a test cases for a given prompt.
+      summary: Retrieve a specific test case for a prompt
       description: |
-        Retrieves a test case.
+        Retrieves detailed information about a specific test case associated with a prompt. This operation is essential for users who need to view the current state of a test case or to fetch its details for further analysis or execution.
+
+        **Key Usage**:
+        - Viewing the complete details of a test case for review or execution purposes.
+        - Fetching test case data for integration with other testing tools or systems.
 
       operationId: getTestCase
       tags:
@@ -1407,9 +1454,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TestCase'
+                $ref: '#/components/schemas/TestCase'
         '404':
           description: No test case found matching the specified identifiers.
           content:
@@ -1417,16 +1462,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the retrieval of test case.
+          description: A server error occurred, preventing the retrieval of the test case.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
     put:
-      summary: Update a test case for a given prompt.
+      summary: Update a specific test case for a prompt
       description: |
-        Updates a test case for a given prompt.
+        Updates the details of a specific test case associated with a prompt. This operation allows users to modify existing test cases to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of test case content.
+
+        **Key Usage**:
+        - Modifying the parameters or expected outcomes of a test case as part of test management workflows.
+        - Updating test case settings or configurations based on new inputs or feedback.
 
       operationId: updateTestCase
       tags:
@@ -1458,7 +1507,7 @@ paths:
             schema:
               $ref: '#/components/schemas/TestCaseInput'
       responses:
-        '201':
+        '200':
           description: Test case updated successfully.
           content:
             application/json:
@@ -1482,11 +1531,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      
+
     delete:
-      summary: Delete a test cases for a given prompt
+      summary: Delete a specific test case from a prompt
       description: |
-        Deletes a test case for a given prompt.
+        Deletes a specific test case from a prompt. This operation is used when a test case is no longer needed or relevant, or as part of test suite cleanup and management strategies.
+
+        **Key Usage**:
+        - Removing outdated or irrelevant test cases to maintain a clean and efficient testing environment.
+        - Complying with data retention policies by deleting test cases that are no longer necessary.
 
       operationId: deleteTestCase
       tags:
@@ -1503,7 +1556,7 @@ paths:
           required: true
           schema:
             type: string
-          description: The unique identifier of the prompt whose test case are being deleted.
+          description: The unique identifier of the prompt whose test case is being deleted.
         - name: testId
           in: path
           required: true
@@ -1511,22 +1564,16 @@ paths:
             type: string
           description: The unique identifier of the test case.
       responses:
-        '200':
-          description: Successfully deleted the test cases associated with the prompt.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TestCase'
+        '204':
+          description: The test case was deleted successfully; no content is returned.
         '404':
-          description: No branch found matching the specified identifiers.
+          description: No test case found matching the specified identifiers.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '500':
-          description: A server error occurred, preventing the deleting the test case.
+          description: A server error occurred, preventing the deletion of the test case.
           content:
             application/json:
               schema:
@@ -1534,29 +1581,6 @@ paths:
 
 components:
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-KEY
-      description: |
-        API Key authentication provides a straightforward method for clients to authenticate requests. This scheme expects an API key to be supplied in the headers of each request. Clients must include the API key in the 'X-API-KEY' header field.
-
-        **How to use**:
-        - Obtain an API key from the API provider.
-        - Include the API key in the header of each request to the API as follows:
-          ```
-          X-API-KEY: {api_key}
-          ```
-        - The API validates the key against its database, and if the key is valid, allows access to the requested resources.
-
-        **Advantages**:
-        - Simple and easy to implement.
-        - Suitable for accessing public APIs where security requirements are not excessively strict.
-
-        **Limitations**:
-        - Less secure than more complex authentication methods, such as tokens, as API keys can be easily exposed in transit or storage.
-        - API keys do not expire by default and revoking them requires direct intervention.
-
     BearerAuth:
       type: http
       scheme: bearer
@@ -1584,6 +1608,28 @@ components:
         To access protected routes or resources, the client must authenticate by providing the JWT in the authorization header:
         ```
         Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiw
+
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Basic authentication requires the user to provide an API key ID as the username and an API key secret as the password. This method is simple and effective for scenarios where high security is not the primary concern.
+        
+        **How to use**:
+        - Obtain an API key ID and secret from the API provider.
+        - Include the API key ID and secret in the HTTP request's Authorization header using the Basic scheme. The header must be in the format:
+          ```
+          Authorization: Basic {base64_encode(api_key_id:api_key_secret)}
+          ```
+        - The API will decode the credentials and validate them against its database. If valid, access to the requested resources is granted.
+        
+        **Advantages**:
+        - Simple and easy to implement.
+        - Useful for development and testing environments.
+        
+        **Limitations**:
+        - Less secure as credentials are encoded but not encrypted. Should only be used over HTTPS to protect credentials in transit.
+        - Credentials are static and do not expire unless explicitly rotated or revoked.
 
   schemas:
     KSUID:
@@ -1856,7 +1902,8 @@ components:
     TestCaseInput:
       type: object
       required:
-        - content
+        - name
+        - parameters
       properties:
         name:
           type: string
