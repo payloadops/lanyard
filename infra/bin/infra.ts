@@ -16,7 +16,23 @@ const stages = [
   new Stage(app, `${Stages.DEV}-${Regions.US_EAST_1}`, Stages.DEV, {
     env: {account: Accounts.DEV, region: Regions.US_EAST_1},
     imageTag: imageTag
-  })
+  }), 
+  new Stage(app, `${Stages.PROD}-${Regions.US_EAST_1}`, Stages.PROD, {
+    env: {account: Accounts.PROD, region: Regions.US_EAST_1},
+    imageTag: imageTag
+  }), 
+  // new Stage(app, `${Stages.PROD}-${Regions.US_WEST_2}`, Stages.PROD, {
+  //   env: {account: Accounts.PROD, region: Regions.US_WEST_2},
+  //   imageTag: imageTag
+  // }),
+  // new Stage(app, `${Stages.PROD}-${Regions.EU_WEST_1}`, Stages.PROD, {
+  //   env: {account: Accounts.PROD, region: Regions.EU_WEST_1},
+  //   imageTag: imageTag
+  // }),  
+  // new Stage(app, `${Stages.PROD}-${Regions.EU_CENTRAL_1}`, Stages.PROD, {
+  //   env: {account: Accounts.PROD, region: Regions.EU_CENTRAL_1},
+  //   imageTag: imageTag
+  // }),  
 ]
 
 new PipelineStack(app, 'PipelineStack', stages, {
