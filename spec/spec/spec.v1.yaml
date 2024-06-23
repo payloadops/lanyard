@@ -1244,17 +1244,17 @@ paths:
     get:
       summary: Retrieve a specific commit or the latest commit of a branch
       description: |
-        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
+        Retrieves detailed information about a specific commit of a branch for a given prompt, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is essential for accessing the most accurate and relevant prompt data to feed models in production environments.
 
         **Features**:
-        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
-        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
-        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
+        - **Prompt Data Retrieval**: Provides detailed information about a specific commit, including the changes made, the author, and the timestamp, ensuring the most current data is available for production models.
+        - **Latest Commit Access**: Supports obtaining the most recent commit using the 'latest' keyword, facilitating immediate access to the latest prompt data for model consumption.
+        - **Comprehensive Insights**: Offers thorough commit information, helping to understand the evolution of the prompt and ensuring models use the most refined versions.
 
         **Use Cases**:
-        - Retrieving past commits for audit or comparison purposes.
-        - Accessing the latest commit to continue development or review current changes.
-        - Integrating commit data into other systems for enhanced content lifecycle management.
+        - **Model Feeding**: Retrieving the latest or a specific version of a prompt to provide models with the most up-to-date and accurate data for production use.
+        - **Continuous Improvement**: Accessing historical commits to understand changes and improvements in prompts, aiding in refining models based on prompt evolution.
+        - **Integration with Systems**: Integrating commit data into production systems to ensure models are always fed with the most relevant and approved prompt versions.
 
       operationId: getTemplateCommit
       tags:
@@ -1281,7 +1281,7 @@ paths:
           schema:
             type: string
           description: The ID of the commit to retrieve, or 'latest' to obtain the most recent commit.
-          example: 'latest'  # Providing an example to clarify usage
+          example: 'latest'
       responses:
         '200':
           description: Successfully retrieved detailed information about the specified commit of the branch.
