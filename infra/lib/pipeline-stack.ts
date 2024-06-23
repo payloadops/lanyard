@@ -104,9 +104,13 @@ export class PipelineStack extends cdk.Stack {
         ]
       });
 
+
+      const waves = new Map();
+
       stages.forEach(stage => {
+        const wave = waves.has(stage.stageName) ? waves.get(stage.stageName) : pipeline.addWave(stage.stageName);
         if (stage.account === Accounts.DEV) {
-          pipeline.addStage(stage, {
+          wave.addStage(stage, {
             post: [
               new CodeBuildStep('RunE2ETests', {
                 commands: [
@@ -127,8 +131,9 @@ export class PipelineStack extends cdk.Stack {
               new ManualApprovalStep('Manual Approval'),
             ]
           });
-        } else {
-          pipeline.addStage(stage)
+        } 
+        else {
+          wave.addStage(stage);
         }
       });
     }
