@@ -10,7 +10,7 @@ interface DynamoStackProps extends cdk.StackProps {
 
 const REPLICATIONS_REGIONS: string[] = [
   // Regions.US_WEST_2,
-  // Regions.EU_WEST_1,
+  // Regions.EU_WEST_2,
   // Regions.EU_CENTRAL_1,
 ];
 
