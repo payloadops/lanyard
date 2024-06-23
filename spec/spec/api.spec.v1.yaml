@@ -1,0 +1,194 @@
+openapi: 3.0.0
+
+info:
+  title: Payload Ops API
+  description: The Payload Ops API streamlines management of AI prompts and templates.
+  version: "1.0"
+  contact:
+    name: Payload Ops Team
+    email: info@payloadops.com
+
+servers:
+  - url: https://api.payloadops.com/v1
+    description: Production server (uses live data)
+  - url: https://sandbox-api.payloadops.com/v1
+    description: Sandbox server (uses test data)
+
+security:
+  - BasicAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check Endpoint
+      description: |
+        This endpoint performs a health check of the API, quickly assessing and returning the operational status. It is designed to monitor critical system metrics and infrastructure components, such as database connections and system uptime, ensuring that the API is functioning properly. This endpoint is vital for operational monitoring, particularly in production environments where reliability is crucial.
+        
+        **Key Features**:
+        - **Immediate Health Status**: Quickly assesses the overall health of the API by checking essential components and dependencies, such as database connectivity and server uptime.
+        - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
+        
+        **Use Cases**:
+        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
+        - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
+        
+        **Response Details**:
+        - A successful response indicates that all checked components are operational.
+        - An unsuccessful response identifies which components are experiencing issues, aiding in quick diagnostics and resolution.
+
+      operationId: healthCheck
+      tags:
+        - Health Check
+      responses:
+        '200':
+          description: API is healthy and fully operational, with all necessary components (like databases) connected and functioning.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckSuccessResponse'
+        '500':
+          description: API is experiencing issues, indicating that one or more components are not functioning correctly.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckErrorResponse'
+
+  /templates/{promptId}/{branchName}/{commitId}:
+    get:
+      summary: Retrieve a specific commit or the latest commit of a branch
+      description: |
+        Retrieves detailed information about a specific commit of a branch for a given prompt, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is essential for accessing the most accurate and relevant prompt data to feed models in production environments.
+
+        **Features**:
+        - **Prompt Data Retrieval**: Provides detailed information about a specific commit, including the changes made, the author, and the timestamp, ensuring the most current data is available for production models.
+        - **Latest Commit Access**: Supports obtaining the most recent commit using the 'latest' keyword, facilitating immediate access to the latest prompt data for model consumption.
+        - **Comprehensive Insights**: Offers thorough commit information, helping to understand the evolution of the prompt and ensuring models use the most refined versions.
+
+        **Use Cases**:
+        - **Model Feeding**: Retrieving the latest or a specific version of a prompt to provide models with the most up-to-date and accurate data for production use.
+        - **Continuous Improvement**: Accessing historical commits to understand changes and improvements in prompts, aiding in refining models based on prompt evolution.
+        - **Integration with Systems**: Integrating commit data into production systems to ensure models are always fed with the most relevant and approved prompt versions.
+
+      operationId: getTemplateCommit
+      tags:
+        - Commits
+      security:
+        - BearerAuth: [ ]
+        - BasicAuth: [ ]
+      parameters:
+        - name: promptId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the prompt.
+        - name: branchName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the branch.
+        - name: commitId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the commit to retrieve, or 'latest' to obtain the most recent commit.
+          example: 'latest'
+      responses:
+        '200':
+          description: Successfully retrieved detailed information about the specified commit of the branch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commit'
+        '404':
+          description: No branch or commit found matching the specified identifiers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: A server error occurred, preventing the retrieval of the branch commit.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Basic authentication requires the user to provide an API key ID as the username and an API key secret as the password. This method is simple and effective for scenarios where high security is not the primary concern.
+        
+        **How to use**:
+        - Obtain an API key ID and secret from the API provider.
+        - Include the API key ID and secret in the HTTP request's Authorization header using the Basic scheme. The header must be in the format:
+          ```
+          Authorization: Basic {base64_encode(api_key_id:api_key_secret)}
+          ```
+        - The API will decode the credentials and validate them against its database. If valid, access to the requested resources is granted.
+        
+        **Advantages**:
+        - Simple and easy to implement.
+        - Useful for development and testing environments.
+        
+        **Limitations**:
+        - Less secure as credentials are encoded but not encrypted. Should only be used over HTTPS to protect credentials in transit.
+        - Credentials are static and do not expire unless explicitly rotated or revoked.
+
+  schemas:
+    KSUID:
+      type: string
+      pattern: '^[A-Za-z0-9]{27}$'
+      minLength: 27
+      maxLength: 27
+      description: A K-sortable unique identifier (KSUID)
+
+    HealthCheckSuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+
+    HealthCheckErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "unhealthy"
+
+    Commit:
+      type: object
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the commit of the branch
+        content:
+          type: string
+          minLength: 1
+          description: Content of the prompt in this commit
+        message:
+          type: string
+          minLength: 1
+          maxLength: 180
+          description: Message describing the changes in this commit
+        userId:
+          allOf:
+            - $ref: '#/components/schemas/KSUID'
+          description: Identifier of the user that created this commit
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when this commit was created
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message describing the error that occurred
