@@ -28,6 +28,7 @@ export class PipelineStack extends cdk.Stack {
       });
 
       const pipeline = new CodePipeline(this, 'Pipeline', {
+        crossAccountKeys: true,
         pipelineName: 'Pipeline',
         selfMutation: true,
         synth: new ShellStep('Synth', {
@@ -45,6 +46,19 @@ export class PipelineStack extends cdk.Stack {
       });
 
       const ecrRepository = new ecr.Repository(this, 'Repository', {repositoryName: "app"});
+
+      const policyStatement = new iam.PolicyStatement({
+        actions: [
+          'ecr:GetDownloadUrlForLayer',
+          'ecr:BatchGetImage',
+          'ecr:BatchCheckLayerAvailability',
+          'ecr:PutImage',
+          // Add more ECR actions as necessary
+        ],
+        principals: [new iam.AccountPrincipal(Accounts.PROD)]
+      });
+      
+      ecrRepository.addToResourcePolicy(policyStatement);
 
       const codeBuildRole = new iam.Role(this, 'CodeBuildRole', {
         assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
@@ -90,9 +104,13 @@ export class PipelineStack extends cdk.Stack {
         ]
       });
 
+
+      const waves = new Map();
+
       stages.forEach(stage => {
+        const wave = waves.has(stage.stageName) ? waves.get(stage.stageName) : pipeline.addWave(stage.stageName);
         if (stage.account === Accounts.DEV) {
-          pipeline.addStage(stage, {
+          wave.addStage(stage, {
             post: [
               new CodeBuildStep('RunE2ETests', {
                 commands: [
@@ -113,8 +131,9 @@ export class PipelineStack extends cdk.Stack {
               new ManualApprovalStep('Manual Approval'),
             ]
           });
-        } else {
-          pipeline.addStage(stage)
+        } 
+        else {
+          wave.addStage(stage);
         }
       });
     }
