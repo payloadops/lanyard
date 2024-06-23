@@ -73,7 +73,6 @@ paths:
       tags:
         - Commits
       security:
-        - BearerAuth: [ ]
         - BasicAuth: [ ]
       parameters:
         - name: promptId

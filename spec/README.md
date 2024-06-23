@@ -18,6 +18,7 @@ The following dependencies are necessary to run the Swagger UI and mock server.
 * [Docker >= 26.0.0](https://docs.docker.com/get-docker/)
 * [OpenAPI Generator >= 7.5.0](https://openapi-generator.tech/docs/installation)
 * [Goimports >= 0.21.0](https://pkg.go.dev/golang.org/x/tools/cmd/goimports)
+* [Redocly >= 1.12.0](https://redocly.com/docs/cli/installation/)
 
 ## Development
 
@@ -33,4 +34,11 @@ To generate server-side stubs for the OpenAPI spec, excluding the service module
 
 ```/bin/bash
 ./codegen.sh
+```
+
+## Documentation Generation
+To generate public facing documentation based on our public API spec, please use the documentation generation script.
+
+```/bin/bash
+./docgen.sh
 ```

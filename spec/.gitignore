@@ -3,3 +3,6 @@
 
 # IntelliJ IDEA
 .idea
+
+# Reddocly HTML
+redoc-static.html
