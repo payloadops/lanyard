@@ -25,8 +25,8 @@ const stages = [
   //   env: {account: Accounts.PROD, region: Regions.US_WEST_2},
   //   imageTag: imageTag
   // }),
-  // new Stage(app, `${Stages.PROD}-${Regions.EU_WEST_1}`, Stages.PROD, {
-  //   env: {account: Accounts.PROD, region: Regions.EU_WEST_1},
+  // new Stage(app, `${Stages.PROD}-${Regions.EU_WEST_2}`, Stages.PROD, {
+  //   env: {account: Accounts.PROD, region: Regions.EU_WEST_2},
   //   imageTag: imageTag
   // }),  
   // new Stage(app, `${Stages.PROD}-${Regions.EU_CENTRAL_1}`, Stages.PROD, {
