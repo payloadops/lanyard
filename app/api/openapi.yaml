@@ -3,10 +3,10 @@ info:
   contact:
     email: info@payloadops.com
     name: Payload Ops Team
-  description: "The Payload Ops API streamlines management of AI prompts, projects,\
-    \ organizations, teams, and users through conventional HTTP requests. This platform\
-    \ enables efficient automation and control of resources, providing robust tools\
-    \ for developers to manage settings, memberships, and activities seamlessly."
+  description: "The Payload Ops API simplifies API key management for organizations\
+    \ by providing powerful tools to create, manage, and monitor API access securely.\
+    \ It allows teams to generate scoped API keys, configure rate limits, track usage,\
+    \ and integrate seamlessly with existing services."
   title: Payload Ops API
   version: "1.0"
 servers:
@@ -38,14 +38,14 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/HealthCheckSuccessResponse'
           description: "API is healthy and fully operational, with all necessary components\
             \ (like databases) connected and functioning."
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/HealthCheckErrorResponse'
           description: "API is experiencing issues, indicating that one or more components\
@@ -53,139 +53,139 @@ paths:
       summary: Health Check Endpoint
       tags:
       - Health Check
-  /projects:
+  /services:
     get:
       description: |
-        Retrieves a comprehensive list of all projects within the system. This operation is crucial for users needing an overview of all existing projects, including their basic metadata and status. It allows for effective management and navigation across different projects, particularly useful in environments with multiple ongoing initiatives.
+        Retrieves a comprehensive list of all services within the system. This operation is crucial for users needing an overview of all existing services, including their basic metadata and status. It allows for effective management and navigation across different services, particularly useful in environments with multiple ongoing initiatives.
 
         **Key Features**:
-        - **Broad Overview**: Provides a snapshot of all projects, facilitating quick access and management decisions.
-        - **Ease of Navigation**: Helps users identify and access specific projects quickly, enhancing workflow efficiency.
+        - **Broad Overview**: Provides a snapshot of all services, facilitating quick access and management decisions.
+        - **Ease of Navigation**: Helps users identify and access specific services quickly, enhancing workflow efficiency.
 
         **Use Cases**:
-        - Administrators monitoring the overall progress and status of all projects.
-        - Team members seeking to quickly find and access specific projects they are working on or interested in.
-      operationId: listProjects
+        - Administrators monitoring the overall progress and status of all services.
+        - Team members seeking to quickly find and access specific services they are working on or interested in.
+      operationId: listservices
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Project'
+                  $ref: '#/components/schemas/Service'
                 type: array
-          description: "Successfully retrieved a list of all projects, each represented\
-            \ with basic details like project ID, name, and description."
+          description: "Successfully retrieved a list of all services, each represented\
+            \ with basic details like service ID, name, and description."
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the listing of projects."
+          description: "A server error occurred, preventing the listing of services."
       security:
       - BearerAuth: []
-      summary: List all projects
+      summary: List all services
       tags:
-      - Projects
+      - Services
     post:
       description: |
-        Creates a new project based on the provided details in the request. This endpoint facilitates the addition of new projects into the system, allowing for the initiation of new initiatives or work streams within the organization.
+        Creates a new service based on the provided details in the request. This endpoint facilitates the addition of new services into the system, allowing for the initiation of new initiatives or work streams within the organization.
 
         **Key Features**:
-        - **Project Initialization**: Enables the setup of new projects, defining their scope, objectives, and other necessary details from the outset.
-        - **Configurable Details**: Allows for detailed customization of project parameters such as name, description, and specific settings related to project management.
+        - **service Initialization**: Enables the setup of new services, defining their scope, objectives, and other necessary details from the outset.
+        - **Configurable Details**: Allows for detailed customization of service parameters such as name, description, and specific settings related to service management.
 
         **Use Cases**:
         - Starting new initiatives or phases in business operations.
-        - Expanding the organization's portfolio by adding projects that address new challenges or market opportunities.
-      operationId: createProject
+        - Expanding the organization's portfolio by adding services that address new challenges or market opportunities.
+      operationId: createservice
       requestBody:
         content:
-          application/json:
+          service/json:
             schema:
-              $ref: '#/components/schemas/ProjectInput'
-        description: "Contains the necessary information for creating a new project,\
-          \ such as the project name, description, and other relevant settings."
+              $ref: '#/components/schemas/ServiceInput'
+        description: "Contains the necessary information for creating a new service,\
+          \ such as the service name, description, and other relevant settings."
         required: true
       responses:
         "201":
           content:
-            application/json:
+            service/json:
               schema:
-                $ref: '#/components/schemas/Project'
-          description: "The project was created successfully, with details of the\
-            \ new project provided in the response."
+                $ref: '#/components/schemas/Service'
+          description: "The service was created successfully, with details of the\
+            \ new service provided in the response."
         "400":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "Bad request due to invalid input, such as incomplete data\
             \ fields or improper values."
       security:
       - BearerAuth: []
-      summary: Create a new project
+      summary: Create a new service
       tags:
-      - Projects
-  /projects/{projectId}:
+      - Services
+  /services/{serviceId}:
     delete:
       description: |
-        Deletes a specific project using its unique ID, removing all data and settings associated with it. This operation is typically used when a project has been completed, or if it needs to be removed for organizational reasons.
+        Deletes a specific service using its unique ID, removing all data and settings associated with it. This operation is typically used when a service has been completed, or if it needs to be removed for organizational reasons.
 
         **Key Features**:
-        - **Complete Removal**: Ensures that all project-related data is permanently deleted.
-        - **Security Compliance**: Helps maintain data hygiene and compliance by allowing for the disposal of unnecessary or outdated projects.
+        - **Complete Removal**: Ensures that all service-related data is permanently deleted.
+        - **Security Compliance**: Helps maintain data hygiene and compliance by allowing for the disposal of unnecessary or outdated services.
 
         **Use Cases**:
-        - Removing projects that are no longer active or required.
-        - Cleaning up workspace and resources as part of project lifecycle management.
-      operationId: deleteProject
+        - Removing services that are no longer active or required.
+        - Cleaning up workspace and resources as part of service lifecycle management.
+      operationId: deleteservice
       parameters:
-      - description: The unique identifier of the project to be deleted.
+      - description: The unique identifier of the service to be deleted.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
       responses:
         "204":
-          description: "Project deleted successfully, with no remaining data stored."
+          description: "service deleted successfully, with no remaining data stored."
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: No project found with the specified ID to delete.
+          description: No service found with the specified ID to delete.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deletion of the project."
+          description: "A server error occurred, preventing the deletion of the service."
       security:
       - BearerAuth: []
-      summary: Delete a project
+      summary: Delete a service
       tags:
-      - Projects
+      - Services
     get:
       description: |
-        Retrieves detailed information about a specific project using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the project, including its metadata, associated prompts, and configuration settings.
+        Retrieves detailed information about a specific service using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the service, including its metadata, associated prompts, and configuration settings.
 
         **Key Features**:
-        - **Comprehensive Details**: Provides all relevant information about the project, including descriptions, member roles, and other metadata.
-        - **Project Oversight**: Essential for project managers and team members to understand current project settings and status.
+        - **Comprehensive Details**: Provides all relevant information about the service, including descriptions, member roles, and other metadata.
+        - **service Oversight**: Essential for service managers and team members to understand current service settings and status.
 
         **Use Cases**:
-        - Project managers reviewing project settings and progress.
-        - Team members accessing project details for integration with other tasks or for reporting purposes.
-      operationId: getProject
+        - Service managers reviewing service settings and progress.
+        - Team members accessing service details for integration with other tasks or for reporting purposes.
+      operationId: getservice
       parameters:
-      - description: The unique identifier of the project to retrieve.
+      - description: The unique identifier of the service to retrieve.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -193,91 +193,91 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
-                $ref: '#/components/schemas/Project'
-          description: Detailed information about the project retrieved successfully.
+                $ref: '#/components/schemas/Service'
+          description: Detailed information about the service retrieved successfully.
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: No project found with the specified ID.
+          description: No service found with the specified ID.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the project."
+          description: "A server error occurred, preventing the retrieval of the service."
       security:
       - BearerAuth: []
-      summary: Retrieve a project by ID
+      summary: Retrieve a service by ID
       tags:
-      - Projects
+      - Services
     put:
       description: |
-        Updates the specified project's details based on the provided input. This operation allows for modifications to project metadata such as the project name, description, and other configurable settings. It is vital for maintaining up-to-date information and adapting project settings to evolving requirements.
+        Updates the specified service's details based on the provided input. This operation allows for modifications to service metadata such as the service name, description, and other configurable settings. It is vital for maintaining up-to-date information and adapting service settings to evolving requirements.
 
         **Key Features**:
-        - **Flexible Modification**: Supports changes to most project attributes, facilitating dynamic project management.
-        - **Adaptive Configuration**: Enables projects to be adapted as team goals or business needs change.
+        - **Flexible Modification**: Supports changes to most service attributes, facilitating dynamic service management.
+        - **Adaptive Configuration**: Enables services to be adapted as team goals or business needs change.
 
         **Use Cases**:
-        - Updating project details to reflect new directions or goals.
+        - Updating service details to reflect new directions or goals.
         - Modifying access controls or roles as team dynamics change.
-      operationId: updateProject
+      operationId: updateservice
       parameters:
-      - description: The unique identifier of the project to be updated.
+      - description: The unique identifier of the service to be updated.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
       requestBody:
         content:
-          application/json:
+          service/json:
             schema:
-              $ref: '#/components/schemas/ProjectInput'
-        description: "Contains the new details for the project, which may include\
+              $ref: '#/components/schemas/ServiceInput'
+        description: "Contains the new details for the service, which may include\
           \ the name, description, and other relevant settings."
         required: true
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
-                $ref: '#/components/schemas/Project'
-          description: "Project updated successfully, reflecting new settings and\
+                $ref: '#/components/schemas/Service'
+          description: "service updated successfully, reflecting new settings and\
             \ configurations."
         "400":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Bad request due to invalid input or missing required fields.
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: No project found with the specified ID to update.
+          description: No service found with the specified ID to update.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the update of the project."
+          description: "A server error occurred, preventing the update of the service."
       security:
       - BearerAuth: []
-      summary: Update a project
+      summary: Update a service
       tags:
-      - Projects
-  /projects/{projectId}/keys:
+      - Services
+  /services/{serviceId}/keys:
     get:
       description: |
-        Retrieves a list of all API keys associated with a specific project. This endpoint is essential for managing and reviewing the access provided to different services and users. It offers a comprehensive view of all keys, their scopes, and their statuses, which is critical for effective access management and security audits.
+        Retrieves a list of all API keys associated with a specific service. This endpoint is essential for managing and reviewing the access provided to different services and users. It offers a comprehensive view of all keys, their scopes, and their statuses, which is critical for effective access management and security audits.
 
         **Features**:
         - **Comprehensive Overview**: Provides a complete listing of all API keys, facilitating audits and security reviews.
@@ -288,11 +288,11 @@ paths:
         - Quickly identifying and managing keys that may need adjustments or revocation.
       operationId: listApiKeys
       parameters:
-      - description: The unique identifier of the project whose API keys are to be
+      - description: The unique identifier of the service whose API keys are to be
           listed.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -300,40 +300,40 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
                 items:
                   $ref: '#/components/schemas/ApiKey'
                 type: array
-          description: Successfully retrieved a list of API keys for the project.
+          description: Successfully retrieved a list of API keys for the service.
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: "The specified project was not found, indicating an invalid\
-            \ project ID."
+          description: "The specified service was not found, indicating an invalid\
+            \ service ID."
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of API keys."
       security:
       - BearerAuth: []
-      summary: List all API keys for a project
+      summary: List all API keys for a service
       tags:
       - API Keys
     post:
       description: |
-        Generates a new API key for a specific project with designated scopes. This operation is crucial for creating secure, scoped access to the project's resources. It allows administrators to define specific permissions, ensuring that API keys can only access appropriate endpoints as per their operational requirements.
+        Generates a new API key for a specific service with designated scopes. This operation is crucial for creating secure, scoped access to the service's resources. It allows administrators to define specific permissions, ensuring that API keys can only access appropriate endpoints as per their operational requirements.
 
         **Features**:
         - **Scoped Access**: Tailors access permissions to specific needs, enhancing security by limiting API key capabilities to necessary actions.
         - **Secure Management**: Generates keys in a secure manner, ensuring that they are only known to the requester and stored securely.
 
         **Use Cases**:
-        - Provisioning a new service or system that requires access to the project.
+        - Provisioning a new service or system that requires access to the service.
         - Creating temporary access for automation scripts or third-party integrations.
 
         **Guidelines**:
@@ -341,18 +341,18 @@ paths:
         - Manage the lifecycle of API keys responsibly, revoking them when no longer needed.
       operationId: generateApiKey
       parameters:
-      - description: The identifier of the project for which the API key is being
+      - description: The identifier of the service for which the API key is being
           generated.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
       requestBody:
         content:
-          application/json:
+          service/json:
             schema:
               $ref: '#/components/schemas/ApiKeyInput'
         description: Contains the scope definitions for the new API key.
@@ -360,55 +360,55 @@ paths:
       responses:
         "201":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/ApiKey'
           description: New API key generated successfully. The key details are included
             in the response.
         "400":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "Invalid request, such as missing required fields or invalid\
             \ scope specifications."
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: The specified project was not found.
+          description: The specified service was not found.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the generation of the\
             \ API key."
       security:
       - BearerAuth: []
-      summary: Generate a new API key with specific scopes for a project
+      summary: Generate a new API key with specific scopes for a service
       tags:
       - API Keys
-  /projects/{projectId}/keys/{keyId}:
+  /services/{serviceId}/keys/{keyId}:
     delete:
       description: |
-        Deletes a specific API key from a project, permanently removing its access to the project resources. This operation is essential for maintaining security when an API key is no longer needed or if its permissions need to be revoked urgently.
+        Deletes a specific API key from a service, permanently removing its access to the service resources. This operation is essential for maintaining security when an API key is no longer needed or if its permissions need to be revoked urgently.
 
         **Key Features**:
         - **Secure Cleanup**: Ensures that unused or compromised API keys are removed to prevent unauthorized access.
         - **Access Revocation**: Provides a method to immediately invalidate an API key when necessary.
 
         **Use Cases**:
-        - Removing access for team members who no longer require it, such as after project completion or role changes.
+        - Removing access for team members who no longer require it, such as after service completion or role changes.
         - Revoking keys that may have been exposed or compromised to maintain security integrity.
       operationId: deleteApiKey
       parameters:
-      - description: The unique identifier of the project from which the API key will
+      - description: The unique identifier of the service from which the API key will
           be deleted.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -426,13 +426,13 @@ paths:
           description: "The API key was deleted successfully, no content returned."
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: Either the API key or the project was not found.
+          description: Either the API key or the service was not found.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the deletion of the API\
@@ -444,22 +444,22 @@ paths:
       - API Keys
     get:
       description: |
-        Retrieves detailed information about a specific API key associated with a project. This operation is crucial for managing access to project resources, allowing administrators to review the permissions and details of individual API keys.
+        Retrieves detailed information about a specific API key associated with a service. This operation is crucial for managing access to service resources, allowing administrators to review the permissions and details of individual API keys.
 
         **Key Features**:
         - **Security Management**: Provides the ability to monitor and manage API access through detailed key information.
-        - **Access Review**: Enables project managers to verify the scope and validity of an API key, ensuring that it aligns with current security policies.
+        - **Access Review**: Enables service managers to verify the scope and validity of an API key, ensuring that it aligns with current security policies.
 
         **Use Cases**:
         - Administrators auditing access permissions for compliance and security best practices.
         - Developers checking API key details to troubleshoot access issues or to ensure proper configuration.
       operationId: getApiKey
       parameters:
-      - description: The unique identifier of the project associated with the API
+      - description: The unique identifier of the service associated with the API
           key.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -475,19 +475,19 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/ApiKey'
           description: Detailed information about the API key retrieved successfully.
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: Either the specified API key or the project was not found.
+          description: Either the specified API key or the service was not found.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the retrieval of the API\
@@ -499,22 +499,22 @@ paths:
       - API Keys
     put:
       description: |
-        Updates the scopes associated with a specific API key. This operation allows administrators to modify access levels and permissions for API keys, adapting to changing security needs or project requirements.
+        Updates the scopes associated with a specific API key. This operation allows administrators to modify access levels and permissions for API keys, adapting to changing security needs or service requirements.
 
         **Key Features**:
-        - **Scope Management**: Adjusts the access boundaries defined by the API key scopes, ensuring they are kept up-to-date with project roles and permissions.
+        - **Scope Management**: Adjusts the access boundaries defined by the API key scopes, ensuring they are kept up-to-date with service roles and permissions.
         - **Flexible Access Control**: Offers the ability to dynamically change API key permissions without needing to recreate keys.
 
         **Use Cases**:
-        - Modifying API key permissions in response to role changes within a project team.
+        - Modifying API key permissions in response to role changes within a service team.
         - Updating key scopes to restrict or expand access as part of security policy adjustments.
       operationId: updateApiKey
       parameters:
-      - description: The unique identifier of the project for which the API key is
+      - description: The unique identifier of the service for which the API key is
           managed.
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -529,7 +529,7 @@ paths:
         style: simple
       requestBody:
         content:
-          application/json:
+          service/json:
             schema:
               $ref: '#/components/schemas/ApiKeyInput'
         description: JSON payload containing the new scopes for the API key.
@@ -537,25 +537,25 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/ApiKey'
           description: The API key's scopes were updated successfully.
         "400":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "Invalid input, such as unspecified or unsupported scopes."
         "404":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          description: Either the API key or the project was not found.
+          description: Either the API key or the service was not found.
         "500":
           content:
-            application/json:
+            service/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: "A server error occurred, preventing the update of the API\
@@ -565,25 +565,15 @@ paths:
       summary: Update an API key's scopes
       tags:
       - API Keys
-  /projects/{projectId}/prompts:
+  /services/{serviceId}/rate-limits:
     get:
       description: |
-        Retrieves a comprehensive list of all prompts associated with a specific project. This operation is essential for users to view and manage all the prompts under a project, facilitating quick access to any particular prompt and understanding the scope of the project's content.
-
-        **Key Features**:
-        - **Comprehensive Overview**: Provides a complete list of all prompts, helping in the overall management and navigation of project content.
-        - **Efficient Project Management**: Enables project managers and team members to quickly assess the progress and status of various prompts within the project.
-
-        **Use Cases**:
-        - Developers and content creators looking to overview or navigate through all the prompts associated with a specific project.
-        - Useful in scenarios where multiple teams or stakeholders need to review or access prompt information collectively.
-      operationId: listPrompts
+        Retrieves the rate limits applied to the service, including global rate limits or rate limits specific to certain actors.
       parameters:
-      - description: The unique identifier of the project whose prompts are to be
-          listed.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -594,44 +584,22 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/PromptStub'
+                  $ref: '#/components/schemas/RateLimit'
                 type: array
-          description: Successfully retrieved a list of all prompts in the specified
-            project.
+          description: A list of rate limits applied to the service
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Project not found, indicating the specified project ID does\
-            \ not exist."
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of prompts."
-      summary: List all prompts in a project
+          description: Service not found
+      summary: Retrieve rate limits for a service
       tags:
-      - Prompts
+      - Rate Limits
     post:
       description: |
-        Creates a new prompt within a specified project. This endpoint is crucial for expanding project content by adding new prompts, allowing users to input initial details for a new prompt which then becomes part of the project's documentation or content offerings.
-
-        **Key Features**:
-        - **Content Expansion**: Allows for the easy addition of new content to a project, supporting dynamic growth and updates.
-        - **Customizable Input**: Users can define various attributes of the prompt such as title, description, and specific content parameters through the `PromptInput` schema.
-
-        **Use Cases**:
-        - Content managers and creators adding new thematic prompts or content pieces to existing projects.
-        - Automating content creation processes by integrating with content management systems that can trigger prompt creations through API calls.
-      operationId: createPrompt
+        Sets a new rate limit for the specified service. The rate limit can apply to the entire service or be tied to specific actors.
       parameters:
-      - description: The unique identifier of the project within which the new prompt
-          is to be created.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -640,154 +608,64 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PromptInput'
-        description: "Contains the necessary attributes for creating a new prompt,\
-          \ such as title, description, and any specific content elements."
+              $ref: '#/components/schemas/RateLimitInput'
+        description: Rate limit settings
         required: true
       responses:
         "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prompt'
-          description: The prompt was created successfully and is now part of the
-            project.
+          description: Rate limit successfully added
         "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input provided in the request body, such as missing\
-            \ required fields or data that does not conform to the expected format."
+          description: Invalid input
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Project not found, indicating the specified project ID does\
-            \ not exist."
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the creation of the new\
-            \ prompt."
-      summary: Create a new prompt in a project
+          description: Service not found
+      summary: Set a new rate limit for a service
       tags:
-      - Prompts
-  /projects/{projectId}/prompts/{promptId}:
+      - Rate Limits
+  /services/{serviceId}/rate-limits/{limitId}:
     delete:
       description: |
-        Deletes a specific prompt from a project, removing it permanently from the system. This operation is used when a prompt is no longer needed or relevant, or as part of content cleanup and management strategies.
-
-        **Key Usage**:
-        - Removing outdated or irrelevant prompts to maintain a clean and efficient project environment.
-        - Complying with data retention policies by deleting prompts that are no longer necessary.
-      operationId: deletePrompt
+        Removes a specific rate limit from the service.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt to be deleted.
+      - description: The unique ID of the rate limit
         explode: false
         in: path
-        name: promptId
+        name: limitId
         required: true
         schema:
           type: string
         style: simple
       responses:
         "204":
-          description: The prompt was deleted successfully; no content is returned.
+          description: Rate limit successfully removed
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Either the prompt or the project was not found.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deletion of the prompt."
-      summary: Delete a specific prompt from a project
+          description: Rate limit or service not found
+      summary: Remove a rate limit from a service
       tags:
-      - Prompts
-    get:
-      description: |
-        Retrieves detailed information about a specific prompt within a project, including its content, metadata, and any associated versioning details. This endpoint is essential for users who need to view the current state of a prompt or to fetch its details for further processing or display.
-
-        **Key Usage**:
-        - Viewing the complete details of a prompt for editorial or review purposes.
-        - Fetching prompt data for integration with other tools or services.
-      operationId: getPrompt
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt being retrieved.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prompt'
-          description: Successfully retrieved detailed information about the prompt.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Either the prompt or the project was not found.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the prompt."
-      summary: Retrieve a specific prompt within a project
-      tags:
-      - Prompts
+      - Rate Limits
     put:
       description: |
-        Updates the content or metadata of a specific prompt within a project. This operation allows users to modify existing prompts to reflect changes in requirements, updates, or corrections. It is crucial for maintaining the accuracy and relevancy of prompt content.
-
-        **Key Usage**:
-        - Modifying the text or other properties of a prompt as part of content management workflows.
-        - Updating prompt settings or configurations based on new inputs or feedback.
-      operationId: updatePrompt
+        Updates the rate limit configuration for the specified service. The rate limit controls how many API requests can be made within a given time frame.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt being updated.
+      - description: The unique ID of the rate limit
         explode: false
         in: path
-        name: promptId
+        name: limitId
         required: true
         schema:
           type: string
@@ -796,62 +674,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PromptInput'
-        description: JSON payload containing the updated data for the prompt.
+              $ref: '#/components/schemas/RateLimitInput'
+        description: Updated rate limit settings
         required: true
       responses:
         "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Prompt'
-          description: The prompt was updated successfully.
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input, such as malformed data or incomplete required\
-            \ fields."
+          description: Rate limit successfully updated
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Either the prompt or the project was not found.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the update of the prompt."
-      summary: Update a specific prompt in a project
+          description: Rate limit or service not found
+      summary: Update rate limit for a service
       tags:
-      - Prompts
-  /projects/{projectId}/prompts/{promptId}/branches:
+      - Rate Limits
+  /services/{serviceId}/actors:
     get:
       description: |
-        Retrieves a list of all branches associated with a specific prompt. This operation is essential for tracking the evolution of content within the prompt, allowing users to view different iterations and stages of development. It is particularly useful in environments where multiple revisions or collaborative editing processes are involved.
-
-        **Usage**:
-        - Facilitates the management of multiple branch versions.
-        - Enables stakeholders to review historical changes and progress on a prompt.
-        - Supports collaborative review by providing access to various branch submissions.
-      operationId: listPromptBranches
+        Retrieves a list of all actors (users, applications, etc.) associated with a specific service.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt for which branches are being
-          listed.
-        explode: false
-        in: path
-        name: promptId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -862,52 +704,22 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Branch'
+                  $ref: '#/components/schemas/Actor'
                 type: array
-          description: Successfully retrieved a list of all branches for the specified
-            prompt.
+          description: A list of actors associated with the service
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: The specified prompt was not found.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of branch\
-            \ data."
-      summary: List all branches of a specific prompt
+          description: Service not found
+      summary: Retrieve all actors associated with a service
       tags:
-      - Branches
+      - Actors
     post:
       description: |
-        Creates a new branch version for a specific prompt. This endpoint allows users to start a new revision cycle by submitting initial branch content or proposals. It supports workflows where new ideas, updates, or revisions are periodically added to an ongoing project.
-
-        **Usage**:
-        - Initiates a new branch for collaborative editing or further development.
-        - Helps in managing version control by starting a new branch of content development.
-
-        **Requirements**:
-        - Users must provide initial content or parameters for the branch as defined in the `PromptBranchInput` schema.
-        - Appropriate permissions are required to create branches, typically restricted to content creators or project managers.
-      operationId: createPromptBranch
+        Adds a new actor to the specified service. The actor can represent a user, application, or another entity that interacts with the API.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt for which a new branch is
-          being created.
-        explode: false
-        in: path
-        name: promptId
+        name: serviceId
         required: true
         schema:
           type: string
@@ -916,200 +728,57 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BranchInput'
-        description: "Contains the necessary information for creating a new branch,\
-          \ such as initial content or metadata."
+              $ref: '#/components/schemas/ActorInput'
+        description: Details of the actor to be added
         required: true
       responses:
         "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Branch'
-          description: Branch created successfully and is now available for review
-            or further editing.
+          description: Actor successfully added to the service
         "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input, such as missing required fields or malformed\
-            \ data."
+          description: Invalid input
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "The specified prompt was not found, and thus the branch could\
-            \ not be created."
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the creation of a new\
-            \ branch."
-      summary: Create a new branch for a prompt
+          description: Service not found
+      summary: Add an actor to a service
       tags:
-      - Branches
-  /projects/{projectId}/prompts/{promptId}/branches/{branchName}:
+      - Actors
+  /services/{serviceId}/actors/{actorId}:
     delete:
-      description: "Deletes a specific branch of a prompt. This endpoint allows users\
-        \ to remove an entire branch and its associated commit history from a prompt.\
-        \ \n\n**Features**:\n- **Branch Removal**: Enables the deletion of branches\
-        \ that are no longer needed or are obsolete, maintaining a clean and organized\
-        \ development environment.\n- **Cascade Deletion**: Removes all commits associated\
-        \ with the branch, ensuring no orphaned data remains.\n\n**Use Cases**:\n\
-        - Developers cleaning up old branches that are no longer in use.\n- Content\
-        \ managers removing experimental branches that didn't proceed to production.\n\
-        - Automated systems enforcing branch retention policies by deleting branches\
-        \ past their retention period.\n\n**Key Parameters**:\n- `promptId`: Identifies\
-        \ the prompt whose branch is being deleted.\n- `branchName`: Specifies the\
-        \ name of the branch to delete.\n"
-      operationId: deleteBranch
+      description: |
+        Removes an actor from the specified service.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt whose branch is being deleted.
+      - description: The unique ID of the actor
         explode: false
         in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch to be deleted.
-        explode: false
-        in: path
-        name: branchName
+        name: actorId
         required: true
         schema:
           type: string
         style: simple
       responses:
         "204":
-          description: Branch deleted successfully.
+          description: Actor successfully removed
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deletion of the branch."
-      summary: Delete a specific branch
+          description: Actor or service not found
+      summary: Remove an actor from a service
       tags:
-      - Branches
-    get:
-      description: "Retrieves detailed information about a specific branch of a prompt.\
-        \ This endpoint is crucial for accessing the current state and details of\
-        \ a branch, including its creation date, name, and associated prompt ID. \n\
-        \n**Features**:\n- **Branch Identification**: Provides unique identifiers\
-        \ for branches, allowing for precise tracking and management.\n- **Metadata\
-        \ Access**: Includes metadata such as creation date and branch name, aiding\
-        \ in branch management and auditing.\n\n**Use Cases**:\n- Developers reviewing\
-        \ the state of a branch to understand its current content and history.\n-\
-        \ Content managers assessing different branches to decide on merging or further\
-        \ development.\n- Integrating branch data into other systems for enhanced\
-        \ content lifecycle management.\n\n**Key Parameters**:\n- `promptId`: Identifies\
-        \ the prompt to which the branch belongs.\n- `branchName`: Specifies the name\
-        \ of the branch to retrieve.\n"
-      operationId: getBranch
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch to retrieve.
-        explode: false
-        in: path
-        name: branchName
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Branch'
-          description: Successfully retrieved detailed information about the specified
-            branch.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the branch."
-      summary: Retrieve a specific branch
-      tags:
-      - Branches
-  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits:
+      - Actors
+  /services/{serviceId}/pricing-tiers:
     get:
       description: |
-        Retrieves a list of all commit histories associated with a specific branch of a prompt. This endpoint is crucial for understanding the evolution and lifecycle of branch content, allowing users to access and review all historical and current iterations of a branch.
-
-        **Features**:
-        - **Commit Tracking**: Provides detailed information about each commit, including commit messages, authors, and timestamps, which helps in tracking the changes made over time.
-        - **Historical Analysis**: Facilitates the analysis of how a branch has evolved, enabling users to see the progression of content and identify key milestones.
-        - **Auditing and Compliance**: Maintains a clear record of all changes made to a branch, supporting auditing and compliance requirements.
-
-        **Use Cases**:
-        - Developers reviewing commit histories to understand the development process of a branch.
-        - Content managers analyzing changes for quality control and consistency.
-        - Compliance officers auditing changes for regulatory adherence.
-      operationId: listBranchCommits
+        Returns the pricing tier associated with a specific service, including its limits, features, and pricing details.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt whose branch commits are
-          being listed.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch whose commits are being listed.
-        explode: false
-        in: path
-        name: branchName
+        name: serviceId
         required: true
         schema:
           type: string
@@ -1119,63 +788,21 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  $ref: '#/components/schemas/Commit'
-                type: array
-          description: Successfully retrieved a list of all commits associated with
-            the branch.
+                $ref: '#/components/schemas/PricingTier'
+          description: The pricing tier associated with the service
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of commit\
-            \ information."
-      summary: List all commits of a specific branch
+          description: Service or pricing tier not found
+      summary: Retrieve the pricing tier for a service
       tags:
-      - Commits
+      - Pricing Tier
     post:
-      description: |
-        Creates a new commit for a specific branch of a prompt. This endpoint allows users to record changes made to the branch, with a commit message detailing the updates. It supports workflows where changes need to be tracked and managed systematically.
-
-        **Features**:
-        - **Change Documentation**: Captures detailed descriptions of changes made in the commit message, providing context for future reference.
-        - **Version Control**: Ensures systematic tracking of all changes, enabling easy rollback to previous states if needed.
-        - **Collaborative Development**: Supports collaborative environments by recording contributions from multiple users.
-
-        **Use Cases**:
-        - Developers committing new changes or features to a branch.
-        - Content managers updating prompt content and documenting the changes.
-        - Teams collaborating on a project and needing a clear record of each member's contributions.
-      operationId: createBranchCommit
+      description: "Assigns a pricing tier to a service, setting the limits, features,\
+        \ and pricing that the service will follow. \n"
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt whose branch is being committed
-          to.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch for which a new commit is being created.
-        explode: false
-        in: path
-        name: branchName
+        name: serviceId
         required: true
         schema:
           type: string
@@ -1184,426 +811,64 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommitInput'
-        description: "Contains the necessary information for creating a new commit,\
-          \ such as commit message and changes."
+              $ref: '#/components/schemas/PricingTierInput'
+        description: Pricing tier details to be assigned to the service
         required: true
       responses:
         "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Commit'
-          description: Commit created successfully and is now part of the branch history.
+          description: Pricing tier successfully assigned to the service
         "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input, such as missing required fields or malformed\
-            \ data."
+          description: Invalid input
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "The specified branch was not found, and thus the commit could\
-            \ not be created."
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the creation of a new\
-            \ commit."
-      summary: Create a new commit for a branch
+          description: Service not found
+      summary: Assign a pricing tier to a service
       tags:
-      - Commits
-  /projects/{projectId}/prompts/{promptId}/branches/{branchName}/commits/{commitId}:
-    get:
-      description: |
-        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
-
-        **Features**:
-        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
-        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
-        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
-
-        **Use Cases**:
-        - Retrieving past commits for audit or comparison purposes.
-        - Accessing the latest commit to continue development or review current changes.
-        - Integrating commit data into other systems for enhanced content lifecycle management.
-      operationId: getBranchCommit
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch.
-        explode: false
-        in: path
-        name: branchName
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: "The ID of the commit to retrieve, or 'latest' to obtain the\
-          \ most recent commit."
-        example: latest
-        explode: false
-        in: path
-        name: commitId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Commit'
-          description: Successfully retrieved detailed information about the specified
-            commit of the branch.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch or commit found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the branch\
-            \ commit."
-      summary: Retrieve a specific commit or the latest commit of a branch
-      tags:
-      - Commits
-  /templates/{promptId}/{branchName}/{commitId}:
-    get:
-      description: |
-        Retrieves detailed information about a specific commit of a branch, or the most recent commit if 'latest' is specified as the commit ID. This endpoint is crucial for accessing historical data of branch commits for review or rollback purposes.
-
-        **Features**:
-        - **Historical Tracking**: Provides access to the specific details of a commit, including changes made, author, and timestamp.
-        - **Latest Commit Access**: Supports retrieving the most recent commit using the 'latest' keyword, streamlining access to the current state of the branch.
-        - **Detailed Insights**: Includes comprehensive commit information, aiding in understanding the evolution and decision-making process.
-
-        **Use Cases**:
-        - Retrieving past commits for audit or comparison purposes.
-        - Accessing the latest commit to continue development or review current changes.
-        - Integrating commit data into other systems for enhanced content lifecycle management.
-      operationId: getTemplateCommit
-      parameters:
-      - description: The unique identifier of the prompt.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The name of the branch.
-        explode: false
-        in: path
-        name: branchName
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: "The ID of the commit to retrieve, or 'latest' to obtain the\
-          \ most recent commit."
-        example: latest
-        explode: false
-        in: path
-        name: commitId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Commit'
-          description: Successfully retrieved detailed information about the specified
-            commit of the branch.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch or commit found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the branch\
-            \ commit."
-      summary: Retrieve a specific commit or the latest commit of a branch
-      tags:
-      - Commits
-  /projects/{projectId}/prompts/{promptId}/tests:
-    get:
-      description: |
-        Retrieves a list of all test cases associated with a prompt.
-      operationId: listTestCases
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt whose test cases are being
-          listed.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/TestCase'
-                type: array
-          description: Successfully retrieved a list of all test cases associated
-            with the prompt.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No test case found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of test\
-            \ cases."
-      summary: List all test cases for a prompt
-      tags:
-      - Test Cases
-    post:
-      description: |
-        Creates a new test case for a prompt.
-      operationId: createTestCase
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt whose test case is being
-          created.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TestCaseInput'
-        description: "Contains the necessary information for creating a new test case,\
-          \ such as name and list of test parameters."
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TestCase'
-          description: Test case created successfully.
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input, such as missing required fields or malformed\
-            \ data."
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "The specified prompt was not found, and thus the test case\
-            \ could not be created."
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the creation of a new\
-            \ test case."
-      summary: Create a new test case for a prompt
-      tags:
-      - Test Cases
-  /projects/{projectId}/prompts/{promptId}/tests/{testId}:
+      - Pricing Tier
+  /services/{serviceId}/pricing-tiers/{tierId}:
     delete:
       description: |
-        Deletes a test case for a given prompt.
-      operationId: deleteTestCase
+        Removes the pricing tier from a service. After the removal, the service may default to a base or free tier, depending on the configuration.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt whose test case are being
-          deleted.
+      - description: The unique ID of the pricing tier
         explode: false
         in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the test case.
-        explode: false
-        in: path
-        name: testId
+        name: tierId
         required: true
         schema:
           type: string
         style: simple
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/TestCase'
-                type: array
-          description: Successfully deleted the test cases associated with the prompt.
+        "204":
+          description: Pricing tier successfully removed from the service
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No branch found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deleting the test\
-            \ case."
-      summary: Delete a test cases for a given prompt
+          description: Service or pricing tier not found
+      summary: Remove a pricing tier from a service
       tags:
-      - Test Cases
-    get:
-      description: |
-        Retrieves a test case.
-      operationId: getTestCase
-      parameters:
-      - description: The unique identifier of the project.
-        explode: false
-        in: path
-        name: projectId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the prompt whose test case is being
-          retrieved.
-        explode: false
-        in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the test case.
-        explode: false
-        in: path
-        name: testId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TestCase'
-          description: Successfully retrieved the test case associated with the prompt.
-        "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: No test case found matching the specified identifiers.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of test\
-            \ case."
-      summary: Get a test cases for a given prompt.
-      tags:
-      - Test Cases
+      - Pricing Tier
     put:
       description: |
-        Updates a test case for a given prompt.
-      operationId: updateTestCase
+        Updates the pricing tier associated with a specific service, modifying the limits, features, or pricing.
       parameters:
-      - description: The unique identifier of the project.
+      - description: The unique ID of the service
         explode: false
         in: path
-        name: projectId
+        name: serviceId
         required: true
         schema:
           type: string
         style: simple
-      - description: The unique identifier of the prompt whose test case is being
-          updated.
+      - description: The unique ID of the pricing tier
         explode: false
         in: path
-        name: promptId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the test case.
-        explode: false
-        in: path
-        name: testId
+        name: tierId
         required: true
         schema:
           type: string
@@ -1612,41 +877,165 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TestCaseInput'
-        description: "Contains the necessary information for updating a test case,\
-          \ such as name and a list of testing parameters."
+              $ref: '#/components/schemas/PricingTierInput'
+        description: Updated pricing tier details
         required: true
       responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TestCase'
-          description: Test case updated successfully.
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid input, such as missing required fields or malformed\
-            \ data."
+        "200":
+          description: Pricing tier successfully updated for the service
         "404":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: The specified test case was not found.
-        "500":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing updates to the test case."
-      summary: Update a test case for a given prompt.
+          description: Service or pricing tier not found
+      summary: Update the pricing tier for a service
       tags:
-      - Test Cases
+      - Pricing Tier
+  /services/{serviceId}/auth:
+    post:
+      description: |
+        Authorizes an incoming API request by validating the provided API key.
+      parameters:
+      - description: The unique ID of the service
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_services__serviceId__auth_post_request'
+        description: API key or token to be authorized
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_services__serviceId__auth_post_200_response'
+          description: The request is authorized and scopes are returned
+        "401":
+          description: Unauthorized request
+      summary: Authorize a request
+      tags:
+      - Auth
 components:
   schemas:
+    BillingInfo:
+      description: "Billing information, including pricing tier and trial expiration\
+        \ date"
+      properties:
+        tier:
+          description: Pricing tier of the API key
+          type: string
+        tierId:
+          description: ID of pricing tier
+          type: string
+        trialExpiry:
+          description: The date when the trial period ends
+          format: date-time
+          type: string
+        isTrialActive:
+          description: Indicates whether the trial period is currently active for
+            this actor
+          type: boolean
+        isTrialElgible:
+          description: Indicates whether the actor is eligble for a trial period
+          type: boolean
+      type: object
+    PricingTier:
+      description: |
+        Represents a pricing tier for API usage, defining limits and features associated with the service.
+      example:
+        overagePrice: 6.0274563
+        defaultMonthlyRequestLimit: 0
+        defaultRateLimit: ""
+        name: name
+        id: id
+      properties:
+        id:
+          description: Unique identifier for the pricing tier
+          type: string
+        name:
+          description: "The name of the pricing tier (e.g., Free, Pro, Enterprise)"
+          type: string
+        defaultMonthlyRequestLimit:
+          description: The maximum number of API requests allowed per month
+          type: integer
+        defaultRateLimit:
+          allOf:
+          - $ref: '#/components/schemas/RateLimit'
+          description: Rate limit configuration for the tier (requests per second
+            or minute)
+        overagePrice:
+          description: The price per extra request beyond the monthly limit
+          format: float
+          type: number
+    PricingTierInput:
+      description: |
+        Represents a pricing tier for API usage, defining limits and features associated with the service.
+      example:
+        overagePrice: 6.0274563
+        defaultMonthlyRequestLimit: 0
+        defaultRateLimit: ""
+        name: name
+      properties:
+        name:
+          description: "The name of the pricing tier (e.g., Free, Pro, Enterprise)"
+          type: string
+        defaultMonthlyRequestLimit:
+          description: The maximum number of API requests allowed per month
+          type: integer
+        defaultRateLimit:
+          allOf:
+          - $ref: '#/components/schemas/RateLimit'
+          description: Rate limit configuration for the tier (requests per second
+            or minute)
+        overagePrice:
+          description: The price per extra request beyond the monthly limit
+          format: float
+          type: number
+    RateLimit:
+      description: Rate limit configuration for this API key
+      example:
+        duration: duration
+        name: name
+        limit: 0
+      properties:
+        name:
+          description: The name of the rate limit
+          maxLength: 16
+          minLength: 1
+          type: string
+        limit:
+          description: The number of allowed requests in the defined time window
+          type: integer
+        duration:
+          description: "Time window for the rate limit, specified in ISO duration\
+            \ format (e.g., '1h', '30m')"
+          type: string
+      type: object
+    RateLimitInput:
+      description: Rate limit configuration for this API key
+      example:
+        name: name
+        limit: 0
+        window: window
+      properties:
+        name:
+          description: The name of the rate limit
+          maxLength: 16
+          minLength: 1
+          type: string
+        limit:
+          description: The number of allowed requests in the defined time window
+          type: integer
+        window:
+          description: "Time window for the rate limit, specified in ISO duration\
+            \ format (e.g., '1h', '30m')"
+          type: string
+      type: object
     KSUID:
       description: A K-sortable unique identifier (KSUID)
       maxLength: 27
@@ -1669,7 +1058,7 @@ components:
           example: unhealthy
           type: string
       type: object
-    Project:
+    Service:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
         name: name
@@ -1680,54 +1069,106 @@ components:
         id:
           allOf:
           - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the project
+          description: Unique identifier for the service
         name:
-          description: Name of the project
+          description: Name of the service
           maxLength: 30
           minLength: 1
           type: string
         description:
-          description: A brief description of the project
+          description: A brief description of the service
           maxLength: 180
           minLength: 1
           type: string
         createdAt:
-          description: Timestamp when the project was created
+          description: Timestamp when the service was created
           format: date-time
           type: string
         updatedAt:
-          description: Timestamp when the project was last updated
+          description: Timestamp when the service was last updated
           format: date-time
           type: string
       type: object
-    ProjectInput:
+    ServiceInput:
       example:
         name: name
         description: description
       properties:
         name:
-          description: Name of the project
+          description: Name of the service
           maxLength: 30
           minLength: 1
           type: string
         description:
-          description: A brief description of the project
+          description: A brief description of the service
           maxLength: 180
           minLength: 1
           type: string
       required:
       - name
       type: object
+    Actor:
+      example:
+        id: ""
+        externalId: ""
+        rateLimit: ""
+      properties:
+        id:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        externalId:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        billingInfo:
+          allOf:
+          - $ref: '#/components/schemas/BillingInfo'
+          description: Billing info for actor
+        monthlyRequestLimit:
+          description: Number of monthly requests
+          type: integer
+        rateLimits:
+          description: Rate limit configuration for this Actor
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RateLimit'
+          type: array
+      type: object
+    ActorInput:
+      example:
+        externalId: ""
+        rateLimit: ""
+      properties:
+        externalId:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: Unique identifier for the API key
+        rateLimits:
+          description: Rate limit configuration for this API key
+          items:
+            allOf:
+            - $ref: '#/components/schemas/RateLimit'
+          type: array
+      type: object
     ApiKey:
       example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        id: ""
-        secret: secret
+        createdAt: 2023-09-14T12:00:00.000Z
+        id: ksu1example
+        secret: newSecretKey123
         scopes:
-        - scopes
-        - scopes
-        projectId: ""
-        updatedAt: 2000-01-23T04:56:07.000+00:00
+        - read
+        - write
+        serviceId: serviceId123
+        actorId: actorId456
+        updatedAt: 2023-09-14T12:00:00.000Z
+        name: Example API Key
+        rateLimit:
+          type: basic
+          maxRequestsPerHour: 1000
+        billingInfo:
+          tier: pro
+          trialExpiry: 2023-10-14T12:00:00.000Z
       properties:
         id:
           allOf:
@@ -1738,21 +1179,51 @@ components:
           maxLength: 180
           minLength: 1
           type: string
+        roles:
+          description: List of roles granted by this API key
+          items:
+            type: string
+          type: array
         scopes:
           description: List of scopes or permissions granted by this API key
           items:
             type: string
           type: array
-        projectId:
+        monthlyRequestLimit:
+          description: Number of monthly requests
+          type: integer
+        rateLimit:
+          allOf:
+          - $ref: '#/components/schemas/RateLimit'
+          description: Rate limit configuration for this API key
+        actorId:
           allOf:
           - $ref: '#/components/schemas/KSUID'
-          description: The project ID this API key belongs to
+          description: The actor ID this API key is associated with
+        serviceId:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: The service ID this API key belongs to
         createdAt:
           description: Timestamp when the API key was created
           format: date-time
           type: string
         updatedAt:
           description: Timestamp when the API key was last updated
+          format: date-time
+          type: string
+        name:
+          description: Name of the API key
+          maxLength: 16
+          minLength: 1
+          type: string
+        billingInfo:
+          allOf:
+          - $ref: '#/components/schemas/BillingInfo'
+          description: "Billing information, including pricing tier and trial expiration\
+            \ date"
+        expiry:
+          description: Optional expiration date for the API key
           format: date-time
           type: string
       type: object
@@ -1762,245 +1233,46 @@ components:
         - scopes
         - scopes
       properties:
-        scopes:
-          description: List of scopes or permissions to be granted to this API key
+        roles:
+          description: List of roles granted by this API key
           items:
             type: string
           type: array
-      required:
-      - scopes
-      type: object
-    Prompt:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        description: description
-        id: ""
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
+        scopes:
+          description: List of scopes or permissions granted by this API key
+          items:
+            type: string
+          type: array
+        rateLimit:
+          allOf:
+          - $ref: '#/components/schemas/RateLimit'
+          description: Rate limit configuration for this API key
+        actorId:
           allOf:
           - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the prompt
+          description: The actor ID this API key is associated with
+        serviceId:
+          allOf:
+          - $ref: '#/components/schemas/KSUID'
+          description: The service ID this API key belongs to
         name:
-          description: Name of the prompt
-          maxLength: 30
+          description: Name of the API key
+          maxLength: 16
           minLength: 1
           type: string
-        description:
-          description: A brief description of the project
-          maxLength: 180
-          minLength: 1
-          type: string
-        createdAt:
-          description: Timestamp when the prompt was created
+        billingInfo:
+          allOf:
+          - $ref: '#/components/schemas/BillingInfo'
+          description: "Billing information, including pricing tier and trial expiration\
+            \ date"
+        expiry:
+          description: Optional expiration date for the API key
           format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp when the prompt was last updated
-          format: date-time
-          type: string
-      type: object
-    PromptInput:
-      example:
-        name: name
-        description: description
-      properties:
-        name:
-          description: Name of the prompt
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: A brief description of the project
-          maxLength: 180
-          minLength: 1
           type: string
       required:
+      - actorId
       - name
-      type: object
-    PromptStub:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        stub: stub
-        description: description
-        id: ""
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the prompt
-        name:
-          description: Name of the prompt
-          maxLength: 30
-          minLength: 1
-          type: string
-        description:
-          description: A brief description of the project
-          maxLength: 180
-          minLength: 1
-          type: string
-        stub:
-          description: A 180 character preview of the prompt
-          maxLength: 180
-          minLength: 1
-          type: string
-        createdAt:
-          description: Timestamp when the prompt was created
-          format: date-time
-          type: string
-        updatedAt:
-          description: Timestamp when the prompt was last updated
-          format: date-time
-          type: string
-      type: object
-    Branch:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-      properties:
-        name:
-          description: Branch name unique to the prompt
-          maxLength: 30
-          minLength: 1
-          type: string
-        createdAt:
-          description: Timestamp when this branch was created
-          format: date-time
-          type: string
-      type: object
-    BranchInput:
-      example:
-        name: name
-      properties:
-        name:
-          description: Branch name unique to the prompt
-          maxLength: 30
-          minLength: 1
-          type: string
-      required:
-      - id
-      type: object
-    Commit:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        id: ""
-        message: message
-        userId: ""
-        content: content
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the commit of the branch
-        content:
-          description: Content of the prompt in this commit
-          minLength: 1
-          type: string
-        message:
-          description: Message describing the changes in this commit
-          maxLength: 180
-          minLength: 1
-          type: string
-        userId:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Identifier of the user that created this commit
-        createdAt:
-          description: Timestamp when this commit was created
-          format: date-time
-          type: string
-      type: object
-    CommitInput:
-      example:
-        message: message
-        content: content
-      properties:
-        content:
-          description: Content of the prompt in this commit
-          minLength: 1
-          type: string
-        message:
-          description: Message describing the changes in this commit
-          maxLength: 180
-          minLength: 1
-          type: string
-      required:
-      - content
-      type: object
-    TestCase:
-      example:
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        name: name
-        id: ""
-        parameters:
-        - value: value
-          key: key
-        - value: value
-          key: key
-        updatedAt: 2000-01-23T04:56:07.000+00:00
-      properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the test case of the prompt
-        name:
-          description: Name of this test case
-          maxLength: 30
-          minLength: 1
-          type: string
-        parameters:
-          description: Content of the parameters in this test case
-          items:
-            $ref: '#/components/schemas/TestCaseParameter'
-          type: array
-        updatedAt:
-          description: Timestamp when this test case was updated
-          format: date-time
-          type: string
-        createdAt:
-          description: Timestamp when this test case was created
-          format: date-time
-          type: string
-      type: object
-    TestCaseInput:
-      example:
-        name: name
-        parameters:
-        - value: value
-          key: key
-        - value: value
-          key: key
-      properties:
-        name:
-          description: Name of this test case
-          maxLength: 30
-          minLength: 1
-          type: string
-        parameters:
-          description: List of parameters for this test case
-          items:
-            $ref: '#/components/schemas/TestCaseParameter'
-          type: array
-      required:
-      - content
-      type: object
-    TestCaseParameter:
-      example:
-        value: value
-        key: key
-      properties:
-        key:
-          description: Test case parameter key.
-          maxLength: 30
-          minLength: 1
-          type: string
-        value:
-          description: Test case parameter value.
-          minLength: 1
-          type: string
+      - serviceId
       type: object
     Error:
       example:
@@ -2009,6 +1281,38 @@ components:
         error:
           description: Message describing the error that occurred
           type: string
+      type: object
+    _services__serviceId__auth_post_request:
+      properties:
+        apiKey:
+          description: The API key provided by the client
+          type: string
+        secret:
+          description: The API key provided by the client
+          type: string
+        actorExternalId:
+          description: ""
+          type: string
+        roles:
+          description: The API key provided by the client
+          type: string
+        scopes:
+          description: The API key provided by the client
+          type: string
+      type: object
+    _services__serviceId__auth_post_200_response:
+      example:
+        authorized: true
+        scopes:
+        - scopes
+        - scopes
+      properties:
+        authorized:
+          type: boolean
+        scopes:
+          items:
+            type: string
+          type: array
       type: object
   securitySchemes:
     ApiKeyAuth:

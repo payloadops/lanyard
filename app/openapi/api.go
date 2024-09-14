@@ -3,7 +3,7 @@
 /*
  * Payload Ops API
  *
- * The Payload Ops API streamlines management of AI prompts, projects, organizations, teams, and users through conventional HTTP requests. This platform enables efficient automation and control of resources, providing robust tools for developers to manage settings, memberships, and activities seamlessly.
+ * The Payload Ops API simplifies API key management for organizations by providing powerful tools to create, manage, and monitor API access securely. It allows teams to generate scoped API keys, configure rate limits, track usage, and integrate seamlessly with existing services.
  *
  * API version: 1.0
  * Contact: info@payloadops.com
@@ -27,24 +27,20 @@ type APIKeysAPIRouter interface {
 	UpdateApiKey(http.ResponseWriter, *http.Request)
 }
 
-// BranchesAPIRouter defines the required methods for binding the api requests to a responses for the BranchesAPI
-// The BranchesAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a BranchesAPIServicer to perform the required actions, then write the service results to the http response.
-type BranchesAPIRouter interface {
-	CreatePromptBranch(http.ResponseWriter, *http.Request)
-	DeleteBranch(http.ResponseWriter, *http.Request)
-	GetBranch(http.ResponseWriter, *http.Request)
-	ListPromptBranches(http.ResponseWriter, *http.Request)
+// ActorsAPIRouter defines the required methods for binding the api requests to a responses for the ActorsAPI
+// The ActorsAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a ActorsAPIServicer to perform the required actions, then write the service results to the http response.
+type ActorsAPIRouter interface {
+	ServicesServiceIdActorsActorIdDelete(http.ResponseWriter, *http.Request)
+	ServicesServiceIdActorsGet(http.ResponseWriter, *http.Request)
+	ServicesServiceIdActorsPost(http.ResponseWriter, *http.Request)
 }
 
-// CommitsAPIRouter defines the required methods for binding the api requests to a responses for the CommitsAPI
-// The CommitsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a CommitsAPIServicer to perform the required actions, then write the service results to the http response.
-type CommitsAPIRouter interface {
-	CreateBranchCommit(http.ResponseWriter, *http.Request)
-	GetBranchCommit(http.ResponseWriter, *http.Request)
-	GetTemplateCommit(http.ResponseWriter, *http.Request)
-	ListBranchCommits(http.ResponseWriter, *http.Request)
+// AuthAPIRouter defines the required methods for binding the api requests to a responses for the AuthAPI
+// The AuthAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a AuthAPIServicer to perform the required actions, then write the service results to the http response.
+type AuthAPIRouter interface {
+	ServicesServiceIdAuthPost(http.ResponseWriter, *http.Request)
 }
 
 // HealthCheckAPIRouter defines the required methods for binding the api requests to a responses for the HealthCheckAPI
@@ -54,37 +50,35 @@ type HealthCheckAPIRouter interface {
 	HealthCheck(http.ResponseWriter, *http.Request)
 }
 
-// ProjectsAPIRouter defines the required methods for binding the api requests to a responses for the ProjectsAPI
-// The ProjectsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a ProjectsAPIServicer to perform the required actions, then write the service results to the http response.
-type ProjectsAPIRouter interface {
-	CreateProject(http.ResponseWriter, *http.Request)
-	DeleteProject(http.ResponseWriter, *http.Request)
-	GetProject(http.ResponseWriter, *http.Request)
-	ListProjects(http.ResponseWriter, *http.Request)
-	UpdateProject(http.ResponseWriter, *http.Request)
+// PricingTierAPIRouter defines the required methods for binding the api requests to a responses for the PricingTierAPI
+// The PricingTierAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a PricingTierAPIServicer to perform the required actions, then write the service results to the http response.
+type PricingTierAPIRouter interface {
+	ServicesServiceIdPricingTiersGet(http.ResponseWriter, *http.Request)
+	ServicesServiceIdPricingTiersPost(http.ResponseWriter, *http.Request)
+	ServicesServiceIdPricingTiersTierIdDelete(http.ResponseWriter, *http.Request)
+	ServicesServiceIdPricingTiersTierIdPut(http.ResponseWriter, *http.Request)
 }
 
-// PromptsAPIRouter defines the required methods for binding the api requests to a responses for the PromptsAPI
-// The PromptsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a PromptsAPIServicer to perform the required actions, then write the service results to the http response.
-type PromptsAPIRouter interface {
-	CreatePrompt(http.ResponseWriter, *http.Request)
-	DeletePrompt(http.ResponseWriter, *http.Request)
-	GetPrompt(http.ResponseWriter, *http.Request)
-	ListPrompts(http.ResponseWriter, *http.Request)
-	UpdatePrompt(http.ResponseWriter, *http.Request)
+// RateLimitsAPIRouter defines the required methods for binding the api requests to a responses for the RateLimitsAPI
+// The RateLimitsAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a RateLimitsAPIServicer to perform the required actions, then write the service results to the http response.
+type RateLimitsAPIRouter interface {
+	ServicesServiceIdRateLimitsGet(http.ResponseWriter, *http.Request)
+	ServicesServiceIdRateLimitsLimitIdDelete(http.ResponseWriter, *http.Request)
+	ServicesServiceIdRateLimitsLimitIdPut(http.ResponseWriter, *http.Request)
+	ServicesServiceIdRateLimitsPost(http.ResponseWriter, *http.Request)
 }
 
-// TestCasesAPIRouter defines the required methods for binding the api requests to a responses for the TestCasesAPI
-// The TestCasesAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a TestCasesAPIServicer to perform the required actions, then write the service results to the http response.
-type TestCasesAPIRouter interface {
-	CreateTestCase(http.ResponseWriter, *http.Request)
-	DeleteTestCase(http.ResponseWriter, *http.Request)
-	GetTestCase(http.ResponseWriter, *http.Request)
-	ListTestCases(http.ResponseWriter, *http.Request)
-	UpdateTestCase(http.ResponseWriter, *http.Request)
+// ServicesAPIRouter defines the required methods for binding the api requests to a responses for the ServicesAPI
+// The ServicesAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a ServicesAPIServicer to perform the required actions, then write the service results to the http response.
+type ServicesAPIRouter interface {
+	Createservice(http.ResponseWriter, *http.Request)
+	Deleteservice(http.ResponseWriter, *http.Request)
+	Getservice(http.ResponseWriter, *http.Request)
+	Listservices(http.ResponseWriter, *http.Request)
+	Updateservice(http.ResponseWriter, *http.Request)
 }
 
 // APIKeysAPIServicer defines the api actions for the APIKeysAPI service
@@ -99,26 +93,22 @@ type APIKeysAPIServicer interface {
 	UpdateApiKey(context.Context, string, string, ApiKeyInput) (ImplResponse, error)
 }
 
-// BranchesAPIServicer defines the api actions for the BranchesAPI service
+// ActorsAPIServicer defines the api actions for the ActorsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type BranchesAPIServicer interface {
-	CreatePromptBranch(context.Context, string, string, BranchInput) (ImplResponse, error)
-	DeleteBranch(context.Context, string, string, string) (ImplResponse, error)
-	GetBranch(context.Context, string, string, string) (ImplResponse, error)
-	ListPromptBranches(context.Context, string, string) (ImplResponse, error)
+type ActorsAPIServicer interface {
+	ServicesServiceIdActorsActorIdDelete(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdActorsGet(context.Context, string) (ImplResponse, error)
+	ServicesServiceIdActorsPost(context.Context, string, ActorInput) (ImplResponse, error)
 }
 
-// CommitsAPIServicer defines the api actions for the CommitsAPI service
+// AuthAPIServicer defines the api actions for the AuthAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type CommitsAPIServicer interface {
-	CreateBranchCommit(context.Context, string, string, string, CommitInput) (ImplResponse, error)
-	GetBranchCommit(context.Context, string, string, string, string) (ImplResponse, error)
-	GetTemplateCommit(context.Context, string, string, string) (ImplResponse, error)
-	ListBranchCommits(context.Context, string, string, string) (ImplResponse, error)
+type AuthAPIServicer interface {
+	ServicesServiceIdAuthPost(context.Context, string, ServicesServiceIdAuthPostRequest) (ImplResponse, error)
 }
 
 // HealthCheckAPIServicer defines the api actions for the HealthCheckAPI service
@@ -129,38 +119,36 @@ type HealthCheckAPIServicer interface {
 	HealthCheck(context.Context) (ImplResponse, error)
 }
 
-// ProjectsAPIServicer defines the api actions for the ProjectsAPI service
+// PricingTierAPIServicer defines the api actions for the PricingTierAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type ProjectsAPIServicer interface {
-	CreateProject(context.Context, ProjectInput) (ImplResponse, error)
-	DeleteProject(context.Context, string) (ImplResponse, error)
-	GetProject(context.Context, string) (ImplResponse, error)
-	ListProjects(context.Context) (ImplResponse, error)
-	UpdateProject(context.Context, string, ProjectInput) (ImplResponse, error)
+type PricingTierAPIServicer interface {
+	ServicesServiceIdPricingTiersGet(context.Context, string) (ImplResponse, error)
+	ServicesServiceIdPricingTiersPost(context.Context, string, PricingTierInput) (ImplResponse, error)
+	ServicesServiceIdPricingTiersTierIdDelete(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdPricingTiersTierIdPut(context.Context, string, string, PricingTierInput) (ImplResponse, error)
 }
 
-// PromptsAPIServicer defines the api actions for the PromptsAPI service
+// RateLimitsAPIServicer defines the api actions for the RateLimitsAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type PromptsAPIServicer interface {
-	CreatePrompt(context.Context, string, PromptInput) (ImplResponse, error)
-	DeletePrompt(context.Context, string, string) (ImplResponse, error)
-	GetPrompt(context.Context, string, string) (ImplResponse, error)
-	ListPrompts(context.Context, string) (ImplResponse, error)
-	UpdatePrompt(context.Context, string, string, PromptInput) (ImplResponse, error)
+type RateLimitsAPIServicer interface {
+	ServicesServiceIdRateLimitsGet(context.Context, string) (ImplResponse, error)
+	ServicesServiceIdRateLimitsLimitIdDelete(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdRateLimitsLimitIdPut(context.Context, string, string, RateLimitInput) (ImplResponse, error)
+	ServicesServiceIdRateLimitsPost(context.Context, string, RateLimitInput) (ImplResponse, error)
 }
 
-// TestCasesAPIServicer defines the api actions for the TestCasesAPI service
+// ServicesAPIServicer defines the api actions for the ServicesAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type TestCasesAPIServicer interface {
-	CreateTestCase(context.Context, string, string, TestCaseInput) (ImplResponse, error)
-	DeleteTestCase(context.Context, string, string, string) (ImplResponse, error)
-	GetTestCase(context.Context, string, string, string) (ImplResponse, error)
-	ListTestCases(context.Context, string, string) (ImplResponse, error)
-	UpdateTestCase(context.Context, string, string, string, TestCaseInput) (ImplResponse, error)
+type ServicesAPIServicer interface {
+	Createservice(context.Context, ServiceInput) (ImplResponse, error)
+	Deleteservice(context.Context, string) (ImplResponse, error)
+	Getservice(context.Context, string) (ImplResponse, error)
+	Listservices(context.Context) (ImplResponse, error)
+	Updateservice(context.Context, string, ServiceInput) (ImplResponse, error)
 }

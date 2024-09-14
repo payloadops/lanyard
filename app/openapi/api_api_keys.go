@@ -3,7 +3,7 @@
 /*
  * Payload Ops API
  *
- * The Payload Ops API streamlines management of AI prompts, projects, organizations, teams, and users through conventional HTTP requests. This platform enables efficient automation and control of resources, providing robust tools for developers to manage settings, memberships, and activities seamlessly.
+ * The Payload Ops API simplifies API key management for organizations by providing powerful tools to create, manage, and monitor API access securely. It allows teams to generate scoped API keys, configure rate limits, track usage, and integrate seamlessly with existing services.
  *
  * API version: 1.0
  * Contact: info@payloadops.com
@@ -54,27 +54,27 @@ func (c *APIKeysAPIController) Routes() Routes {
 	return Routes{
 		"DeleteApiKey": Route{
 			strings.ToUpper("Delete"),
-			"/v1/projects/{projectId}/keys/{keyId}",
+			"/v1/services/{serviceId}/keys/{keyId}",
 			c.DeleteApiKey,
 		},
 		"GenerateApiKey": Route{
 			strings.ToUpper("Post"),
-			"/v1/projects/{projectId}/keys",
+			"/v1/services/{serviceId}/keys",
 			c.GenerateApiKey,
 		},
 		"GetApiKey": Route{
 			strings.ToUpper("Get"),
-			"/v1/projects/{projectId}/keys/{keyId}",
+			"/v1/services/{serviceId}/keys/{keyId}",
 			c.GetApiKey,
 		},
 		"ListApiKeys": Route{
 			strings.ToUpper("Get"),
-			"/v1/projects/{projectId}/keys",
+			"/v1/services/{serviceId}/keys",
 			c.ListApiKeys,
 		},
 		"UpdateApiKey": Route{
 			strings.ToUpper("Put"),
-			"/v1/projects/{projectId}/keys/{keyId}",
+			"/v1/services/{serviceId}/keys/{keyId}",
 			c.UpdateApiKey,
 		},
 	}
@@ -82,9 +82,9 @@ func (c *APIKeysAPIController) Routes() Routes {
 
 // DeleteApiKey - Delete a specific API key
 func (c *APIKeysAPIController) DeleteApiKey(w http.ResponseWriter, r *http.Request) {
-	projectIdParam := chi.URLParam(r, "projectId")
-	if projectIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
 	keyIdParam := chi.URLParam(r, "keyId")
@@ -92,7 +92,7 @@ func (c *APIKeysAPIController) DeleteApiKey(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, &RequiredError{"keyId"}, nil)
 		return
 	}
-	result, err := c.service.DeleteApiKey(r.Context(), projectIdParam, keyIdParam)
+	result, err := c.service.DeleteApiKey(r.Context(), serviceIdParam, keyIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -102,11 +102,11 @@ func (c *APIKeysAPIController) DeleteApiKey(w http.ResponseWriter, r *http.Reque
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// GenerateApiKey - Generate a new API key with specific scopes for a project
+// GenerateApiKey - Generate a new API key with specific scopes for a service
 func (c *APIKeysAPIController) GenerateApiKey(w http.ResponseWriter, r *http.Request) {
-	projectIdParam := chi.URLParam(r, "projectId")
-	if projectIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
 	apiKeyInputParam := ApiKeyInput{}
@@ -124,7 +124,7 @@ func (c *APIKeysAPIController) GenerateApiKey(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.GenerateApiKey(r.Context(), projectIdParam, apiKeyInputParam)
+	result, err := c.service.GenerateApiKey(r.Context(), serviceIdParam, apiKeyInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -136,9 +136,9 @@ func (c *APIKeysAPIController) GenerateApiKey(w http.ResponseWriter, r *http.Req
 
 // GetApiKey - Retrieve a specific API key
 func (c *APIKeysAPIController) GetApiKey(w http.ResponseWriter, r *http.Request) {
-	projectIdParam := chi.URLParam(r, "projectId")
-	if projectIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
 	keyIdParam := chi.URLParam(r, "keyId")
@@ -146,7 +146,7 @@ func (c *APIKeysAPIController) GetApiKey(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &RequiredError{"keyId"}, nil)
 		return
 	}
-	result, err := c.service.GetApiKey(r.Context(), projectIdParam, keyIdParam)
+	result, err := c.service.GetApiKey(r.Context(), serviceIdParam, keyIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -156,14 +156,14 @@ func (c *APIKeysAPIController) GetApiKey(w http.ResponseWriter, r *http.Request)
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListApiKeys - List all API keys for a project
+// ListApiKeys - List all API keys for a service
 func (c *APIKeysAPIController) ListApiKeys(w http.ResponseWriter, r *http.Request) {
-	projectIdParam := chi.URLParam(r, "projectId")
-	if projectIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	result, err := c.service.ListApiKeys(r.Context(), projectIdParam)
+	result, err := c.service.ListApiKeys(r.Context(), serviceIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -175,9 +175,9 @@ func (c *APIKeysAPIController) ListApiKeys(w http.ResponseWriter, r *http.Reques
 
 // UpdateApiKey - Update an API key's scopes
 func (c *APIKeysAPIController) UpdateApiKey(w http.ResponseWriter, r *http.Request) {
-	projectIdParam := chi.URLParam(r, "projectId")
-	if projectIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
 	keyIdParam := chi.URLParam(r, "keyId")
@@ -200,7 +200,7 @@ func (c *APIKeysAPIController) UpdateApiKey(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateApiKey(r.Context(), projectIdParam, keyIdParam, apiKeyInputParam)
+	result, err := c.service.UpdateApiKey(r.Context(), serviceIdParam, keyIdParam, apiKeyInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
