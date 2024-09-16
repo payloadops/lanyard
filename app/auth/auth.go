@@ -90,7 +90,7 @@ func APIKeyAuthMiddleware(cfg *config.Config, logger *zap.Logger, apiKeyManager 
 
 			// Set the user and org context
 			ctx := context.WithValue(r.Context(), "orgID", key.OrgID)
-			ctx = context.WithValue(ctx, "projectID", key.ProjectID)
+			ctx = context.WithValue(ctx, "serviceID", key.ServiceID)
 
 			// Call the next handler with the new context
 			next.ServeHTTP(w, r.WithContext(ctx))
