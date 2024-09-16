@@ -19,18 +19,18 @@ func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
-	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
+	mockServiceClient := mocks.NewMockServiceManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	projectID := "proj1"
+	serviceID := "proj1"
 	keyID := "key1"
 
-	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
-	mockAPIKeyClient.EXPECT().DeleteAPIKey(ctx, "org1", projectID, keyID).Return(nil)
+	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ServiceID: serviceID}, nil)
+	mockAPIKeyClient.EXPECT().DeleteAPIKey(ctx, "org1", serviceID, keyID).Return(nil)
 
-	response, err := service.DeleteApiKey(ctx, projectID, keyID)
+	response, err := service.DeleteApiKey(ctx, serviceID, keyID)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusNoContent, response.Code)
 }
@@ -40,25 +40,25 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
-	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
+	mockServiceClient := mocks.NewMockServiceManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	projectID := "proj1"
+	serviceID := "proj1"
 	apiKeyInput := openapi.ApiKeyInput{
 		Scopes: []string{"scope1", "scope2"},
 	}
 
-	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
 	mockAPIKeyClient.EXPECT().CreateAPIKey(ctx, gomock.Any()).Return(nil)
 
-	response, err := service.GenerateApiKey(ctx, projectID, apiKeyInput)
+	response, err := service.GenerateApiKey(ctx, serviceID, apiKeyInput)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, response.Code)
 	assert.NotNil(t, response.Body)
 	apiKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
-	assert.Equal(t, projectID, apiKey.ActorId)
+	assert.Equal(t, serviceID, apiKey.ActorId)
 	assert.Equal(t, apiKeyInput.Scopes, apiKey.Scopes)
 }
 
@@ -67,23 +67,23 @@ func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
-	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
+	mockServiceClient := mocks.NewMockServiceManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	projectID := "proj1"
+	serviceID := "proj1"
 	keyID := "key1"
 
-	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ProjectID: projectID}, nil)
+	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
+	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(&dal.APIKey{ServiceID: serviceID}, nil)
 
-	response, err := service.GetApiKey(ctx, projectID, keyID)
+	response, err := service.GetApiKey(ctx, serviceID, keyID)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, response.Code)
 	assert.NotNil(t, response.Body)
 	apiKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
-	assert.Equal(t, projectID, apiKey.ActorId)
+	assert.Equal(t, serviceID, apiKey.ActorId)
 }
 
 func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
@@ -91,21 +91,21 @@ func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
-	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
+	mockServiceClient := mocks.NewMockServiceManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	projectID := "proj1"
+	serviceID := "proj1"
 
 	apiKeys := []dal.APIKey{
-		{APIKeyID: "key1", ProjectID: projectID},
-		{APIKeyID: "key2", ProjectID: projectID},
+		{APIKeyID: "key1", ServiceID: serviceID},
+		{APIKeyID: "key2", ServiceID: serviceID},
 	}
 
-	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
-	mockAPIKeyClient.EXPECT().ListAPIKeysByProject(ctx, "org1", projectID).Return(apiKeys, nil)
+	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
+	mockAPIKeyClient.EXPECT().ListAPIKeysByService(ctx, "org1", serviceID).Return(apiKeys, nil)
 
-	response, err := service.ListApiKeys(ctx, projectID)
+	response, err := service.ListApiKeys(ctx, serviceID)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, response.Code)
 	assert.NotNil(t, response.Body)
@@ -121,11 +121,11 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAPIKeyClient := mocks.NewMockAPIKeyManager(ctrl)
-	mockProjectClient := mocks.NewMockProjectManager(ctrl)
-	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockProjectClient, zap.NewNop())
+	mockServiceClient := mocks.NewMockServiceManager(ctrl)
+	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	projectID := "proj1"
+	serviceID := "proj1"
 	keyID := "key1"
 	apiKeyInput := openapi.ApiKeyInput{
 		Scopes: []string{"new-scope1", "new-scope2"},
@@ -133,20 +133,20 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 
 	apiKey := &dal.APIKey{
 		APIKeyID:  keyID,
-		ProjectID: projectID,
+		ServiceID: serviceID,
 		Scopes:    []string{"old-scope1", "old-scope2"},
 	}
 
-	mockProjectClient.EXPECT().GetProject(ctx, "org1", projectID).Return(&dal.Project{}, nil)
+	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
 	mockAPIKeyClient.EXPECT().GetAPIKey(ctx, keyID).Return(apiKey, nil)
 	mockAPIKeyClient.EXPECT().UpdateAPIKey(ctx, gomock.Any()).Return(nil)
 
-	response, err := service.UpdateApiKey(ctx, projectID, keyID, apiKeyInput)
+	response, err := service.UpdateApiKey(ctx, serviceID, keyID, apiKeyInput)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, response.Code)
 	assert.NotNil(t, response.Body)
 	updatedKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
 	assert.Equal(t, apiKeyInput.Scopes, updatedKey.Scopes)
-	assert.Equal(t, projectID, updatedKey.ActorId)
+	assert.Equal(t, serviceID, updatedKey.ActorId)
 }

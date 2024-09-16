@@ -96,14 +96,14 @@ func main() {
 	// cache := cache.NewNoopCache()
 
 	// Initialize database clients
-	projectDBClient := dal.NewProjectDBClient(dynamoClient)
+	serviceDBClient := dal.NewServiceDBClient(dynamoClient)
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService(logger)
 	APIKeysAPIService := service.NewAPIKeysAPIService(
 		apiKeyDBClient,
-		projectDBClient,
+		serviceDBClient,
 		logger,
 	)
 

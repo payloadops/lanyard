@@ -21,17 +21,17 @@ const (
 // This service should implement the business logic for every endpoint for the APIKeysAPI API.
 type APIKeysAPIService struct {
 	apiKeyClient  dal.APIKeyManager
-	projectClient dal.ProjectManager
+	serviceClient dal.ServiceManager
 	logger        *zap.Logger
 }
 
 // NewAPIKeysAPIService creates a default app service
-func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, projectClient dal.ProjectManager, logger *zap.Logger) openapi.APIKeysAPIServicer {
-	return &APIKeysAPIService{apiKeyClient: apiKeyClient, projectClient: projectClient, logger: logger}
+func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, serviceClient dal.ServiceManager, logger *zap.Logger) openapi.APIKeysAPIServicer {
+	return &APIKeysAPIService{apiKeyClient: apiKeyClient, serviceClient: serviceClient, logger: logger}
 }
 
 // DeleteApiKey - Delete a specific API key
-func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
+func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, serviceId string, keyId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok || orgID == "" {
@@ -41,17 +41,17 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
-	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
+	// Check if the service exists
+	service, err := s.serviceClient.GetService(ctx, orgID, serviceId)
 	if err != nil {
-		s.logger.Error("failed to get project",
+		s.logger.Error("failed to get service",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
-	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
+	if service == nil {
+		return openapi.Response(http.StatusNotFound, nil), errors.New("service not found")
 	}
 
 	// Check if the API key exists
@@ -67,7 +67,7 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 		return openapi.Response(http.StatusNotFound, nil), errors.New("API key not found")
 	}
 
-	err = s.apiKeyClient.DeleteAPIKey(ctx, orgID, projectId, keyId)
+	err = s.apiKeyClient.DeleteAPIKey(ctx, orgID, serviceId, keyId)
 	if err != nil {
 		s.logger.Error("failed to delete API key",
 			zap.String("requestID", requestID),
@@ -79,8 +79,8 @@ func (s *APIKeysAPIService) DeleteApiKey(ctx context.Context, projectId string, 
 	return openapi.Response(http.StatusNoContent, nil), nil
 }
 
-// GenerateApiKey - Generate a new API key with specific scopes for a project
-func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
+// GenerateApiKey - Generate a new API key with specific scopes for a service
+func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, serviceId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok || orgID == "" {
@@ -90,17 +90,17 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
-	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
+	// Check if the service exists
+	service, err := s.serviceClient.GetService(ctx, orgID, serviceId)
 	if err != nil {
-		s.logger.Error("failed to get project",
+		s.logger.Error("failed to get service",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
-	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
+	if service == nil {
+		return openapi.Response(http.StatusNotFound, nil), errors.New("service not found")
 	}
 
 	keySecret, err := utils.GenerateSecret(ApiKeyLength)
@@ -113,7 +113,7 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 	}
 
 	apiKey := dal.APIKey{
-		ProjectID: projectId,
+		ServiceID: serviceId,
 		OrgID:     orgID,
 		Secret:    keySecret,
 		Scopes:    apiKeyInput.Scopes,
@@ -158,7 +158,7 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 }
 
 // GetApiKey - Retrieve a specific API key
-func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, keyId string) (openapi.ImplResponse, error) {
+func (s *APIKeysAPIService) GetApiKey(ctx context.Context, serviceId string, keyId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok || orgID == "" {
@@ -168,17 +168,17 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
-	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
+	// Check if the service exists
+	service, err := s.serviceClient.GetService(ctx, orgID, serviceId)
 	if err != nil {
-		s.logger.Error("failed to get project",
+		s.logger.Error("failed to get service",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
-	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
+	if service == nil {
+		return openapi.Response(http.StatusNotFound, nil), errors.New("service not found")
 	}
 
 	apiKey, err := s.apiKeyClient.GetAPIKey(ctx, keyId)
@@ -222,8 +222,8 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 	return openapi.Response(http.StatusOK, response), nil
 }
 
-// ListApiKeys - List all API keys for a project
-func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (openapi.ImplResponse, error) {
+// ListApiKeys - List all API keys for a service
+func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, serviceId string) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok || orgID == "" {
@@ -233,20 +233,20 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
-	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
+	// Check if the service exists
+	service, err := s.serviceClient.GetService(ctx, orgID, serviceId)
 	if err != nil {
-		s.logger.Error("failed to get project",
+		s.logger.Error("failed to get service",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
-	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
+	if service == nil {
+		return openapi.Response(http.StatusNotFound, nil), errors.New("service not found")
 	}
 
-	apiKeys, err := s.apiKeyClient.ListAPIKeysByProject(ctx, orgID, projectId)
+	apiKeys, err := s.apiKeyClient.ListAPIKeysByService(ctx, orgID, serviceId)
 	if err != nil {
 		s.logger.Error("failed to list API keys",
 			zap.String("requestID", requestID),
@@ -288,7 +288,7 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 }
 
 // UpdateApiKey - Update an API key's scopes
-func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
+func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, serviceId string, keyId string, apiKeyInput openapi.ApiKeyInput) (openapi.ImplResponse, error) {
 	requestID := middleware.GetReqID(ctx)
 	orgID, ok := ctx.Value("orgID").(string)
 	if !ok || orgID == "" {
@@ -298,17 +298,17 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 		return openapi.Response(http.StatusNotFound, nil), errors.New("org not found")
 	}
 
-	// Check if the project exists
-	project, err := s.projectClient.GetProject(ctx, orgID, projectId)
+	// Check if the service exists
+	service, err := s.serviceClient.GetService(ctx, orgID, serviceId)
 	if err != nil {
-		s.logger.Error("failed to get project",
+		s.logger.Error("failed to get service",
 			zap.String("requestID", requestID),
 			zap.Error(err),
 		)
 		return openapi.Response(http.StatusInternalServerError, nil), errors.New("internal server error")
 	}
-	if project == nil {
-		return openapi.Response(http.StatusNotFound, nil), errors.New("project not found")
+	if service == nil {
+		return openapi.Response(http.StatusNotFound, nil), errors.New("service not found")
 	}
 
 	// Check if the API key exists

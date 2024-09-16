@@ -22,7 +22,7 @@ func TestCreateAPIKey(t *testing.T) {
 	client := dal.NewAPIKeyDBClient(mockSvc)
 
 	apiKey := &dal.APIKey{
-		ProjectID: "proj1",
+		ServiceID: "serv1",
 		Secret:    "key1",
 		OrgID:     "org1",
 		Scopes:    []string{"scope1", "scope2"},
@@ -44,7 +44,7 @@ func TestGetAPIKey(t *testing.T) {
 	client := dal.NewAPIKeyDBClient(mockSvc)
 
 	apiKey := dal.APIKey{
-		ProjectID: "proj1",
+		ServiceID: "serv1",
 		APIKeyID:  "key1",
 		Secret:    "key1",
 		OrgID:     "org1",
@@ -103,11 +103,11 @@ func TestDeleteAPIKey(t *testing.T) {
 		UpdateItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.UpdateItemOutput{}, nil)
 
-	err := client.DeleteAPIKey(context.Background(), "org1", "proj1", "key1")
+	err := client.DeleteAPIKey(context.Background(), "org1", "serv1", "key1")
 	assert.NoError(t, err)
 }
 
-func TestListAPIKeysByProject(t *testing.T) {
+func TestListAPIKeysByService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -115,7 +115,7 @@ func TestListAPIKeysByProject(t *testing.T) {
 	client := dal.NewAPIKeyDBClient(mockSvc)
 
 	apiKey := dal.APIKey{
-		ProjectID: "proj1",
+		ServiceID: "serv1",
 		APIKeyID:  "key1",
 		OrgID:     "org1",
 		Secret:    "key1",
@@ -129,7 +129,7 @@ func TestListAPIKeysByProject(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListAPIKeysByProject(context.Background(), "org1", "proj1")
+	result, err := client.ListAPIKeysByService(context.Background(), "org1", "serv1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))

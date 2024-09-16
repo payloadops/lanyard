@@ -22,17 +22,17 @@ type APIKeyManager interface {
 	CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	GetAPIKey(ctx context.Context, apiKeyID string) (*APIKey, error)
 	UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
-	DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error
-	ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error)
+	DeleteAPIKey(ctx context.Context, orgID, serviceID, apiKeyID string) error
+	ListAPIKeysByService(ctx context.Context, orgID, serviceID string) ([]APIKey, error)
 }
 
 // Ensure APIKeyDBClient implements the APIKeyManager interface
 var _ APIKeyManager = &APIKeyDBClient{}
 
-// APIKey represents an API key associated with a project.
+// APIKey represents an API key associated with a service.
 type APIKey struct {
 	OrgID     string   `json:"orgId"`
-	ProjectID string   `json:"projectId"`
+	ServiceID string   `json:"serviceId"`
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
 	Scopes    []string `json:"scopes"`
@@ -54,8 +54,8 @@ func NewAPIKeyDBClient(service DynamoDBAPI) *APIKeyDBClient {
 }
 
 // createAPIKeyGSICompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
-func createAPIKeyGSICompositeKey(orgID, projectID string) string {
-	return "Org#" + orgID + "Project#" + projectID
+func createAPIKeyGSICompositeKey(orgID, serviceID string) string {
+	return "Org#" + orgID + "Service#" + serviceID
 }
 
 // createAPIKeyCompositeKey generates the partition key (pk) for an API key.
@@ -72,7 +72,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	apiKey.APIKeyID = ksuid
 	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
-	gsiPK := createAPIKeyGSICompositeKey(apiKey.OrgID, apiKey.ProjectID)
+	gsiPK := createAPIKeyGSICompositeKey(apiKey.OrgID, apiKey.ServiceID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -167,8 +167,8 @@ func (d *APIKeyDBClient) UpdateAPIKey(ctx context.Context, apiKey *APIKey) error
 	return nil
 }
 
-// DeleteAPIKey marks an API key as deleted by org ID, project ID, and API key ID in the DynamoDB table.
-func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, apiKeyID string) error {
+// DeleteAPIKey marks an API key as deleted by org ID, service ID, and API key ID in the DynamoDB table.
+func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, serviceID, apiKeyID string) error {
 	pk := createAPIKeyCompositeKey(apiKeyID)
 	update := map[string]types.AttributeValueUpdate{
 		"Deleted": {
@@ -198,12 +198,12 @@ func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, projectID, api
 	return nil
 }
 
-// ListAPIKeysByProject retrieves all API keys for a specific project from the DynamoDB table.
-func (d *APIKeyDBClient) ListAPIKeysByProject(ctx context.Context, orgID, projectID string) ([]APIKey, error) {
-	gsiPK := createAPIKeyGSICompositeKey(orgID, projectID)
+// ListAPIKeysByService retrieves all API keys for a specific service from the DynamoDB table.
+func (d *APIKeyDBClient) ListAPIKeysByService(ctx context.Context, orgID, serviceID string) ([]APIKey, error) {
+	gsiPK := createAPIKeyGSICompositeKey(orgID, serviceID)
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("APIKeys"),
-		IndexName:              aws.String("Org-Project-Index"),
+		IndexName:              aws.String("Org-Service-Index"),
 		KeyConditionExpression: aws.String("GSI1PK = :gsi1PK"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":gsi1PK": &types.AttributeValueMemberS{
