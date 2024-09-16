@@ -78,19 +78,19 @@ func (mr *MockAPIKeyManagerMockRecorder) GetAPIKey(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKey", reflect.TypeOf((*MockAPIKeyManager)(nil).GetAPIKey), arg0, arg1)
 }
 
-// ListAPIKeysByProject mocks base method.
-func (m *MockAPIKeyManager) ListAPIKeysByProject(arg0 context.Context, arg1, arg2 string) ([]dal.APIKey, error) {
+// ListAPIKeysByService mocks base method.
+func (m *MockAPIKeyManager) ListAPIKeysByService(arg0 context.Context, arg1, arg2 string) ([]dal.APIKey, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListAPIKeysByProject", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ListAPIKeysByService", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]dal.APIKey)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListAPIKeysByProject indicates an expected call of ListAPIKeysByProject.
-func (mr *MockAPIKeyManagerMockRecorder) ListAPIKeysByProject(arg0, arg1, arg2 interface{}) *gomock.Call {
+// ListAPIKeysByService indicates an expected call of ListAPIKeysByService.
+func (mr *MockAPIKeyManagerMockRecorder) ListAPIKeysByService(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAPIKeysByProject", reflect.TypeOf((*MockAPIKeyManager)(nil).ListAPIKeysByProject), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAPIKeysByService", reflect.TypeOf((*MockAPIKeyManager)(nil).ListAPIKeysByService), arg0, arg1, arg2)
 }
 
 // UpdateAPIKey mocks base method.

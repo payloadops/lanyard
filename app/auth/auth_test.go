@@ -169,7 +169,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 		name              string
 		authHeader        string
 		expectedStatus    int
-		expectedProjectID string
+		expectedServiceID string
 		expectedOrgID     string
 		setupMocks        func()
 	}{
@@ -177,19 +177,19 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Valid API Key",
 			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
 			expectedStatus:    http.StatusOK,
-			expectedProjectID: "project123",
+			expectedServiceID: "service123",
 			expectedOrgID:     "org123",
 			setupMocks: func() {
 				mockAPIKeyManager.EXPECT().
 					GetAPIKey(gomock.Any(), "validClientID").
-					Return(&dal.APIKey{Secret: "validSecret", Deleted: false, ProjectID: "project123", OrgID: "org123"}, nil).Times(1)
+					Return(&dal.APIKey{Secret: "validSecret", Deleted: false, ServiceID: "service123", OrgID: "org123"}, nil).Times(1)
 			},
 		},
 		{
 			name:              "Missing Authorization Header",
 			authHeader:        "",
 			expectedStatus:    http.StatusUnauthorized,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks:        nil,
 		},
@@ -197,7 +197,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Invalid Authorization Format",
 			authHeader:        "invalidFormat",
 			expectedStatus:    http.StatusUnauthorized,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks:        nil,
 		},
@@ -205,7 +205,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Non-existent API Key",
 			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("nonexistentClientID:randomSecret")),
 			expectedStatus:    http.StatusUnauthorized,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyManager.EXPECT().
@@ -217,7 +217,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Deleted API Key",
 			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("deletedClientID:anySecret")),
 			expectedStatus:    http.StatusUnauthorized,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyManager.EXPECT().
@@ -229,7 +229,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Invalid Client Secret",
 			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:invalidSecret")),
 			expectedStatus:    http.StatusUnauthorized,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyManager.EXPECT().
@@ -241,7 +241,7 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			name:              "Database Error",
 			authHeader:        "Basic " + base64.StdEncoding.EncodeToString([]byte("validClientID:validSecret")),
 			expectedStatus:    http.StatusInternalServerError,
-			expectedProjectID: "",
+			expectedServiceID: "",
 			expectedOrgID:     "",
 			setupMocks: func() {
 				mockAPIKeyManager.EXPECT().
@@ -260,10 +260,10 @@ func TestAPIKeyAuthMiddleware(t *testing.T) {
 			r := chi.NewRouter()
 			r.Use(APIKeyAuthMiddleware(cfg, zap.NewNop(), mockAPIKeyManager))
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				projectID, _ := r.Context().Value("projectID").(string) // Safely handle nil
+				serviceID, _ := r.Context().Value("serviceID").(string) // Safely handle nil
 				orgID, _ := r.Context().Value("orgID").(string)         // Safely handle nil
 
-				assert.Equal(t, tt.expectedProjectID, projectID)
+				assert.Equal(t, tt.expectedServiceID, serviceID)
 				assert.Equal(t, tt.expectedOrgID, orgID)
 				w.WriteHeader(http.StatusOK)
 			})

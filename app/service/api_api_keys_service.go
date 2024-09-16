@@ -25,6 +25,11 @@ type APIKeysAPIService struct {
 	logger        *zap.Logger
 }
 
+// ServicesServiceIdKeyKeyIdAuthPost implements openapi.APIKeysAPIServicer.
+func (s *APIKeysAPIService) ServicesServiceIdKeyKeyIdAuthPost(context.Context, string, string, openapi.ServicesServiceIdKeyKeyIdAuthPostRequest) (openapi.ImplResponse, error) {
+	panic("unimplemented")
+}
+
 // NewAPIKeysAPIService creates a default app service
 func NewAPIKeysAPIService(apiKeyClient dal.APIKeyManager, serviceClient dal.ServiceManager, logger *zap.Logger) openapi.APIKeysAPIServicer {
 	return &APIKeysAPIService{apiKeyClient: apiKeyClient, serviceClient: serviceClient, logger: logger}
