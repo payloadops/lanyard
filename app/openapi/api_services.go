@@ -52,36 +52,36 @@ func NewServicesAPIController(s ServicesAPIServicer, opts ...ServicesAPIOption) 
 // Routes returns all the api routes for the ServicesAPIController
 func (c *ServicesAPIController) Routes() Routes {
 	return Routes{
-		"Createservice": Route{
+		"CreateService": Route{
 			strings.ToUpper("Post"),
 			"/v1/services",
-			c.Createservice,
+			c.CreateService,
 		},
-		"Deleteservice": Route{
+		"DeleteService": Route{
 			strings.ToUpper("Delete"),
 			"/v1/services/{serviceId}",
-			c.Deleteservice,
+			c.DeleteService,
 		},
-		"Getservice": Route{
+		"GetService": Route{
 			strings.ToUpper("Get"),
 			"/v1/services/{serviceId}",
-			c.Getservice,
+			c.GetService,
 		},
 		"Listservices": Route{
 			strings.ToUpper("Get"),
 			"/v1/services",
 			c.Listservices,
 		},
-		"Updateservice": Route{
+		"UpdateService": Route{
 			strings.ToUpper("Put"),
 			"/v1/services/{serviceId}",
-			c.Updateservice,
+			c.UpdateService,
 		},
 	}
 }
 
-// Createservice - Create a new service
-func (c *ServicesAPIController) Createservice(w http.ResponseWriter, r *http.Request) {
+// CreateService - Create a new service
+func (c *ServicesAPIController) CreateService(w http.ResponseWriter, r *http.Request) {
 	serviceInputParam := ServiceInput{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -97,7 +97,7 @@ func (c *ServicesAPIController) Createservice(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.Createservice(r.Context(), serviceInputParam)
+	result, err := c.service.CreateService(r.Context(), serviceInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -107,14 +107,14 @@ func (c *ServicesAPIController) Createservice(w http.ResponseWriter, r *http.Req
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// Deleteservice - Delete a service
-func (c *ServicesAPIController) Deleteservice(w http.ResponseWriter, r *http.Request) {
+// DeleteService - Delete a service
+func (c *ServicesAPIController) DeleteService(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	result, err := c.service.Deleteservice(r.Context(), serviceIdParam)
+	result, err := c.service.DeleteService(r.Context(), serviceIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -124,14 +124,14 @@ func (c *ServicesAPIController) Deleteservice(w http.ResponseWriter, r *http.Req
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// Getservice - Retrieve a service by ID
-func (c *ServicesAPIController) Getservice(w http.ResponseWriter, r *http.Request) {
+// GetService - Retrieve a service by ID
+func (c *ServicesAPIController) GetService(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	result, err := c.service.Getservice(r.Context(), serviceIdParam)
+	result, err := c.service.GetService(r.Context(), serviceIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -153,8 +153,8 @@ func (c *ServicesAPIController) Listservices(w http.ResponseWriter, r *http.Requ
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// Updateservice - Update a service
-func (c *ServicesAPIController) Updateservice(w http.ResponseWriter, r *http.Request) {
+// UpdateService - Update a service
+func (c *ServicesAPIController) UpdateService(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
@@ -175,7 +175,7 @@ func (c *ServicesAPIController) Updateservice(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.Updateservice(r.Context(), serviceIdParam, serviceInputParam)
+	result, err := c.service.UpdateService(r.Context(), serviceIdParam, serviceInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

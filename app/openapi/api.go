@@ -61,11 +61,11 @@ type PricingTierAPIRouter interface {
 // The ServicesAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a ServicesAPIServicer to perform the required actions, then write the service results to the http response.
 type ServicesAPIRouter interface {
-	Createservice(http.ResponseWriter, *http.Request)
-	Deleteservice(http.ResponseWriter, *http.Request)
-	Getservice(http.ResponseWriter, *http.Request)
+	CreateService(http.ResponseWriter, *http.Request)
+	DeleteService(http.ResponseWriter, *http.Request)
+	GetService(http.ResponseWriter, *http.Request)
 	Listservices(http.ResponseWriter, *http.Request)
-	Updateservice(http.ResponseWriter, *http.Request)
+	UpdateService(http.ResponseWriter, *http.Request)
 }
 
 // APIKeysAPIServicer defines the api actions for the APIKeysAPI service
@@ -118,9 +118,9 @@ type PricingTierAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ServicesAPIServicer interface {
-	Createservice(context.Context, ServiceInput) (ImplResponse, error)
-	Deleteservice(context.Context, string) (ImplResponse, error)
-	Getservice(context.Context, string) (ImplResponse, error)
+	CreateService(context.Context, ServiceInput) (ImplResponse, error)
+	DeleteService(context.Context, string) (ImplResponse, error)
+	GetService(context.Context, string) (ImplResponse, error)
 	Listservices(context.Context) (ImplResponse, error)
-	Updateservice(context.Context, string, ServiceInput) (ImplResponse, error)
+	UpdateService(context.Context, string, ServiceInput) (ImplResponse, error)
 }

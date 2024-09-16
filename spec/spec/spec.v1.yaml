@@ -95,7 +95,7 @@ paths:
         **Use Cases**:
         - Starting new initiatives or phases in business operations.
         - Expanding the organization's portfolio by adding services that address new challenges or market opportunities.
-      operationId: createservice
+      operationId: createService
       requestBody:
         content:
           service/json:
@@ -136,7 +136,7 @@ paths:
         **Use Cases**:
         - Removing services that are no longer active or required.
         - Cleaning up workspace and resources as part of service lifecycle management.
-      operationId: deleteservice
+      operationId: deleteService
       parameters:
       - description: The unique identifier of the service to be deleted.
         explode: false
@@ -177,7 +177,7 @@ paths:
         **Use Cases**:
         - Service managers reviewing service settings and progress.
         - Team members accessing service details for integration with other tasks or for reporting purposes.
-      operationId: getservice
+      operationId: getService
       parameters:
       - description: The unique identifier of the service to retrieve.
         explode: false
@@ -222,7 +222,7 @@ paths:
         **Use Cases**:
         - Updating service details to reflect new directions or goals.
         - Modifying access controls or roles as team dynamics change.
-      operationId: updateservice
+      operationId: updateService
       parameters:
       - description: The unique identifier of the service to be updated.
         explode: false
