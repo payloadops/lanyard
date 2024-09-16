@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   platoapi:
-    container_name: "platoapi"
+    container_name: "lanyardapi"
     build:
       context: .
       dockerfile: Dockerfile

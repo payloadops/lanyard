@@ -17,8 +17,8 @@ const REPLICATIONS_REGIONS: string[] = [
 export class DynamoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: DynamoStackProps) {
     super(scope, id, props);
-    new dynamodb.Table(this, 'ProjectsTable', {
-        tableName: "Projects",
+    new dynamodb.Table(this, 'ServicesTable', {
+        tableName: "Services",
         partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
         sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
         replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
@@ -27,57 +27,27 @@ export class DynamoStack extends cdk.Stack {
         // removalPolicy: cdk.RemovalPolicy.RETAIN
       })
 
-    new dynamodb.Table(this, 'PromptsTable', {
-        tableName: "Prompts",
+    new dynamodb.Table(this, 'ActorsTable', {
+        tableName: "Actors",
         partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
         sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-        replicationRegions: REPLICATIONS_REGIONS,
+        replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableClass: dynamodb.TableClass.STANDARD,
         // removalPolicy: cdk.RemovalPolicy.RETAIN
-    })
-
-    new dynamodb.Table(this, 'BranchesTable', {
-        tableName: "Branches",
-        partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-        sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-        replicationRegions: REPLICATIONS_REGIONS,
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        tableClass: dynamodb.TableClass.STANDARD,
-        // removalPolicy: cdk.RemovalPolicy.RETAIN
-      })
-
-    new dynamodb.Table(this, 'CommitsTable', {
-        tableName: "Commits",
-        partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-        sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-        replicationRegions: REPLICATIONS_REGIONS,
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        tableClass: dynamodb.TableClass.STANDARD,
-        // removalPolicy: cdk.RemovalPolicy.RETAIN
-    })
-
-    new dynamodb.Table(this, 'TestCasesTable', {
-      tableName: "TestCases",
-      partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-      sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
-      replicationRegions: REPLICATIONS_REGIONS,
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      tableClass: dynamodb.TableClass.STANDARD,
-      // removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
     const apiKeysTable = new dynamodb.Table(this, 'APIKeysTable', {
       tableName: "APIKeys",
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-      replicationRegions: REPLICATIONS_REGIONS,
+      replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       tableClass: dynamodb.TableClass.STANDARD,
       // removalPolicy: cdk.RemovalPolicy.RETAIN
     })
     
     apiKeysTable.addGlobalSecondaryIndex({
-    indexName: 'Org-Project-Index',
+    indexName: 'Org-Service-Index',
     partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
     })
   }
