@@ -150,7 +150,6 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, projectId string
 		Id:        apiKey.APIKeyID,
 		Secret:    apiKey.Secret,
 		Scopes:    apiKey.Scopes,
-		ProjectId: apiKey.ProjectID,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}
@@ -216,7 +215,6 @@ func (s *APIKeysAPIService) GetApiKey(ctx context.Context, projectId string, key
 		Id:        apiKey.APIKeyID,
 		Secret:    apiKey.Secret,
 		Scopes:    apiKey.Scopes,
-		ProjectId: apiKey.ProjectID,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}
@@ -281,7 +279,6 @@ func (s *APIKeysAPIService) ListApiKeys(ctx context.Context, projectId string) (
 			Id:        apiKey.APIKeyID,
 			Secret:    apiKey.Secret,
 			Scopes:    apiKey.Scopes,
-			ProjectId: apiKey.ProjectID,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
@@ -360,7 +357,6 @@ func (s *APIKeysAPIService) UpdateApiKey(ctx context.Context, projectId string, 
 		Id:        apiKey.APIKeyID,
 		Secret:    apiKey.Secret,
 		Scopes:    apiKey.Scopes,
-		ProjectId: apiKey.ProjectID,
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}

@@ -11,8 +11,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/payloadops/plato/app/cache"
 	"github.com/payloadops/plato/app/client"
 	"github.com/payloadops/plato/app/config"
 	"github.com/payloadops/plato/app/dal"
@@ -78,7 +76,6 @@ func main() {
 
 	// Create AWS clients
 	dynamoClient := dynamodb.NewFromConfig(awsConfig)
-	s3Client := s3.NewFromConfig(awsConfig)
 
 	/*
 		// Create AWS clients
@@ -96,56 +93,23 @@ func main() {
 		cache := cache.NewRedisCache(redisClient)
 	*/
 	// TODO: Initialize a real redis cache, when elasticace is present...
-	cache := cache.NewNoopCache()
+	// cache := cache.NewNoopCache()
 
 	// Initialize database clients
 	projectDBClient := dal.NewProjectDBClient(dynamoClient)
-	promptDBClient := dal.NewPromptDBClient(dynamoClient)
-	branchDBClient := dal.NewBranchDBClient(dynamoClient)
-	commitDBClient := dal.NewCommitDBClient(dynamoClient, s3Client, cache, cfg)
 	apiKeyDBClient := dal.NewAPIKeyDBClient(dynamoClient)
-	testCaseDBClient := dal.NewTestCaseDBClient(dynamoClient)
 
 	// Initialize the healtcheck service
 	HealthCheckAPIService := service.NewHealthCheckAPIService(logger)
-	ProjectsAPIService := service.NewProjectsAPIService(projectDBClient, logger)
-	PromptsAPIService := service.NewPromptsAPIService(
-		projectDBClient,
-		promptDBClient,
-		logger,
-	)
-	BranchesAPIService := service.NewBranchesAPIService(
-		projectDBClient,
-		promptDBClient,
-		branchDBClient,
-		logger,
-	)
-	CommitsAPIService := service.NewCommitsAPIService(
-		projectDBClient,
-		promptDBClient,
-		branchDBClient,
-		commitDBClient,
-		logger,
-	)
 	APIKeysAPIService := service.NewAPIKeysAPIService(
 		apiKeyDBClient,
 		projectDBClient,
 		logger,
 	)
-	TestCasesAPIService := service.NewTestCasesAPIService(
-		promptDBClient,
-		testCaseDBClient,
-		logger,
-	)
 
 	// Initialize controllers
 	HealthCheckAPIController := openapi.NewHealthCheckAPIController(HealthCheckAPIService)
-	ProjectsAPIController := openapi.NewProjectsAPIController(ProjectsAPIService)
-	PromptsAPIController := openapi.NewPromptsAPIController(PromptsAPIService)
-	BranchesAPIController := openapi.NewBranchesAPIController(BranchesAPIService)
-	CommitsAPIController := openapi.NewCommitsAPIController(CommitsAPIService)
 	APIKeysAPIController := openapi.NewAPIKeysAPIController(APIKeysAPIService)
-	TestCasesAPIController := openapi.NewTestCasesAPIController(TestCasesAPIService)
 
 	// Initialize router
 	router := openapi.NewRouter(
@@ -153,12 +117,7 @@ func main() {
 		logger,
 		apiKeyDBClient,
 		HealthCheckAPIController,
-		ProjectsAPIController,
-		PromptsAPIController,
-		BranchesAPIController,
-		CommitsAPIController,
 		APIKeysAPIController,
-		TestCasesAPIController,
 	)
 
 	// Initialize server

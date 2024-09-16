@@ -58,7 +58,7 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 	assert.NotNil(t, response.Body)
 	apiKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
-	assert.Equal(t, projectID, apiKey.ProjectId)
+	assert.Equal(t, projectID, apiKey.ActorId)
 	assert.Equal(t, apiKeyInput.Scopes, apiKey.Scopes)
 }
 
@@ -83,7 +83,7 @@ func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
 	assert.NotNil(t, response.Body)
 	apiKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
-	assert.Equal(t, projectID, apiKey.ProjectId)
+	assert.Equal(t, projectID, apiKey.ActorId)
 }
 
 func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
@@ -148,5 +148,5 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 	updatedKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
 	assert.Equal(t, apiKeyInput.Scopes, updatedKey.Scopes)
-	assert.Equal(t, projectID, updatedKey.ProjectId)
+	assert.Equal(t, projectID, updatedKey.ActorId)
 }
