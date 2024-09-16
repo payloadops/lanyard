@@ -15,18 +15,10 @@ type ActorInput struct {
 
 	// Unique identifier for the API key
 	ExternalId string `json:"externalId,omitempty"`
-
-	// Rate limit configuration for this API key
-	RateLimits []RateLimit `json:"rateLimits,omitempty"`
 }
 
 // AssertActorInputRequired checks if the required fields are not zero-ed
 func AssertActorInputRequired(obj ActorInput) error {
-	for _, el := range obj.RateLimits {
-		if err := AssertRateLimitRequired(el); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

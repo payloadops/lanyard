@@ -24,20 +24,12 @@ type Actor struct {
 
 	// Number of monthly requests
 	MonthlyRequestLimit int32 `json:"monthlyRequestLimit,omitempty"`
-
-	// Rate limit configuration for this Actor
-	RateLimits []RateLimit `json:"rateLimits,omitempty"`
 }
 
 // AssertActorRequired checks if the required fields are not zero-ed
 func AssertActorRequired(obj Actor) error {
 	if err := AssertBillingInfoRequired(obj.BillingInfo); err != nil {
 		return err
-	}
-	for _, el := range obj.RateLimits {
-		if err := AssertRateLimitRequired(el); err != nil {
-			return err
-		}
 	}
 	return nil
 }

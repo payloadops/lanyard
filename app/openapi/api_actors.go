@@ -57,6 +57,16 @@ func (c *ActorsAPIController) Routes() Routes {
 			"/v1/services/{serviceId}/actors/{actorId}",
 			c.ServicesServiceIdActorsActorIdDelete,
 		},
+		"ServicesServiceIdActorsActorIdGet": Route{
+			strings.ToUpper("Get"),
+			"/v1/services/{serviceId}/actors/{actorId}",
+			c.ServicesServiceIdActorsActorIdGet,
+		},
+		"ServicesServiceIdActorsActorIdPut": Route{
+			strings.ToUpper("Put"),
+			"/v1/services/{serviceId}/actors/{actorId}",
+			c.ServicesServiceIdActorsActorIdPut,
+		},
 		"ServicesServiceIdActorsGet": Route{
 			strings.ToUpper("Get"),
 			"/v1/services/{serviceId}/actors",
@@ -83,6 +93,65 @@ func (c *ActorsAPIController) ServicesServiceIdActorsActorIdDelete(w http.Respon
 		return
 	}
 	result, err := c.service.ServicesServiceIdActorsActorIdDelete(r.Context(), serviceIdParam, actorIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ServicesServiceIdActorsActorIdGet - Get the actor
+func (c *ActorsAPIController) ServicesServiceIdActorsActorIdGet(w http.ResponseWriter, r *http.Request) {
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
+		return
+	}
+	actorIdParam := chi.URLParam(r, "actorId")
+	if actorIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"actorId"}, nil)
+		return
+	}
+	result, err := c.service.ServicesServiceIdActorsActorIdGet(r.Context(), serviceIdParam, actorIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ServicesServiceIdActorsActorIdPut - Update an actor
+func (c *ActorsAPIController) ServicesServiceIdActorsActorIdPut(w http.ResponseWriter, r *http.Request) {
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
+		return
+	}
+	actorIdParam := chi.URLParam(r, "actorId")
+	if actorIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"actorId"}, nil)
+		return
+	}
+	actorInputParam := ActorInput{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&actorInputParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertActorInputRequired(actorInputParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertActorInputConstraints(actorInputParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.ServicesServiceIdActorsActorIdPut(r.Context(), serviceIdParam, actorIdParam, actorInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

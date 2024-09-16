@@ -24,6 +24,7 @@ type APIKeysAPIRouter interface {
 	GenerateApiKey(http.ResponseWriter, *http.Request)
 	GetApiKey(http.ResponseWriter, *http.Request)
 	ListApiKeys(http.ResponseWriter, *http.Request)
+	ServicesServiceIdKeyKeyIdAuthPost(http.ResponseWriter, *http.Request)
 	UpdateApiKey(http.ResponseWriter, *http.Request)
 }
 
@@ -32,15 +33,10 @@ type APIKeysAPIRouter interface {
 // pass the data to a ActorsAPIServicer to perform the required actions, then write the service results to the http response.
 type ActorsAPIRouter interface {
 	ServicesServiceIdActorsActorIdDelete(http.ResponseWriter, *http.Request)
+	ServicesServiceIdActorsActorIdGet(http.ResponseWriter, *http.Request)
+	ServicesServiceIdActorsActorIdPut(http.ResponseWriter, *http.Request)
 	ServicesServiceIdActorsGet(http.ResponseWriter, *http.Request)
 	ServicesServiceIdActorsPost(http.ResponseWriter, *http.Request)
-}
-
-// AuthAPIRouter defines the required methods for binding the api requests to a responses for the AuthAPI
-// The AuthAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a AuthAPIServicer to perform the required actions, then write the service results to the http response.
-type AuthAPIRouter interface {
-	ServicesServiceIdAuthPost(http.ResponseWriter, *http.Request)
 }
 
 // HealthCheckAPIRouter defines the required methods for binding the api requests to a responses for the HealthCheckAPI
@@ -57,17 +53,8 @@ type PricingTierAPIRouter interface {
 	ServicesServiceIdPricingTiersGet(http.ResponseWriter, *http.Request)
 	ServicesServiceIdPricingTiersPost(http.ResponseWriter, *http.Request)
 	ServicesServiceIdPricingTiersTierIdDelete(http.ResponseWriter, *http.Request)
+	ServicesServiceIdPricingTiersTierIdGet(http.ResponseWriter, *http.Request)
 	ServicesServiceIdPricingTiersTierIdPut(http.ResponseWriter, *http.Request)
-}
-
-// RateLimitsAPIRouter defines the required methods for binding the api requests to a responses for the RateLimitsAPI
-// The RateLimitsAPIRouter implementation should parse necessary information from the http request,
-// pass the data to a RateLimitsAPIServicer to perform the required actions, then write the service results to the http response.
-type RateLimitsAPIRouter interface {
-	ServicesServiceIdRateLimitsGet(http.ResponseWriter, *http.Request)
-	ServicesServiceIdRateLimitsLimitIdDelete(http.ResponseWriter, *http.Request)
-	ServicesServiceIdRateLimitsLimitIdPut(http.ResponseWriter, *http.Request)
-	ServicesServiceIdRateLimitsPost(http.ResponseWriter, *http.Request)
 }
 
 // ServicesAPIRouter defines the required methods for binding the api requests to a responses for the ServicesAPI
@@ -90,6 +77,7 @@ type APIKeysAPIServicer interface {
 	GenerateApiKey(context.Context, string, ApiKeyInput) (ImplResponse, error)
 	GetApiKey(context.Context, string, string) (ImplResponse, error)
 	ListApiKeys(context.Context, string) (ImplResponse, error)
+	ServicesServiceIdKeyKeyIdAuthPost(context.Context, string, string, ServicesServiceIdKeyKeyIdAuthPostRequest) (ImplResponse, error)
 	UpdateApiKey(context.Context, string, string, ApiKeyInput) (ImplResponse, error)
 }
 
@@ -99,16 +87,10 @@ type APIKeysAPIServicer interface {
 // and updated with the logic required for the API.
 type ActorsAPIServicer interface {
 	ServicesServiceIdActorsActorIdDelete(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdActorsActorIdGet(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdActorsActorIdPut(context.Context, string, string, ActorInput) (ImplResponse, error)
 	ServicesServiceIdActorsGet(context.Context, string) (ImplResponse, error)
 	ServicesServiceIdActorsPost(context.Context, string, ActorInput) (ImplResponse, error)
-}
-
-// AuthAPIServicer defines the api actions for the AuthAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type AuthAPIServicer interface {
-	ServicesServiceIdAuthPost(context.Context, string, ServicesServiceIdAuthPostRequest) (ImplResponse, error)
 }
 
 // HealthCheckAPIServicer defines the api actions for the HealthCheckAPI service
@@ -127,18 +109,8 @@ type PricingTierAPIServicer interface {
 	ServicesServiceIdPricingTiersGet(context.Context, string) (ImplResponse, error)
 	ServicesServiceIdPricingTiersPost(context.Context, string, PricingTierInput) (ImplResponse, error)
 	ServicesServiceIdPricingTiersTierIdDelete(context.Context, string, string) (ImplResponse, error)
+	ServicesServiceIdPricingTiersTierIdGet(context.Context, string, string) (ImplResponse, error)
 	ServicesServiceIdPricingTiersTierIdPut(context.Context, string, string, PricingTierInput) (ImplResponse, error)
-}
-
-// RateLimitsAPIServicer defines the api actions for the RateLimitsAPI service
-// This interface intended to stay up to date with the openapi yaml used to generate it,
-// while the service implementation can be ignored with the .openapi-generator-ignore file
-// and updated with the logic required for the API.
-type RateLimitsAPIServicer interface {
-	ServicesServiceIdRateLimitsGet(context.Context, string) (ImplResponse, error)
-	ServicesServiceIdRateLimitsLimitIdDelete(context.Context, string, string) (ImplResponse, error)
-	ServicesServiceIdRateLimitsLimitIdPut(context.Context, string, string, RateLimitInput) (ImplResponse, error)
-	ServicesServiceIdRateLimitsPost(context.Context, string, RateLimitInput) (ImplResponse, error)
 }
 
 // ServicesAPIServicer defines the api actions for the ServicesAPI service

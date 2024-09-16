@@ -565,126 +565,6 @@ paths:
       summary: Update an API key's scopes
       tags:
       - API Keys
-  /services/{serviceId}/rate-limits:
-    get:
-      description: |
-        Retrieves the rate limits applied to the service, including global rate limits or rate limits specific to certain actors.
-      parameters:
-      - description: The unique ID of the service
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/RateLimit'
-                type: array
-          description: A list of rate limits applied to the service
-        "404":
-          description: Service not found
-      summary: Retrieve rate limits for a service
-      tags:
-      - Rate Limits
-    post:
-      description: |
-        Sets a new rate limit for the specified service. The rate limit can apply to the entire service or be tied to specific actors.
-      parameters:
-      - description: The unique ID of the service
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RateLimitInput'
-        description: Rate limit settings
-        required: true
-      responses:
-        "201":
-          description: Rate limit successfully added
-        "400":
-          description: Invalid input
-        "404":
-          description: Service not found
-      summary: Set a new rate limit for a service
-      tags:
-      - Rate Limits
-  /services/{serviceId}/rate-limits/{limitId}:
-    delete:
-      description: |
-        Removes a specific rate limit from the service.
-      parameters:
-      - description: The unique ID of the service
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique ID of the rate limit
-        explode: false
-        in: path
-        name: limitId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: Rate limit successfully removed
-        "404":
-          description: Rate limit or service not found
-      summary: Remove a rate limit from a service
-      tags:
-      - Rate Limits
-    put:
-      description: |
-        Updates the rate limit configuration for the specified service. The rate limit controls how many API requests can be made within a given time frame.
-      parameters:
-      - description: The unique ID of the service
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique ID of the rate limit
-        explode: false
-        in: path
-        name: limitId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RateLimitInput'
-        description: Updated rate limit settings
-        required: true
-      responses:
-        "200":
-          description: Rate limit successfully updated
-        "404":
-          description: Rate limit or service not found
-      summary: Update rate limit for a service
-      tags:
-      - Rate Limits
   /services/{serviceId}/actors:
     get:
       description: |
@@ -770,6 +650,69 @@ paths:
       summary: Remove an actor from a service
       tags:
       - Actors
+    get:
+      description: |
+        Get the pricing tier associated with a specific service, modifying the limits, features, or pricing.
+      parameters:
+      - description: The unique ID of the service
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique ID of the pricing tier
+        explode: false
+        in: path
+        name: actorId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Pricing tier successfully updated for the service
+        "404":
+          description: Service or pricing tier not found
+      summary: Get the actor
+      tags:
+      - Actors
+    put:
+      description: |
+        Updates the pricing tier associated with a specific service, modifying the limits, features, or pricing.
+      parameters:
+      - description: The unique ID of the service
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique ID of the pricing tier
+        explode: false
+        in: path
+        name: actorId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActorInput'
+        description: Updated pricing tier details
+        required: true
+      responses:
+        "200":
+          description: Pricing tier successfully updated for the service
+        "404":
+          description: Service or pricing tier not found
+      summary: Update an actor
+      tags:
+      - Actors
   /services/{serviceId}/pricing-tiers:
     get:
       description: |
@@ -853,6 +796,34 @@ paths:
       summary: Remove a pricing tier from a service
       tags:
       - Pricing Tier
+    get:
+      description: |
+        Get the pricing tier associated with a specific service, modifying the limits, features, or pricing.
+      parameters:
+      - description: The unique ID of the service
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique ID of the pricing tier
+        explode: false
+        in: path
+        name: tierId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Pricing tier successfully updated for the service
+        "404":
+          description: Service or pricing tier not found
+      summary: Get the pricing tier for a service
+      tags:
+      - Pricing Tier
     put:
       description: |
         Updates the pricing tier associated with a specific service, modifying the limits, features, or pricing.
@@ -888,15 +859,24 @@ paths:
       summary: Update the pricing tier for a service
       tags:
       - Pricing Tier
-  /services/{serviceId}/auth:
+  /services/{serviceId}/key/{keyId}/auth:
     post:
       description: |
         Authorizes an incoming API request by validating the provided API key.
       parameters:
-      - description: The unique ID of the service
+      - description: The unique identifier of the service from which the API key will
+          be deleted.
         explode: false
         in: path
         name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the API key to be deleted.
+        explode: false
+        in: path
+        name: keyId
         required: true
         schema:
           type: string
@@ -905,7 +885,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/_services__serviceId__auth_post_request'
+              $ref: '#/components/schemas/_services__serviceId__key__keyId__auth_post_request'
         description: API key or token to be authorized
         required: true
       responses:
@@ -913,13 +893,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/_services__serviceId__auth_post_200_response'
+                $ref: '#/components/schemas/_services__serviceId__key__keyId__auth_post_200_response'
           description: The request is authorized and scopes are returned
         "401":
           description: Unauthorized request
-      summary: Authorize a request
+      summary: Auth a request per given API key
       tags:
-      - Auth
+      - API Keys
 components:
   schemas:
     BillingInfo:
@@ -998,10 +978,6 @@ components:
           type: number
     RateLimit:
       description: Rate limit configuration for this API key
-      example:
-        duration: duration
-        name: name
-        limit: 0
       properties:
         name:
           description: The name of the rate limit
@@ -1018,10 +994,6 @@ components:
       type: object
     RateLimitInput:
       description: Rate limit configuration for this API key
-      example:
-        name: name
-        limit: 0
-        window: window
       properties:
         name:
           description: The name of the rate limit
@@ -1128,12 +1100,6 @@ components:
         monthlyRequestLimit:
           description: Number of monthly requests
           type: integer
-        rateLimits:
-          description: Rate limit configuration for this Actor
-          items:
-            allOf:
-            - $ref: '#/components/schemas/RateLimit'
-          type: array
       type: object
     ActorInput:
       example:
@@ -1144,12 +1110,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the API key
-        rateLimits:
-          description: Rate limit configuration for this API key
-          items:
-            allOf:
-            - $ref: '#/components/schemas/RateLimit'
-          type: array
       type: object
     ApiKey:
       example:
@@ -1282,11 +1242,8 @@ components:
           description: Message describing the error that occurred
           type: string
       type: object
-    _services__serviceId__auth_post_request:
+    _services__serviceId__key__keyId__auth_post_request:
       properties:
-        apiKey:
-          description: The API key provided by the client
-          type: string
         secret:
           description: The API key provided by the client
           type: string
@@ -1300,7 +1257,7 @@ components:
           description: The API key provided by the client
           type: string
       type: object
-    _services__serviceId__auth_post_200_response:
+    _services__serviceId__key__keyId__auth_post_200_response:
       example:
         authorized: true
         scopes:

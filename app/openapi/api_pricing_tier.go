@@ -67,6 +67,11 @@ func (c *PricingTierAPIController) Routes() Routes {
 			"/v1/services/{serviceId}/pricing-tiers/{tierId}",
 			c.ServicesServiceIdPricingTiersTierIdDelete,
 		},
+		"ServicesServiceIdPricingTiersTierIdGet": Route{
+			strings.ToUpper("Get"),
+			"/v1/services/{serviceId}/pricing-tiers/{tierId}",
+			c.ServicesServiceIdPricingTiersTierIdGet,
+		},
 		"ServicesServiceIdPricingTiersTierIdPut": Route{
 			strings.ToUpper("Put"),
 			"/v1/services/{serviceId}/pricing-tiers/{tierId}",
@@ -137,6 +142,28 @@ func (c *PricingTierAPIController) ServicesServiceIdPricingTiersTierIdDelete(w h
 		return
 	}
 	result, err := c.service.ServicesServiceIdPricingTiersTierIdDelete(r.Context(), serviceIdParam, tierIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ServicesServiceIdPricingTiersTierIdGet - Get the pricing tier for a service
+func (c *PricingTierAPIController) ServicesServiceIdPricingTiersTierIdGet(w http.ResponseWriter, r *http.Request) {
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
+		return
+	}
+	tierIdParam := chi.URLParam(r, "tierId")
+	if tierIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"tierId"}, nil)
+		return
+	}
+	result, err := c.service.ServicesServiceIdPricingTiersTierIdGet(r.Context(), serviceIdParam, tierIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
