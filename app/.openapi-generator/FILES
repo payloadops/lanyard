@@ -13,6 +13,7 @@ openapi/model_actor_input.go
 openapi/model_api_key.go
 openapi/model_api_key_input.go
 openapi/model_auth_api_key_200_response.go
+openapi/model_auth_api_key_200_response_rate_limit.go
 openapi/model_auth_api_key_request.go
 openapi/model_billing_info.go
 openapi/model_error.go

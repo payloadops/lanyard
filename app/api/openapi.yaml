@@ -2,12 +2,12 @@ openapi: 3.0.0
 info:
   contact:
     email: info@payloadops.com
-    name: Payload Ops Team
-  description: "The Payload Ops API simplifies API key management for organizations\
+    name: Lanyard Ops Team
+  description: "The Lanyard Ops API simplifies API key management for organizations\
     \ by providing powerful tools to create, manage, and monitor API access securely.\
     \ It allows teams to generate scoped API keys, configure rate limits, track usage,\
     \ and integrate seamlessly with existing services."
-  title: Payload Ops API
+  title: Lanyard Ops API
   version: "1.0"
 servers:
 - description: Production server (uses live data)
@@ -21,19 +21,7 @@ paths:
   /health:
     get:
       description: |
-        This endpoint performs a health check of the API, quickly assessing and returning the operational status. It is designed to monitor critical system metrics and infrastructure components, such as database connections and system uptime, ensuring that the API is functioning properly. This endpoint is vital for operational monitoring, particularly in production environments where reliability is crucial.
-
-        **Key Features**:
-        - **Immediate Health Status**: Quickly assesses the overall health of the API by checking essential components and dependencies, such as database connectivity and server uptime.
-        - **Operational Monitoring**: Used by monitoring systems, load balancers, and during deployment processes to ensure that the API is operational and performing as expected.
-
-        **Use Cases**:
-        - **Continuous Monitoring**: Automatically monitored by systems operations teams to detect and respond to issues promptly.
-        - **Deployment Verification**: Checked post-deployment to confirm that the API is fully operational in its deployed environment.
-
-        **Response Details**:
-        - A successful response indicates that all checked components are operational.
-        - An unsuccessful response identifies which components are experiencing issues, aiding in quick diagnostics and resolution.
+        Confirms API operability by checking system metrics and infrastructure like database connections.
       operationId: healthCheck
       responses:
         "200":
@@ -56,15 +44,7 @@ paths:
   /services:
     get:
       description: |
-        Retrieves a comprehensive list of all services within the system. This operation is crucial for users needing an overview of all existing services, including their basic metadata and status. It allows for effective management and navigation across different services, particularly useful in environments with multiple ongoing initiatives.
-
-        **Key Features**:
-        - **Broad Overview**: Provides a snapshot of all services, facilitating quick access and management decisions.
-        - **Ease of Navigation**: Helps users identify and access specific services quickly, enhancing workflow efficiency.
-
-        **Use Cases**:
-        - Administrators monitoring the overall progress and status of all services.
-        - Team members seeking to quickly find and access specific services they are working on or interested in.
+        Lists all services.
       operationId: listservices
       responses:
         "200":
@@ -89,15 +69,7 @@ paths:
       - Services
     post:
       description: |
-        Creates a new service based on the provided details in the request. This endpoint facilitates the addition of new services into the system, allowing for the initiation of new initiatives or work streams within the organization.
-
-        **Key Features**:
-        - **service Initialization**: Enables the setup of new services, defining their scope, objectives, and other necessary details from the outset.
-        - **Configurable Details**: Allows for detailed customization of service parameters such as name, description, and specific settings related to service management.
-
-        **Use Cases**:
-        - Starting new initiatives or phases in business operations.
-        - Expanding the organization's portfolio by adding services that address new challenges or market opportunities.
+        Adds a new service to the system with given parameters.
       operationId: createService
       requestBody:
         content:
@@ -130,15 +102,7 @@ paths:
   /services/{serviceId}:
     delete:
       description: |
-        Deletes a specific service using its unique ID, removing all data and settings associated with it. This operation is typically used when a service has been completed, or if it needs to be removed for organizational reasons.
-
-        **Key Features**:
-        - **Complete Removal**: Ensures that all service-related data is permanently deleted.
-        - **Security Compliance**: Helps maintain data hygiene and compliance by allowing for the disposal of unnecessary or outdated services.
-
-        **Use Cases**:
-        - Removing services that are no longer active or required.
-        - Cleaning up workspace and resources as part of service lifecycle management.
+        Removes a specified service and all associated data.
       operationId: deleteService
       parameters:
       - description: The unique identifier of the service to be deleted.
@@ -171,15 +135,7 @@ paths:
       - Services
     get:
       description: |
-        Retrieves detailed information about a specific service using its unique identifier. This operation is crucial for users who need to view the overall structure, settings, and details of the service, including its metadata, associated prompts, and configuration settings.
-
-        **Key Features**:
-        - **Comprehensive Details**: Provides all relevant information about the service, including descriptions, member roles, and other metadata.
-        - **service Oversight**: Essential for service managers and team members to understand current service settings and status.
-
-        **Use Cases**:
-        - Service managers reviewing service settings and progress.
-        - Team members accessing service details for integration with other tasks or for reporting purposes.
+        Retrieves details for a specified service.
       operationId: getService
       parameters:
       - description: The unique identifier of the service to retrieve.
@@ -216,15 +172,7 @@ paths:
       - Services
     put:
       description: |
-        Updates the specified service's details based on the provided input. This operation allows for modifications to service metadata such as the service name, description, and other configurable settings. It is vital for maintaining up-to-date information and adapting service settings to evolving requirements.
-
-        **Key Features**:
-        - **Flexible Modification**: Supports changes to most service attributes, facilitating dynamic service management.
-        - **Adaptive Configuration**: Enables services to be adapted as team goals or business needs change.
-
-        **Use Cases**:
-        - Updating service details to reflect new directions or goals.
-        - Modifying access controls or roles as team dynamics change.
+        Updates details for a specified service.
       operationId: updateService
       parameters:
       - description: The unique identifier of the service to be updated.
@@ -277,15 +225,7 @@ paths:
   /services/{serviceId}/keys:
     get:
       description: |
-        Retrieves a list of all API keys associated with a specific service. This endpoint is essential for managing and reviewing the access provided to different services and users. It offers a comprehensive view of all keys, their scopes, and their statuses, which is critical for effective access management and security audits.
-
-        **Features**:
-        - **Comprehensive Overview**: Provides a complete listing of all API keys, facilitating audits and security reviews.
-        - **Access Transparency**: Ensures that administrators can view and monitor the scopes and usage of each API key, aiding in proactive security practices.
-
-        **Use Cases**:
-        - Auditing API keys to ensure that they are up-to-date and have appropriate permissions.
-        - Quickly identifying and managing keys that may need adjustments or revocation.
+        Lists all API keys for a specified service.
       operationId: listApiKeys
       parameters:
       - description: The unique identifier of the service whose API keys are to be
@@ -326,19 +266,7 @@ paths:
       - API Keys
     post:
       description: |
-        Generates a new API key for a specific service with designated scopes. This operation is crucial for creating secure, scoped access to the service's resources. It allows administrators to define specific permissions, ensuring that API keys can only access appropriate endpoints as per their operational requirements.
-
-        **Features**:
-        - **Scoped Access**: Tailors access permissions to specific needs, enhancing security by limiting API key capabilities to necessary actions.
-        - **Secure Management**: Generates keys in a secure manner, ensuring that they are only known to the requester and stored securely.
-
-        **Use Cases**:
-        - Provisioning a new service or system that requires access to the service.
-        - Creating temporary access for automation scripts or third-party integrations.
-
-        **Guidelines**:
-        - Ensure to specify the necessary scopes in the request body to avoid overly permissive access.
-        - Manage the lifecycle of API keys responsibly, revoking them when no longer needed.
+        Generates a new API key with given parameters.
       operationId: generateApiKey
       parameters:
       - description: The identifier of the service for which the API key is being
@@ -393,15 +321,7 @@ paths:
   /services/{serviceId}/keys/{keyId}:
     delete:
       description: |
-        Deletes a specific API key from a service, permanently removing its access to the service resources. This operation is essential for maintaining security when an API key is no longer needed or if its permissions need to be revoked urgently.
-
-        **Key Features**:
-        - **Secure Cleanup**: Ensures that unused or compromised API keys are removed to prevent unauthorized access.
-        - **Access Revocation**: Provides a method to immediately invalidate an API key when necessary.
-
-        **Use Cases**:
-        - Removing access for team members who no longer require it, such as after service completion or role changes.
-        - Revoking keys that may have been exposed or compromised to maintain security integrity.
+        Deletes the specified API key.
       operationId: deleteApiKey
       parameters:
       - description: The unique identifier of the service from which the API key will
@@ -444,15 +364,7 @@ paths:
       - API Keys
     get:
       description: |
-        Retrieves detailed information about a specific API key associated with a service. This operation is crucial for managing access to service resources, allowing administrators to review the permissions and details of individual API keys.
-
-        **Key Features**:
-        - **Security Management**: Provides the ability to monitor and manage API access through detailed key information.
-        - **Access Review**: Enables service managers to verify the scope and validity of an API key, ensuring that it aligns with current security policies.
-
-        **Use Cases**:
-        - Administrators auditing access permissions for compliance and security best practices.
-        - Developers checking API key details to troubleshoot access issues or to ensure proper configuration.
+        Retrieves the specified API key.
       operationId: getApiKey
       parameters:
       - description: The unique identifier of the service associated with the API
@@ -499,15 +411,7 @@ paths:
       - API Keys
     put:
       description: |
-        Updates the scopes associated with a specific API key. This operation allows administrators to modify access levels and permissions for API keys, adapting to changing security needs or service requirements.
-
-        **Key Features**:
-        - **Scope Management**: Adjusts the access boundaries defined by the API key scopes, ensuring they are kept up-to-date with service roles and permissions.
-        - **Flexible Access Control**: Offers the ability to dynamically change API key permissions without needing to recreate keys.
-
-        **Use Cases**:
-        - Modifying API key permissions in response to role changes within a service team.
-        - Updating key scopes to restrict or expand access as part of security policy adjustments.
+        Updates the specified API key with the given parameters.
       operationId: updateApiKey
       parameters:
       - description: The unique identifier of the service for which the API key is
@@ -1048,6 +952,11 @@ components:
           maxLength: 30
           minLength: 1
           type: string
+        blockedIpAddresses:
+          description: List of blocked ip addresses
+          items:
+            type: string
+          type: array
         description:
           description: A brief description of the service
           maxLength: 180
@@ -1077,6 +986,11 @@ components:
           maxLength: 180
           minLength: 1
           type: string
+        blockedIpAddresses:
+          description: List of blocked ip addresses
+          items:
+            type: string
+          type: array
       required:
       - name
       type: object
@@ -1111,6 +1025,13 @@ components:
           allOf:
           - $ref: '#/components/schemas/KSUID'
           description: Unique identifier for the API key
+        billingInfo:
+          allOf:
+          - $ref: '#/components/schemas/BillingInfo'
+          description: Billing info for actor
+        monthlyRequestLimit:
+          description: Number of monthly requests
+          type: integer
       type: object
     ApiKey:
       example:
@@ -1189,10 +1110,6 @@ components:
           type: string
       type: object
     ApiKeyInput:
-      example:
-        scopes:
-        - scopes
-        - scopes
       properties:
         roles:
           description: List of roles granted by this API key
@@ -1204,6 +1121,9 @@ components:
           items:
             type: string
           type: array
+        monthlyRequestLimit:
+          description: Number of monthly requests
+          type: integer
         rateLimit:
           allOf:
           - $ref: '#/components/schemas/RateLimit'
@@ -1251,26 +1171,48 @@ components:
         actorExternalId:
           description: ""
           type: string
-        roles:
+        requiredRoles:
           description: The API key provided by the client
-          type: string
-        scopes:
-          description: The API key provided by the client
-          type: string
-      type: object
-    authApiKey_200_response:
-      example:
-        authorized: true
-        scopes:
-        - scopes
-        - scopes
-      properties:
-        authorized:
-          type: boolean
-        scopes:
           items:
             type: string
           type: array
+        requiredScopes:
+          description: The API key provided by the client
+          items:
+            type: string
+          type: array
+      type: object
+    authApiKey_200_response_rateLimit:
+      example:
+        limit: 1
+        reset: 6
+        remaining: 5
+      properties:
+        reset:
+          type: integer
+        limit:
+          type: integer
+        remaining:
+          type: integer
+      type: object
+    authApiKey_200_response:
+      example:
+        rateLimit:
+          limit: 1
+          reset: 6
+          remaining: 5
+        authorized: true
+        message: message
+        remaining: 0
+      properties:
+        authorized:
+          type: boolean
+        message:
+          type: string
+        remaining:
+          type: integer
+        rateLimit:
+          $ref: '#/components/schemas/authApiKey_200_response_rateLimit'
       type: object
   securitySchemes:
     ApiKeyAuth:
@@ -1284,14 +1226,6 @@ components:
           X-API-KEY: {api_key}
           ```
         - The API validates the key against its database, and if the key is valid, allows access to the requested resources.
-
-        **Advantages**:
-        - Simple and easy to implement.
-        - Suitable for accessing public APIs where security requirements are not excessively strict.
-
-        **Limitations**:
-        - Less secure than more complex authentication methods, such as tokens, as API keys can be easily exposed in transit or storage.
-        - API keys do not expire by default and revoking them requires direct intervention.
       in: header
       name: X-API-KEY
       type: apiKey
@@ -1307,14 +1241,6 @@ components:
           Authorization: Bearer {token}
           ```
         - The server decodes the JWT to verify its validity and authorizes the request based on the token's payload and signature.
-
-        **Advantages**:
-        - Offers more security than API key authentication as the token content is protected by cryptographic algorithms.
-        - Tokens can be designed to expire after a certain period, enhancing security by limiting the duration of their validity.
-
-        **Limitations**:
-        - Requires a more complex backend setup to issue and verify tokens.
-        - Handling token renewal and revocation can add overhead to client and server implementations.
 
         **Example**:
         To access protected routes or resources, the client must authenticate by providing the JWT in the authorization header:
