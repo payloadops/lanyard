@@ -52,6 +52,11 @@ func NewAPIKeysAPIController(s APIKeysAPIServicer, opts ...APIKeysAPIOption) Rou
 // Routes returns all the api routes for the APIKeysAPIController
 func (c *APIKeysAPIController) Routes() Routes {
 	return Routes{
+		"AuthApiKey": Route{
+			strings.ToUpper("Post"),
+			"/v1/services/{serviceId}/key/{keyId}/auth",
+			c.AuthApiKey,
+		},
 		"DeleteApiKey": Route{
 			strings.ToUpper("Delete"),
 			"/v1/services/{serviceId}/keys/{keyId}",
@@ -72,17 +77,49 @@ func (c *APIKeysAPIController) Routes() Routes {
 			"/v1/services/{serviceId}/keys",
 			c.ListApiKeys,
 		},
-		"ServicesServiceIdKeyKeyIdAuthPost": Route{
-			strings.ToUpper("Post"),
-			"/v1/services/{serviceId}/key/{keyId}/auth",
-			c.ServicesServiceIdKeyKeyIdAuthPost,
-		},
 		"UpdateApiKey": Route{
 			strings.ToUpper("Put"),
 			"/v1/services/{serviceId}/keys/{keyId}",
 			c.UpdateApiKey,
 		},
 	}
+}
+
+// AuthApiKey - Auth a request per given API key
+func (c *APIKeysAPIController) AuthApiKey(w http.ResponseWriter, r *http.Request) {
+	serviceIdParam := chi.URLParam(r, "serviceId")
+	if serviceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
+		return
+	}
+	keyIdParam := chi.URLParam(r, "keyId")
+	if keyIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"keyId"}, nil)
+		return
+	}
+	authApiKeyRequestParam := AuthApiKeyRequest{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&authApiKeyRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertAuthApiKeyRequestRequired(authApiKeyRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertAuthApiKeyRequestConstraints(authApiKeyRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.AuthApiKey(r.Context(), serviceIdParam, keyIdParam, authApiKeyRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
 // DeleteApiKey - Delete a specific API key
@@ -169,43 +206,6 @@ func (c *APIKeysAPIController) ListApiKeys(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	result, err := c.service.ListApiKeys(r.Context(), serviceIdParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
-}
-
-// ServicesServiceIdKeyKeyIdAuthPost - Auth a request per given API key
-func (c *APIKeysAPIController) ServicesServiceIdKeyKeyIdAuthPost(w http.ResponseWriter, r *http.Request) {
-	serviceIdParam := chi.URLParam(r, "serviceId")
-	if serviceIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
-		return
-	}
-	keyIdParam := chi.URLParam(r, "keyId")
-	if keyIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"keyId"}, nil)
-		return
-	}
-	servicesServiceIdKeyKeyIdAuthPostRequestParam := ServicesServiceIdKeyKeyIdAuthPostRequest{}
-	d := json.NewDecoder(r.Body)
-	d.DisallowUnknownFields()
-	if err := d.Decode(&servicesServiceIdKeyKeyIdAuthPostRequestParam); err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	if err := AssertServicesServiceIdKeyKeyIdAuthPostRequestRequired(servicesServiceIdKeyKeyIdAuthPostRequestParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
-	}
-	if err := AssertServicesServiceIdKeyKeyIdAuthPostRequestConstraints(servicesServiceIdKeyKeyIdAuthPostRequestParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
-	}
-	result, err := c.service.ServicesServiceIdKeyKeyIdAuthPost(r.Context(), serviceIdParam, keyIdParam, servicesServiceIdKeyKeyIdAuthPostRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

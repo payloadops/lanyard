@@ -20,11 +20,11 @@ import (
 // The APIKeysAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a APIKeysAPIServicer to perform the required actions, then write the service results to the http response.
 type APIKeysAPIRouter interface {
+	AuthApiKey(http.ResponseWriter, *http.Request)
 	DeleteApiKey(http.ResponseWriter, *http.Request)
 	GenerateApiKey(http.ResponseWriter, *http.Request)
 	GetApiKey(http.ResponseWriter, *http.Request)
 	ListApiKeys(http.ResponseWriter, *http.Request)
-	ServicesServiceIdKeyKeyIdAuthPost(http.ResponseWriter, *http.Request)
 	UpdateApiKey(http.ResponseWriter, *http.Request)
 }
 
@@ -73,11 +73,11 @@ type ServicesAPIRouter interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type APIKeysAPIServicer interface {
+	AuthApiKey(context.Context, string, string, AuthApiKeyRequest) (ImplResponse, error)
 	DeleteApiKey(context.Context, string, string) (ImplResponse, error)
 	GenerateApiKey(context.Context, string, ApiKeyInput) (ImplResponse, error)
 	GetApiKey(context.Context, string, string) (ImplResponse, error)
 	ListApiKeys(context.Context, string) (ImplResponse, error)
-	ServicesServiceIdKeyKeyIdAuthPost(context.Context, string, string, ServicesServiceIdKeyKeyIdAuthPostRequest) (ImplResponse, error)
 	UpdateApiKey(context.Context, string, string, ApiKeyInput) (ImplResponse, error)
 }
 

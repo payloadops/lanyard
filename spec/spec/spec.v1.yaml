@@ -833,6 +833,7 @@ paths:
           description: Service or pricing tier not found
   /services/{serviceId}/key/{keyId}/auth:
     post:
+      operationId: authApiKey
       summary: Auth a request per given API key
       description: |
         Authorizes an incoming API request by validating the provided API key.

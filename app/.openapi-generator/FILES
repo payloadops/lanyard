@@ -8,12 +8,12 @@ openapi/api_services.go
 openapi/helpers.go
 openapi/impl.go
 openapi/logger.go
-openapi/model__services__service_id__key__key_id__auth_post_200_response.go
-openapi/model__services__service_id__key__key_id__auth_post_request.go
 openapi/model_actor.go
 openapi/model_actor_input.go
 openapi/model_api_key.go
 openapi/model_api_key_input.go
+openapi/model_auth_api_key_200_response.go
+openapi/model_auth_api_key_request.go
 openapi/model_billing_info.go
 openapi/model_error.go
 openapi/model_health_check_error_response.go
