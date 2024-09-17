@@ -39,6 +39,16 @@ type ActorsAPIRouter interface {
 	ServicesServiceIdActorsPost(http.ResponseWriter, *http.Request)
 }
 
+// BlockedIpAddressesAPIRouter defines the required methods for binding the api requests to a responses for the BlockedIpAddressesAPI
+// The BlockedIpAddressesAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a BlockedIpAddressesAPIServicer to perform the required actions, then write the service results to the http response.
+type BlockedIpAddressesAPIRouter interface {
+	BlockIpAddress(http.ResponseWriter, *http.Request)
+	GetBlockedIpAddress(http.ResponseWriter, *http.Request)
+	ListBlockedIpAddresses(http.ResponseWriter, *http.Request)
+	UnblockIpAddress(http.ResponseWriter, *http.Request)
+}
+
 // HealthCheckAPIRouter defines the required methods for binding the api requests to a responses for the HealthCheckAPI
 // The HealthCheckAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a HealthCheckAPIServicer to perform the required actions, then write the service results to the http response.
@@ -91,6 +101,17 @@ type ActorsAPIServicer interface {
 	ServicesServiceIdActorsActorIdPut(context.Context, string, string, ActorInput) (ImplResponse, error)
 	ServicesServiceIdActorsGet(context.Context, string) (ImplResponse, error)
 	ServicesServiceIdActorsPost(context.Context, string, ActorInput) (ImplResponse, error)
+}
+
+// BlockedIpAddressesAPIServicer defines the api actions for the BlockedIpAddressesAPI service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type BlockedIpAddressesAPIServicer interface {
+	BlockIpAddress(context.Context, string, BlockedIpAddressInput) (ImplResponse, error)
+	GetBlockedIpAddress(context.Context, string, string) (ImplResponse, error)
+	ListBlockedIpAddresses(context.Context, string) (ImplResponse, error)
+	UnblockIpAddress(context.Context, string, string) (ImplResponse, error)
 }
 
 // HealthCheckAPIServicer defines the api actions for the HealthCheckAPI service

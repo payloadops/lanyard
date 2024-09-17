@@ -45,6 +45,7 @@ type Service struct {
 type BlockedIPAddress struct {
 	IPAddress string `json:"ipAddress"`
 	Reason    string `json:"reason"`
+	CreatedAt string `json:"createdAt"`
 }
 
 // ServiceDBClient is a client for interacting with DynamoDB for service-related operations.

@@ -219,6 +219,195 @@ paths:
       summary: Update a service
       tags:
       - Services
+
+  /services/{serviceId}/blocks:
+    get:
+      description: |
+         Lists all Blocked Ip addresses for a specified service.
+      operationId: listBlockedIpAddresses
+      parameters:
+      - description: The unique identifier of the service whose blocked Ip addresses are to be
+          listed.
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            service/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/BlockedIpAddress'
+                type: array
+          description: Successfully retrieved a list of blocked IP addresses for the service.
+        "404":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "The specified service was not found, indicating an invalid\
+            \ service ID."
+        "500":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the retrieval of blocked IP addresses."
+      security:
+      - BearerAuth: []
+      summary: List all blocked IP addresses for a service
+      tags:
+      - Blocked Ip Addresses
+    post:
+      description: |
+        Block a new IP address with given parameters.
+      operationId: blockIpAddress
+      parameters:
+      - description: The identifier of the service for which the Ip address is being
+          blocked.
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          service/json:
+            schema:
+              $ref: '#/components/schemas/BlockedIpAddressInput'
+        description: Contains the scope IP address block information.
+        required: true
+      responses:
+        "201":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/BlockedIpAddress'
+          description: New IP address block created successfully. The block details are included
+            in the response.
+        "400":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "Invalid request, such as missing required fields or invalid\
+            \ scope specifications."
+        "404":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified service was not found.
+        "500":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the generation of the\
+            \ block."
+      security:
+      - BearerAuth: []
+      summary: Generate a new IP address blocked for a service
+      tags:
+      - Blocked Ip Addresses
+  /services/{serviceId}/blocks/{ipAddress}:
+    delete:
+      description: |
+        Removes the block on the specified Ip address.
+      operationId: unblockIpAddress
+      parameters:
+      - description: The unique identifier of the service from which the block will
+          be deleted.
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the Ip address to be unblocked.
+        explode: false
+        in: path
+        name: ipAddress
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: "The IP address block was removed successfully, no content returned."
+        "404":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Either the IP address or the service was not found.
+        "500":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the deletion of the IP address\
+            \ block."
+      security:
+      - BearerAuth: []
+      summary: Remove a specific IP address block
+      tags:
+      - Blocked Ip Addresses
+    get:
+      description: |
+        Retrieves the specified IP address block.
+      operationId: getBlockedIpAddress
+      parameters:
+      - description: The unique identifier of the service associated with the IP address
+          block.
+        explode: false
+        in: path
+        name: serviceId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The unique identifier of the Ip address block to be retrieved.
+        explode: false
+        in: path
+        name: ipAddress
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/BlockedIpAddress'
+          description: Detailed information about the IP address block retrieved successfully.
+        "404":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Either the specified IP address block or the service was not found.
+        "500":
+          content:
+            service/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: "A server error occurred, preventing the retrieval of the\
+            \ IP address block."
+      security:
+      - BearerAuth: []
+      summary: Retrieve an Ip address block
+      tags:
+      - Blocked Ip Addresses
+
   /services/{serviceId}/keys:
     get:
       description: |
@@ -816,6 +1005,30 @@ paths:
 
 components:
   schemas:
+    BlockedIpAddress:
+      description: "Information of blocked IP address and reason"
+      type: object
+      properties:
+        ipAddress:
+          type: string
+          description: "IP address to be blocked"
+        reason:
+          type: string
+          description: "Reason why the IP address was blocked"
+        createdAt:
+          description: "The date when the block was created"
+          type: string
+          format: date-time
+    BlockedIpAddressInput:
+      description: "Information of blocked IP address and reason"
+      type: object
+      properties:
+        ipAddress:
+          type: string
+          description: "IP address to be blocked"
+        reason:
+          type: string
+          description: "Reason why the IP address was blocked"
     BillingInfo:
       description: "Billing information, including pricing tier and trial expiration date"
       type: object
@@ -945,7 +1158,7 @@ components:
           minLength: 1
           type: string
         blockedIpAddresses:
-          description: List of blocked ip addresses
+          description: List of blocked IP addresses
           type: array
           items:
             type: string
@@ -979,7 +1192,7 @@ components:
           minLength: 1
           type: string
         blockedIpAddresses:
-          description: List of blocked ip addresses
+          description: List of blocked IP addresses
           type: array
           items:
             type: string

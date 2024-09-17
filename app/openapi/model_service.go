@@ -23,7 +23,7 @@ type Service struct {
 	// Name of the service
 	Name string `json:"name,omitempty"`
 
-	// List of blocked ip addresses
+	// List of blocked IP addresses
 	BlockedIpAddresses []string `json:"blockedIpAddresses,omitempty"`
 
 	// A brief description of the service

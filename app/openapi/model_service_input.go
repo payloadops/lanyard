@@ -19,7 +19,7 @@ type ServiceInput struct {
 	// A brief description of the service
 	Description string `json:"description,omitempty"`
 
-	// List of blocked ip addresses
+	// List of blocked IP addresses
 	BlockedIpAddresses []string `json:"blockedIpAddresses,omitempty"`
 }
 
