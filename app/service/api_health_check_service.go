@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"github.com/payloadops/plato/app/openapi"
-	"go.uber.org/zap"
 	"net/http"
+
+	"github.com/payloadops/lanyard/app/openapi"
+	"go.uber.org/zap"
 )
 
 const (

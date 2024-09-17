@@ -2,7 +2,7 @@ package tracing
 
 import (
 	"context"
-	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/lanyard/app/config"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

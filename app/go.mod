@@ -1,4 +1,4 @@
-module github.com/payloadops/plato/app
+module github.com/payloadops/lanyard/app
 
 go 1.22
 

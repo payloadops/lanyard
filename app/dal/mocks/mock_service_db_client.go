@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dal "github.com/payloadops/plato/app/dal"
+	dal "github.com/payloadops/lanyard/app/dal"
 	gomock "go.uber.org/mock/gomock"
 )
 

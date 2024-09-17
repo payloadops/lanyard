@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/dal/mocks"
-	"github.com/payloadops/plato/app/openapi"
-	"github.com/payloadops/plato/app/service"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/dal/mocks"
+	"github.com/payloadops/lanyard/app/openapi"
+	"github.com/payloadops/lanyard/app/service"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
@@ -23,7 +23,7 @@ func TestAPIKeysAPIService_DeleteApiKey(t *testing.T) {
 	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	serviceID := "proj1"
+	serviceID := "serv1"
 	keyID := "key1"
 
 	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
@@ -44,7 +44,7 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	serviceID := "proj1"
+	serviceID := "serv1"
 	apiKeyInput := openapi.ApiKeyInput{
 		Scopes: []string{"scope1", "scope2"},
 	}
@@ -58,7 +58,7 @@ func TestAPIKeysAPIService_GenerateApiKey(t *testing.T) {
 	assert.NotNil(t, response.Body)
 	apiKey, ok := response.Body.(openapi.ApiKey)
 	assert.True(t, ok)
-	assert.Equal(t, serviceID, apiKey.ActorId)
+	assert.Equal(t, serviceID, apiKey.ServiceId)
 	assert.Equal(t, apiKeyInput.Scopes, apiKey.Scopes)
 }
 
@@ -71,7 +71,7 @@ func TestAPIKeysAPIService_GetApiKey(t *testing.T) {
 	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	serviceID := "proj1"
+	serviceID := "serv1"
 	keyID := "key1"
 
 	mockServiceClient.EXPECT().GetService(ctx, "org1", serviceID).Return(&dal.Service{}, nil)
@@ -95,7 +95,7 @@ func TestAPIKeysAPIService_ListApiKeys(t *testing.T) {
 	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	serviceID := "proj1"
+	serviceID := "serv1"
 
 	apiKeys := []dal.APIKey{
 		{APIKeyID: "key1", ServiceID: serviceID},
@@ -125,7 +125,7 @@ func TestAPIKeysAPIService_UpdateApiKey(t *testing.T) {
 	service := service.NewAPIKeysAPIService(mockAPIKeyClient, mockServiceClient, zap.NewNop())
 
 	ctx := context.WithValue(context.Background(), "orgID", "org1")
-	serviceID := "proj1"
+	serviceID := "serv1"
 	keyID := "key1"
 	apiKeyInput := openapi.ApiKeyInput{
 		Scopes: []string{"new-scope1", "new-scope2"},

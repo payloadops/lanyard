@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/dal/mocks"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )

@@ -16,9 +16,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/payloadops/plato/app/auth"
-	"github.com/payloadops/plato/app/config"
-	"github.com/payloadops/plato/app/dal"
+	"github.com/payloadops/lanyard/app/config"
+	"github.com/payloadops/lanyard/app/dal"
 )
 
 // requestTimeout defines the time that a handler will take to process the request before timing out.
@@ -60,10 +59,8 @@ func NewRouter(cfg *config.Config, logger *zap.Logger, apiKeyDBClient *dal.APIKe
 			// Skip auth middleware for health check
 			if route.Pattern == "/v1/health" {
 				router.Method(route.Method, route.Pattern, handler)
-			} else if route.Pattern == "/v1/templates/{promptId}/{branchName}/{commitId}" {
-				router.Method(route.Method, route.Pattern, auth.APIKeyAuthMiddleware(cfg, logger, apiKeyDBClient)(handler))
 			} else {
-				router.Method(route.Method, route.Pattern, auth.JWTAuthMiddleware(cfg, logger)(handler))
+				router.Method(route.Method, route.Pattern, (handler))
 			}
 		}
 	}

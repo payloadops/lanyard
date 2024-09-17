@@ -29,9 +29,6 @@ type ApiKeyInput struct {
 	// The actor ID this API key is associated with
 	ActorId string `json:"actorId"`
 
-	// The service ID this API key belongs to
-	ServiceId string `json:"serviceId"`
-
 	// Name of the API key
 	Name string `json:"name"`
 
@@ -42,9 +39,8 @@ type ApiKeyInput struct {
 // AssertApiKeyInputRequired checks if the required fields are not zero-ed
 func AssertApiKeyInputRequired(obj ApiKeyInput) error {
 	elements := map[string]interface{}{
-		"actorId":   obj.ActorId,
-		"serviceId": obj.ServiceId,
-		"name":      obj.Name,
+		"actorId": obj.ActorId,
+		"name":    obj.Name,
 	}
 	for name, el := range elements {
 		if isZero := IsZeroValue(el); isZero {

@@ -74,7 +74,7 @@ type ServicesAPIRouter interface {
 	CreateService(http.ResponseWriter, *http.Request)
 	DeleteService(http.ResponseWriter, *http.Request)
 	GetService(http.ResponseWriter, *http.Request)
-	Listservices(http.ResponseWriter, *http.Request)
+	ListServices(http.ResponseWriter, *http.Request)
 	UpdateService(http.ResponseWriter, *http.Request)
 }
 
@@ -142,6 +142,6 @@ type ServicesAPIServicer interface {
 	CreateService(context.Context, ServiceInput) (ImplResponse, error)
 	DeleteService(context.Context, string) (ImplResponse, error)
 	GetService(context.Context, string) (ImplResponse, error)
-	Listservices(context.Context) (ImplResponse, error)
+	ListServices(context.Context) (ImplResponse, error)
 	UpdateService(context.Context, string, ServiceInput) (ImplResponse, error)
 }

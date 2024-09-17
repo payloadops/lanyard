@@ -11,14 +11,14 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/payloadops/plato/app/client"
-	"github.com/payloadops/plato/app/config"
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/logging"
-	"github.com/payloadops/plato/app/metrics"
-	"github.com/payloadops/plato/app/openapi"
-	"github.com/payloadops/plato/app/service"
-	"github.com/payloadops/plato/app/tracing"
+	"github.com/payloadops/lanyard/app/client"
+	"github.com/payloadops/lanyard/app/config"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/logging"
+	"github.com/payloadops/lanyard/app/metrics"
+	"github.com/payloadops/lanyard/app/openapi"
+	"github.com/payloadops/lanyard/app/service"
+	"github.com/payloadops/lanyard/app/tracing"
 	"go.uber.org/zap"
 )
 

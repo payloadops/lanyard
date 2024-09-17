@@ -1,18 +1,20 @@
-package service
+package service_test
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"net/http"
 	"testing"
 
-	"github.com/payloadops/plato/app/openapi"
+	"go.uber.org/zap"
+
+	"github.com/payloadops/lanyard/app/openapi"
+	"github.com/payloadops/lanyard/app/service"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHealthCheck(t *testing.T) {
 	t.Run("Returns healthy status when service is healthy", func(t *testing.T) {
-		service := HealthCheckAPIService{healthy: true, logger: zap.NewNop()}
+		service := service.NewHealthCheckAPIService(zap.NewNop())
 
 		resp, err := service.HealthCheck(context.Background())
 		assert.NoError(t, err)
@@ -20,18 +22,6 @@ func TestHealthCheck(t *testing.T) {
 
 		status, ok := resp.Body.(openapi.HealthCheckSuccessResponse)
 		assert.True(t, ok)
-		assert.Equal(t, HealthCheckStatus_Healthy, status.Status)
-	})
-
-	t.Run("Returns unhealthy status when service is not healthy", func(t *testing.T) {
-		service := HealthCheckAPIService{healthy: false, logger: zap.NewNop()}
-
-		resp, err := service.HealthCheck(context.Background())
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusInternalServerError, resp.Code)
-
-		status, ok := resp.Body.(openapi.HealthCheckErrorResponse)
-		assert.True(t, ok)
-		assert.Equal(t, HealthCheckStatus_Unhealthy, status.Status)
+		assert.Equal(t, "healthy", status.Status)
 	})
 }

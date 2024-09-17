@@ -2,13 +2,14 @@ package cache_test
 
 import (
 	"context"
-	"go.uber.org/mock/gomock"
 	"testing"
 	"time"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/go-redis/redis/v8"
-	"github.com/payloadops/plato/app/cache"
-	"github.com/payloadops/plato/app/cache/mocks"
+	"github.com/payloadops/lanyard/app/cache"
+	"github.com/payloadops/lanyard/app/cache/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -5,7 +5,7 @@ import (
 	"context"
 	"crypto/x509"
 	"fmt"
-	"github.com/payloadops/plato/app/config"
+	"github.com/payloadops/lanyard/app/config"
 	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/propagators/aws/xray"
 	"go.opentelemetry.io/otel"

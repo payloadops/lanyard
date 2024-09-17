@@ -67,10 +67,10 @@ func (c *ServicesAPIController) Routes() Routes {
 			"/v1/services/{serviceId}",
 			c.GetService,
 		},
-		"Listservices": Route{
+		"ListServices": Route{
 			strings.ToUpper("Get"),
 			"/v1/services",
-			c.Listservices,
+			c.ListServices,
 		},
 		"UpdateService": Route{
 			strings.ToUpper("Put"),
@@ -141,9 +141,9 @@ func (c *ServicesAPIController) GetService(w http.ResponseWriter, r *http.Reques
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// Listservices - List all services
-func (c *ServicesAPIController) Listservices(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.Listservices(r.Context())
+// ListServices - List all services
+func (c *ServicesAPIController) ListServices(w http.ResponseWriter, r *http.Request) {
+	result, err := c.service.ListServices(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

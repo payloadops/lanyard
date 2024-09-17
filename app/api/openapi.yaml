@@ -45,7 +45,7 @@ paths:
     get:
       description: |
         Lists all services.
-      operationId: listservices
+      operationId: listServices
       responses:
         "200":
           content:
@@ -1341,10 +1341,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/KSUID'
           description: The actor ID this API key is associated with
-        serviceId:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: The service ID this API key belongs to
         name:
           description: Name of the API key
           maxLength: 16

@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/openapi"
-	"github.com/payloadops/plato/app/utils"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/openapi"
+	"github.com/payloadops/lanyard/app/utils"
 	"go.uber.org/zap"
 )
 
@@ -152,6 +152,7 @@ func (s *APIKeysAPIService) GenerateApiKey(ctx context.Context, serviceId string
 	}
 
 	response := openapi.ApiKey{
+		ServiceId: serviceId,
 		Id:        apiKey.APIKeyID,
 		Secret:    apiKey.Secret,
 		Scopes:    apiKey.Scopes,

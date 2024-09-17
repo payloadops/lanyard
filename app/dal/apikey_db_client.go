@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/payloadops/plato/app/utils"
+	"github.com/payloadops/lanyard/app/utils"
 )
 
 // SecretLength represents the length of the secret to generate for API keys.
