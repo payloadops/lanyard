@@ -62,8 +62,8 @@ func createAPIKeyGSICompositeKey(orgID, serviceID string) string {
 }
 
 // createAPIKeyCompositeKey generates the partition key (pk) for an API key.
-func createAPIKeyCompositeKey(apiKeyID string) string {
-	return "APIKey#" + apiKeyID
+func createAPIKeyCompositeKey(apiKeyID, orgID, actorID string) (string, string) {
+	return "Org#" + orgID + "APIKey#" + apiKeyID, "Actor" + actorID
 }
 
 // CreateAPIKey creates a new API key in the DynamoDB table.
@@ -74,7 +74,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	}
 
 	apiKey.APIKeyID = ksuid
-	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
+	pk, sk := createAPIKeyCompositeKey(apiKey.APIKeyID, apiKey.OrgID, "")
 	gsiPK := createAPIKeyGSICompositeKey(apiKey.OrgID, apiKey.ServiceID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
@@ -88,6 +88,7 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	item := map[string]types.AttributeValue{
 		"pk":     &types.AttributeValueMemberS{Value: pk},
+		"sk":     &types.AttributeValueMemberS{Value: sk},
 		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
 	}
 	for k, v := range av {

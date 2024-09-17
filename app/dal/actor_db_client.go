@@ -27,12 +27,23 @@ type ActorManager interface {
 // Ensure ActorDBClient implements the ActorManager interface
 var _ ActorManager = &ActorDBClient{}
 
+// BillingInfo represents an actor's basic billing info in the system.
+type BillingInfo struct {
+	tier             string `json:"tier"`
+	tierId           string `json:"tierId"`
+	trialExpiry      string `json:"trialExpiry"`
+	isTrialActive    bool   `json:"isTrialActive"`
+	isTrialElgible   bool   `json:"isTrialActive"`
+	stripeCustomerId string `json:"stripeCustomerId"`
+}
+
 // Actor represents a actor in the system.
 type Actor struct {
-	ActorID             string `json:"actorId"`
-	ExternalID          string `json:"externalId"`
-	MonthlyRequestLimit int    `json:"monthlyRequestLimit"`
-	Deleted             bool   `json:"deleted"`
+	ActorID             string      `json:"actorId"`
+	ExternalID          string      `json:"externalId"`
+	MonthlyRequestLimit int         `json:"monthlyRequestLimit"`
+	Deleted             bool        `json:"deleted"`
+	BillingInfo         BillingInfo `json:"billingInfo"`
 }
 
 // ActorDBClient is a client for interacting with DynamoDB for actor-related operations.
@@ -76,7 +87,7 @@ func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor
 	}
 
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String("Actors"),
+		TableName: aws.String("Services"),
 		Item:      item,
 	}
 
@@ -92,7 +103,7 @@ func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor
 func (d *ActorDBClient) GetActor(ctx context.Context, serviceID, actorID string) (*Actor, error) {
 	pk, sk := createActorCompositeKeys(serviceID, actorID)
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String("Actors"),
+		TableName: aws.String("Services"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
 			"sk": &types.AttributeValueMemberS{Value: sk},
@@ -137,7 +148,7 @@ func (d *ActorDBClient) UpdateActor(ctx context.Context, serviceID string, actor
 	}
 
 	input := &dynamodb.UpdateItemInput{
-		TableName:                 aws.String("Actors"),
+		TableName:                 aws.String("Services"),
 		Key:                       map[string]types.AttributeValue{"pk": &types.AttributeValueMemberS{Value: pk}, "sk": &types.AttributeValueMemberS{Value: sk}},
 		UpdateExpression:          aws.String(updateExpr),
 		ExpressionAttributeNames:  exprAttrNames,
@@ -164,7 +175,7 @@ func (d *ActorDBClient) DeleteActor(ctx context.Context, serviceID, actorID stri
 	}
 
 	input := &dynamodb.UpdateItemInput{
-		TableName: aws.String("Actors"),
+		TableName: aws.String("Services"),
 		Key: map[string]types.AttributeValue{
 			"pk": &types.AttributeValueMemberS{Value: pk},
 			"sk": &types.AttributeValueMemberS{Value: sk},
@@ -185,7 +196,7 @@ func (d *ActorDBClient) DeleteActor(ctx context.Context, serviceID, actorID stri
 func (d *ActorDBClient) ListActors(ctx context.Context, serviceID string) ([]Actor, error) {
 	pk, _ := createActorCompositeKeys(serviceID, "")
 	input := &dynamodb.QueryInput{
-		TableName:              aws.String("Actors"),
+		TableName:              aws.String("Services"),
 		KeyConditionExpression: aws.String("pk = :pk"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":pk": &types.AttributeValueMemberS{
