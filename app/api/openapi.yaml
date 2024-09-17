@@ -1350,11 +1350,6 @@ components:
           maxLength: 16
           minLength: 1
           type: string
-        billingInfo:
-          allOf:
-          - $ref: '#/components/schemas/BillingInfo'
-          description: "Billing information, including pricing tier and trial expiration\
-            \ date"
         expiry:
           description: Optional expiration date for the API key
           format: date-time

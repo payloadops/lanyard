@@ -35,9 +35,6 @@ type ApiKeyInput struct {
 	// Name of the API key
 	Name string `json:"name"`
 
-	// Billing information, including pricing tier and trial expiration date
-	BillingInfo BillingInfo `json:"billingInfo,omitempty"`
-
 	// Optional expiration date for the API key
 	Expiry time.Time `json:"expiry,omitempty"`
 }
@@ -56,9 +53,6 @@ func AssertApiKeyInputRequired(obj ApiKeyInput) error {
 	}
 
 	if err := AssertRateLimitRequired(obj.RateLimit); err != nil {
-		return err
-	}
-	if err := AssertBillingInfoRequired(obj.BillingInfo); err != nil {
 		return err
 	}
 	return nil
