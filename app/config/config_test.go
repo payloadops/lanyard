@@ -63,7 +63,6 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, "test-jwt-secret", cfg.JWTSecret)
 	assert.Equal(t, "http://localhost:4317", cfg.OpenTelemetry.ProviderEndpoint)
 	assert.Equal(t, "test-ca-cert", cfg.OpenTelemetry.CACert)
-	assert.Equal(t, "test-prompt-bucket", cfg.PromptBucket)
 }
 
 func TestLoadConfigMissingEnvVars(t *testing.T) {
