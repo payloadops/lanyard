@@ -36,6 +36,7 @@ type APIKey struct {
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
 	Scopes    []string `json:"scopes"`
+	Roles     []string `json:"roles"`
 	Deleted   bool     `json:"deleted"`
 	CreatedAt string   `json:"createdAt"`
 	UpdatedAt string   `json:"updatedAt"`

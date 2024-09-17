@@ -78,7 +78,7 @@ func TestUpdateService(t *testing.T) {
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
-			assert.Equal(t, "Org#org1Service#proj1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Org#org1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Service#proj1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Service1", input.ExpressionAttributeValues[":name"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Description1", input.ExpressionAttributeValues[":description"].(*types.AttributeValueMemberS).Value)
@@ -135,4 +135,88 @@ func TestListServicesByOrganization(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))
 	assert.Equal(t, "Service1", result[0].Name)
+}
+
+func TestCreateBlock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewServiceDBClient(mockSvc)
+
+	blockedIPAddress := &dal.BlockedIPAddress{
+		IPAddress: "123423412",
+		Reason:    "Reason1",
+	}
+
+	mockSvc.EXPECT().
+		PutItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.PutItemOutput{}, nil)
+
+	err := client.CreateBlockedIPAddress(context.Background(), "org1", "serv1", blockedIPAddress)
+	assert.NoError(t, err)
+}
+
+func TestGetBlockedIP(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewServiceDBClient(mockSvc)
+
+	blockedIPAddress := dal.BlockedIPAddress{
+		IPAddress: "123423412",
+		Reason:    "Reason1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+
+	item, _ := attributevalue.MarshalMap(blockedIPAddress)
+	mockSvc.EXPECT().
+		GetItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.GetItemOutput{Item: item}, nil)
+
+	result, err := client.GetBlockedIPAddress(context.Background(), "org1", "proj1", "123423412")
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, "123423412", result.IPAddress)
+}
+
+func TestDeleteBlockedIP(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewServiceDBClient(mockSvc)
+
+	mockSvc.EXPECT().
+		DeleteItem(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.DeleteItemOutput{}, nil)
+
+	err := client.DeleteBlockedIPAddress(context.Background(), "org1", "proj1", "123423412")
+	assert.NoError(t, err)
+}
+
+func TestListBlockedIP(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
+	client := dal.NewServiceDBClient(mockSvc)
+
+	service := dal.BlockedIPAddress{
+		IPAddress: "123423412",
+		Reason:    "Reason1",
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
+	}
+
+	item, _ := attributevalue.MarshalMap(service)
+	mockSvc.EXPECT().
+		Query(gomock.Any(), gomock.Any()).
+		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
+
+	result, err := client.ListBlockedIPAddress(context.Background(), "org1", "serv1")
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, "123423412", result[0].IPAddress)
 }

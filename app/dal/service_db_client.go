@@ -62,7 +62,7 @@ func NewServiceDBClient(service DynamoDBAPI) *ServiceDBClient {
 
 // createServiceCompositeKeys generates the partition key (pk) and sort key (sk) for a service.
 func createServiceCompositeKeys(orgID, serviceID string) (string, string) {
-	return "Org#" + orgID + "Service#" + serviceID, "Service#" + serviceID
+	return "Org#" + orgID, "Service#" + serviceID
 }
 
 // createBlockedIPCompositeKeys generates the partition key (pk) and sort key (sk) for a service.
@@ -254,6 +254,9 @@ func (d *ServiceDBClient) CreateBlockedIPAddress(ctx context.Context, orgID, ser
 	if err != nil {
 		return fmt.Errorf("failed to marshal service: %v", err)
 	}
+
+	now := time.Now().UTC().Format(time.RFC3339)
+	blockedIPAddress.CreatedAt = now
 
 	item := map[string]types.AttributeValue{
 		"pk": &types.AttributeValueMemberS{Value: pk},

@@ -3,7 +3,7 @@ package dal
 import (
 	"context"
 	"fmt"
-	"time"
+	"strconv"
 
 	"github.com/payloadops/plato/app/utils"
 
@@ -17,11 +17,11 @@ import (
 
 // ActorManager defines the operations available for managing actors.
 type ActorManager interface {
-	CreateActor(ctx context.Context, orgID string, actor *Actor) error
-	GetActor(ctx context.Context, orgID string, actorID string) (*Actor, error)
-	UpdateActor(ctx context.Context, orgID string, actor *Actor) error
-	DeleteActor(ctx context.Context, orgID string, actorID string) error
-	ListActors(ctx context.Context, orgID string) ([]Actor, error)
+	CreateActor(ctx context.Context, serviceID string, actor *Actor) error
+	GetActor(ctx context.Context, serviceID string, actorID string) (*Actor, error)
+	UpdateActor(ctx context.Context, serviceID string, actor *Actor) error
+	DeleteActor(ctx context.Context, serviceID string, actorID string) error
+	ListActors(ctx context.Context, serviceID string) ([]Actor, error)
 }
 
 // Ensure ActorDBClient implements the ActorManager interface
@@ -29,12 +29,10 @@ var _ ActorManager = &ActorDBClient{}
 
 // Actor represents a actor in the system.
 type Actor struct {
-	ActorID     string `json:"actorId"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Deleted     bool   `json:"deleted"`
-	CreatedAt   string `json:"createdAt"`
-	UpdatedAt   string `json:"updatedAt"`
+	ActorID             string `json:"actorId"`
+	ExternalID          string `json:"externalId"`
+	MonthlyRequestLimit int    `json:"monthlyRequestLimit"`
+	Deleted             bool   `json:"deleted"`
 }
 
 // ActorDBClient is a client for interacting with DynamoDB for actor-related operations.
@@ -50,23 +48,19 @@ func NewActorDBClient(actor DynamoDBAPI) *ActorDBClient {
 }
 
 // createActorCompositeKeys generates the partition key (pk) and sort key (sk) for a actor.
-func createActorCompositeKeys(orgID, actorID string) (string, string) {
-	return "Org#" + orgID, "Actor#" + actorID
+func createActorCompositeKeys(serviceID, actorID string) (string, string) {
+	return "Service#" + serviceID, "Actor#" + actorID
 }
 
 // CreateActor creates a new actor in the DynamoDB table.
-func (d *ActorDBClient) CreateActor(ctx context.Context, orgID string, actor *Actor) error {
+func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor *Actor) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	actor.ActorID = ksuid
-	pk, sk := createActorCompositeKeys(orgID, actor.ActorID)
-
-	now := time.Now().UTC().Format(time.RFC3339)
-	actor.CreatedAt = now
-	actor.UpdatedAt = now
+	pk, sk := createActorCompositeKeys(serviceID, actor.ActorID)
 
 	av, err := attributevalue.MarshalMap(actor)
 	if err != nil {
@@ -95,8 +89,8 @@ func (d *ActorDBClient) CreateActor(ctx context.Context, orgID string, actor *Ac
 }
 
 // GetActor retrieves a actor by organization ID and actor ID from the DynamoDB table.
-func (d *ActorDBClient) GetActor(ctx context.Context, orgID, actorID string) (*Actor, error) {
-	pk, sk := createActorCompositeKeys(orgID, actorID)
+func (d *ActorDBClient) GetActor(ctx context.Context, serviceID, actorID string) (*Actor, error) {
+	pk, sk := createActorCompositeKeys(serviceID, actorID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Actors"),
 		Key: map[string]types.AttributeValue{
@@ -128,21 +122,18 @@ func (d *ActorDBClient) GetActor(ctx context.Context, orgID, actorID string) (*A
 }
 
 // UpdateActor updates the name, description, and updatedAt fields of an existing actor in the DynamoDB table.
-func (d *ActorDBClient) UpdateActor(ctx context.Context, orgID string, actor *Actor) error {
-	pk, sk := createActorCompositeKeys(orgID, actor.ActorID)
-	actor.UpdatedAt = time.Now().UTC().Format(time.RFC3339)
+func (d *ActorDBClient) UpdateActor(ctx context.Context, serviceID string, actor *Actor) error {
+	pk, sk := createActorCompositeKeys(serviceID, actor.ActorID)
 
-	updateExpr := "SET #name = :name, #description = :description, #updatedAt = :updatedAt"
+	updateExpr := "SET #externalId = :externalId, #monthlyRequestLimit = :monthlyRequestLimit"
 	exprAttrNames := map[string]string{
-		"#name":        "Name",
-		"#description": "Description",
-		"#updatedAt":   "UpdatedAt",
+		"#externalId":          "ExternalId",
+		"#monthlyRequestLimit": "MonthlyRequestLimit",
 	}
 
 	exprAttrValues := map[string]types.AttributeValue{
-		":name":        &types.AttributeValueMemberS{Value: actor.Name},
-		":description": &types.AttributeValueMemberS{Value: actor.Description},
-		":updatedAt":   &types.AttributeValueMemberS{Value: actor.UpdatedAt},
+		":externalId":          &types.AttributeValueMemberS{Value: actor.ExternalID},
+		":monthlyRequestLimit": &types.AttributeValueMemberN{Value: strconv.Itoa(actor.MonthlyRequestLimit)},
 	}
 
 	input := &dynamodb.UpdateItemInput{
@@ -162,17 +153,12 @@ func (d *ActorDBClient) UpdateActor(ctx context.Context, orgID string, actor *Ac
 }
 
 // DeleteActor marks a actor as deleted by organization ID and actor ID in the DynamoDB table.
-func (d *ActorDBClient) DeleteActor(ctx context.Context, orgID, actorID string) error {
-	pk, sk := createActorCompositeKeys(orgID, actorID)
-	now := time.Now().UTC().Format(time.RFC3339)
+func (d *ActorDBClient) DeleteActor(ctx context.Context, serviceID, actorID string) error {
+	pk, sk := createActorCompositeKeys(serviceID, actorID)
 
 	update := map[string]types.AttributeValueUpdate{
 		"Deleted": {
 			Value:  &types.AttributeValueMemberBOOL{Value: true},
-			Action: types.AttributeActionPut,
-		},
-		"UpdatedAt": {
-			Value:  &types.AttributeValueMemberS{Value: now},
 			Action: types.AttributeActionPut,
 		},
 	}
@@ -196,8 +182,8 @@ func (d *ActorDBClient) DeleteActor(ctx context.Context, orgID, actorID string) 
 }
 
 // ListActorsByOrganization retrieves all actors for a specific organization from the DynamoDB table.
-func (d *ActorDBClient) ListActors(ctx context.Context, orgID string) ([]Actor, error) {
-	pk, _ := createActorCompositeKeys(orgID, "")
+func (d *ActorDBClient) ListActors(ctx context.Context, serviceID string) ([]Actor, error) {
+	pk, _ := createActorCompositeKeys(serviceID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Actors"),
 		KeyConditionExpression: aws.String("pk = :pk"),

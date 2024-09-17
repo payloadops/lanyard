@@ -3,7 +3,6 @@ package dal_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/payloadops/plato/app/dal"
 
@@ -23,15 +22,15 @@ func TestCreateActor(t *testing.T) {
 	client := dal.NewActorDBClient(mockSvc)
 
 	actor := &dal.Actor{
-		Name:        "Actor1",
-		Description: "Description1",
+		ExternalID:          "12342341234",
+		MonthlyRequestLimit: 1000000,
 	}
 
 	mockSvc.EXPECT().
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreateActor(context.Background(), "org1", actor)
+	err := client.CreateActor(context.Background(), "serv1", actor)
 	assert.NoError(t, err)
 }
 
@@ -43,12 +42,10 @@ func TestGetActor(t *testing.T) {
 	client := dal.NewActorDBClient(mockSvc)
 
 	actor := dal.Actor{
-		ActorID:     "proj1",
-		Name:        "Actor1",
-		Description: "Description1",
-		Deleted:     false,
-		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
-		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		ActorID:             "actor1",
+		ExternalID:          "12342341234",
+		MonthlyRequestLimit: 1000000,
+		Deleted:             false,
 	}
 
 	item, _ := attributevalue.MarshalMap(actor)
@@ -56,10 +53,10 @@ func TestGetActor(t *testing.T) {
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetActor(context.Background(), "org1", "proj1")
+	result, err := client.GetActor(context.Background(), "serv1", "proj1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "Actor1", result.Name)
+	assert.Equal(t, "actor1", result.ActorID)
 }
 
 func TestUpdateActor(t *testing.T) {
@@ -70,27 +67,26 @@ func TestUpdateActor(t *testing.T) {
 	client := dal.NewActorDBClient(mockSvc)
 
 	actor := &dal.Actor{
-		ActorID:     "proj1",
-		Name:        "Actor1",
-		Description: "Description1",
+		ActorID:             "actor1",
+		ExternalID:          "12342341234",
+		MonthlyRequestLimit: 1000000,
+		Deleted:             false,
 	}
 
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
-			assert.Equal(t, "Org#org1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "Actor#proj1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "Actor1", input.ExpressionAttributeValues[":name"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "Description1", input.ExpressionAttributeValues[":description"].(*types.AttributeValueMemberS).Value)
-			assert.NotEmpty(t, input.ExpressionAttributeValues[":updatedAt"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "SET #name = :name, #description = :description, #updatedAt = :updatedAt", *input.UpdateExpression)
-			assert.Equal(t, "Name", input.ExpressionAttributeNames["#name"])
-			assert.Equal(t, "Description", input.ExpressionAttributeNames["#description"])
-			assert.Equal(t, "UpdatedAt", input.ExpressionAttributeNames["#updatedAt"])
+			assert.Equal(t, "Service#serv1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Actor#actor1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "12342341234", input.ExpressionAttributeValues[":externalId"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "1000000", input.ExpressionAttributeValues[":monthlyRequestLimit"].(*types.AttributeValueMemberN).Value)
+			assert.Equal(t, "SET #externalId = :externalId, #monthlyRequestLimit = :monthlyRequestLimit", *input.UpdateExpression)
+			assert.Equal(t, "ExternalId", input.ExpressionAttributeNames["#externalId"])
+			assert.Equal(t, "MonthlyRequestLimit", input.ExpressionAttributeNames["#monthlyRequestLimit"])
 			return &dynamodb.UpdateItemOutput{}, nil
 		})
 
-	err := client.UpdateActor(context.Background(), "org1", actor)
+	err := client.UpdateActor(context.Background(), "serv1", actor)
 	assert.NoError(t, err)
 }
 
@@ -105,11 +101,11 @@ func TestDeleteActor(t *testing.T) {
 		UpdateItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.UpdateItemOutput{}, nil)
 
-	err := client.DeleteActor(context.Background(), "org1", "proj1")
+	err := client.DeleteActor(context.Background(), "serv1", "proj1")
 	assert.NoError(t, err)
 }
 
-func TestListActorsByOrganization(t *testing.T) {
+func TestListActorsByServiceanization(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -117,12 +113,10 @@ func TestListActorsByOrganization(t *testing.T) {
 	client := dal.NewActorDBClient(mockSvc)
 
 	actor := dal.Actor{
-		ActorID:     "proj1",
-		Name:        "Actor1",
-		Description: "Description1",
-		Deleted:     false,
-		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
-		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		ActorID:             "actor1",
+		Deleted:             false,
+		ExternalID:          "12342341234",
+		MonthlyRequestLimit: 1000000,
 	}
 
 	item, _ := attributevalue.MarshalMap(actor)
@@ -130,9 +124,9 @@ func TestListActorsByOrganization(t *testing.T) {
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListActors(context.Background(), "org1")
+	result, err := client.ListActors(context.Background(), "serv1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, "Actor1", result[0].Name)
+	assert.Equal(t, "actor1", result[0].ActorID)
 }
