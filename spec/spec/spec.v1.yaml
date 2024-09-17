@@ -1274,9 +1274,6 @@ components:
           items:
             type: string
           type: array
-        monthlyRequestLimit:
-          description: Number of monthly requests
-          type: integer
         rateLimit:
           allOf:
             - $ref: '#/components/schemas/RateLimit'
@@ -1323,9 +1320,6 @@ components:
           items:
             type: string
           type: array
-        monthlyRequestLimit:
-          description: Number of monthly requests
-          type: integer
         rateLimit:
           allOf:
             - $ref: '#/components/schemas/RateLimit'

@@ -33,10 +33,12 @@ var _ APIKeyManager = &APIKeyDBClient{}
 type APIKey struct {
 	OrgID     string   `json:"orgId"`
 	ServiceID string   `json:"serviceId"`
+	ActorID   string   `json:"actorId"`
 	APIKeyID  string   `json:"apiKeyId"`
 	Secret    string   `json:"secret"`
 	Scopes    []string `json:"scopes"`
 	Roles     []string `json:"roles"`
+	Expiry    string   `json:"expiry"`
 	Deleted   bool     `json:"deleted"`
 	CreatedAt string   `json:"createdAt"`
 	UpdatedAt string   `json:"updatedAt"`

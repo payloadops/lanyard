@@ -23,9 +23,6 @@ type ApiKeyInput struct {
 	// List of scopes or permissions granted by this API key
 	Scopes []string `json:"scopes,omitempty"`
 
-	// Number of monthly requests
-	MonthlyRequestLimit int32 `json:"monthlyRequestLimit,omitempty"`
-
 	// Rate limit configuration for this API key
 	RateLimit RateLimit `json:"rateLimit,omitempty"`
 
