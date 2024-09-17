@@ -836,11 +836,7 @@ components:
         overagePrice: 6.0274563
         defaultMonthlyRequestLimit: 0
         name: name
-        id: id
       properties:
-        id:
-          description: Unique identifier for the pricing tier
-          type: string
         name:
           description: "The name of the pricing tier (e.g., Free, Pro, Enterprise)"
           type: string
@@ -942,13 +938,8 @@ components:
       type: object
     Actor:
       example:
-        id: ""
         externalId: ""
       properties:
-        id:
-          allOf:
-          - $ref: '#/components/schemas/KSUID'
-          description: Unique identifier for the API key
         externalId:
           allOf:
           - $ref: '#/components/schemas/KSUID'

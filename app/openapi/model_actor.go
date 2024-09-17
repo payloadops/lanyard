@@ -14,9 +14,6 @@ package openapi
 type Actor struct {
 
 	// Unique identifier for the API key
-	Id string `json:"id,omitempty"`
-
-	// Unique identifier for the API key
 	ExternalId string `json:"externalId,omitempty"`
 
 	// Billing info for actor

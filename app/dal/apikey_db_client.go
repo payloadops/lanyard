@@ -57,13 +57,18 @@ func NewAPIKeyDBClient(service DynamoDBAPI) *APIKeyDBClient {
 }
 
 // createAPIKeyGSICompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
-func createAPIKeyGSICompositeKey(orgID, serviceID string) string {
+func createAPIKeyGSI1(orgID, serviceID string) string {
 	return "Org#" + orgID + "Service#" + serviceID
 }
 
+// createAPIKeyGSICompositeKeys generates the partition key (pk) and sort key (sk) for an API key.
+func createAPIKeyGSI2(orgID, serviceID, actorID string) string {
+	return "Org#" + orgID + "Service#" + serviceID + "Actor#" + actorID
+}
+
 // createAPIKeyCompositeKey generates the partition key (pk) for an API key.
-func createAPIKeyCompositeKey(apiKeyID, orgID, actorID string) (string, string) {
-	return "Org#" + orgID + "APIKey#" + apiKeyID, "Actor" + actorID
+func createAPIKeyCompositeKey(apiKeyID string) string {
+	return "APIKey#" + apiKeyID
 }
 
 // CreateAPIKey creates a new API key in the DynamoDB table.
@@ -74,8 +79,9 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 	}
 
 	apiKey.APIKeyID = ksuid
-	pk, sk := createAPIKeyCompositeKey(apiKey.APIKeyID, apiKey.OrgID, "")
-	gsiPK := createAPIKeyGSICompositeKey(apiKey.OrgID, apiKey.ServiceID)
+	pk := createAPIKeyCompositeKey(apiKey.APIKeyID)
+	gsi1PK := createAPIKeyGSI1(apiKey.OrgID, apiKey.ServiceID)
+	gsi2PK := createAPIKeyGSI2(apiKey.OrgID, apiKey.ServiceID, apiKey.ActorID)
 
 	now := time.Now().UTC().Format(time.RFC3339)
 	apiKey.CreatedAt = now
@@ -88,8 +94,8 @@ func (d *APIKeyDBClient) CreateAPIKey(ctx context.Context, apiKey *APIKey) error
 
 	item := map[string]types.AttributeValue{
 		"pk":     &types.AttributeValueMemberS{Value: pk},
-		"sk":     &types.AttributeValueMemberS{Value: sk},
-		"GSI1PK": &types.AttributeValueMemberS{Value: gsiPK},
+		"GSI1PK": &types.AttributeValueMemberS{Value: gsi1PK},
+		"GSI2PK": &types.AttributeValueMemberS{Value: gsi2PK},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -204,14 +210,50 @@ func (d *APIKeyDBClient) DeleteAPIKey(ctx context.Context, orgID, serviceID, api
 
 // ListAPIKeysByService retrieves all API keys for a specific service from the DynamoDB table.
 func (d *APIKeyDBClient) ListAPIKeysByService(ctx context.Context, orgID, serviceID string) ([]APIKey, error) {
-	gsiPK := createAPIKeyGSICompositeKey(orgID, serviceID)
+	gsi1PK := createAPIKeyGSI1(orgID, serviceID)
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("APIKeys"),
 		IndexName:              aws.String("Org-Service-Index"),
 		KeyConditionExpression: aws.String("GSI1PK = :gsi1PK"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":gsi1PK": &types.AttributeValueMemberS{
-				Value: gsiPK,
+				Value: gsi1PK,
+			},
+		},
+	}
+
+	result, err := d.service.Query(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
+	}
+
+	var apiKeys []APIKey
+	err = attributevalue.UnmarshalListOfMaps(result.Items, &apiKeys)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
+	}
+
+	results := []APIKey{}
+	for _, apiKey := range apiKeys {
+		if apiKey.Deleted {
+			continue
+		}
+		results = append(results, apiKey)
+	}
+
+	return results, nil
+}
+
+// ListAPIKeysByActor retrieves all API keys for a specific actor from the DynamoDB table.
+func (d *APIKeyDBClient) ListAPIKeysByActor(ctx context.Context, orgID, serviceID, actorID string) ([]APIKey, error) {
+	gsi2PK := createAPIKeyGSI2(orgID, serviceID, actorID)
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("APIKeys"),
+		IndexName:              aws.String("Org-Service-Index"),
+		KeyConditionExpression: aws.String("GSI1PK = :gsi1PK"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":gsi2PK": &types.AttributeValueMemberS{
+				Value: gsi2PK,
 			},
 		},
 	}

@@ -14,70 +14,75 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestCreateActor(t *testing.T) {
+func TestCreateTier(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewActorDBClient(mockSvc)
+	client := dal.NewTierDBClient(mockSvc)
 
-	actor := &dal.Actor{
-		ExternalID:          "12342341234",
-		MonthlyRequestLimit: 1000000,
+	Tier := &dal.Tier{
+		TierID:              "12342341234",
+		Name:                "Steve",
+		DefaultRequestLimit: 1000000,
+		OveragePrice:        1,
+		Interval:            1,
 	}
 
 	mockSvc.EXPECT().
 		PutItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := client.CreateActor(context.Background(), "org1", "serv1", actor)
+	err := client.CreateTier(context.Background(), "org1", "serv1", Tier)
 	assert.NoError(t, err)
 }
 
-func TestGetActor(t *testing.T) {
+func TestGetTier(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewActorDBClient(mockSvc)
+	client := dal.NewTierDBClient(mockSvc)
 
-	actor := dal.Actor{
-		ActorID:             "actor1",
-		ExternalID:          "12342341234",
-		MonthlyRequestLimit: 1000000,
-		Deleted:             false,
+	Tier := dal.Tier{
+		TierID:              "12342341234",
+		Name:                "Steve",
+		DefaultRequestLimit: 1000000,
+		OveragePrice:        1,
+		Interval:            1,
 	}
 
-	item, _ := attributevalue.MarshalMap(actor)
+	item, _ := attributevalue.MarshalMap(Tier)
 	mockSvc.EXPECT().
 		GetItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.GetItemOutput{Item: item}, nil)
 
-	result, err := client.GetActor(context.Background(), "org1", "serv1", "actor1")
+	result, err := client.GetTier(context.Background(), "org1", "serv1", "Tier1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, "actor1", result.ActorID)
+	assert.Equal(t, "Tier1", result.TierID)
 }
 
-func TestUpdateActor(t *testing.T) {
+func TestUpdateTier(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewActorDBClient(mockSvc)
+	client := dal.NewTierDBClient(mockSvc)
 
-	actor := &dal.Actor{
-		ActorID:             "actor1",
-		ExternalID:          "12342341234",
-		MonthlyRequestLimit: 1000000,
-		Deleted:             false,
+	Tier := &dal.Tier{
+		TierID:              "12342341234",
+		Name:                "Steve",
+		DefaultRequestLimit: 1000000,
+		OveragePrice:        1,
+		Interval:            1,
 	}
 
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
 			assert.Equal(t, "Service#serv1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
-			assert.Equal(t, "Actor#actor1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Tier#Tier1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "12342341234", input.ExpressionAttributeValues[":externalId"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "1000000", input.ExpressionAttributeValues[":monthlyRequestLimit"].(*types.AttributeValueMemberN).Value)
 			assert.Equal(t, "SET #externalId = :externalId, #monthlyRequestLimit = :monthlyRequestLimit", *input.UpdateExpression)
@@ -86,47 +91,48 @@ func TestUpdateActor(t *testing.T) {
 			return &dynamodb.UpdateItemOutput{}, nil
 		})
 
-	err := client.UpdateActor(context.Background(), "org1", "serv1", actor)
+	err := client.UpdateTier(context.Background(), "org1", "serv1", Tier)
 	assert.NoError(t, err)
 }
 
-func TestDeleteActor(t *testing.T) {
+func TestDeleteTier(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewActorDBClient(mockSvc)
+	client := dal.NewTierDBClient(mockSvc)
 
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.UpdateItemOutput{}, nil)
 
-	err := client.DeleteActor(context.Background(), "org1", "serv1", "actor1")
+	err := client.DeleteTier(context.Background(), "org1", "serv1", "Tier1")
 	assert.NoError(t, err)
 }
 
-func TestListActorsByServiceanization(t *testing.T) {
+func TestListTiersByServiceanization(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockSvc := mocks.NewMockDynamoDBAPI(ctrl)
-	client := dal.NewActorDBClient(mockSvc)
+	client := dal.NewTierDBClient(mockSvc)
 
-	actor := dal.Actor{
-		ActorID:             "actor1",
-		Deleted:             false,
-		ExternalID:          "12342341234",
-		MonthlyRequestLimit: 1000000,
+	Tier := dal.Tier{
+		TierID:              "12342341234",
+		Name:                "Steve",
+		DefaultRequestLimit: 1000000,
+		OveragePrice:        1,
+		Interval:            1,
 	}
 
-	item, _ := attributevalue.MarshalMap(actor)
+	item, _ := attributevalue.MarshalMap(Tier)
 	mockSvc.EXPECT().
 		Query(gomock.Any(), gomock.Any()).
 		Return(&dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{item}}, nil)
 
-	result, err := client.ListActors(context.Background(), "org1", "serv1")
+	result, err := client.ListTiers(context.Background(), "org1", "serv1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result))
-	assert.Equal(t, "actor1", result[0].ActorID)
+	assert.Equal(t, "Tier1", result[0].TierID)
 }

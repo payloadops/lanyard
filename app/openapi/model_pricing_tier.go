@@ -14,9 +14,6 @@ package openapi
 // PricingTier - Represents a pricing tier for API usage, defining limits and features associated with the service.
 type PricingTier struct {
 
-	// Unique identifier for the pricing tier
-	Id string `json:"id,omitempty"`
-
 	// The name of the pricing tier (e.g., Free, Pro, Enterprise)
 	Name string `json:"name,omitempty"`
 

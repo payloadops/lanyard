@@ -22,11 +22,6 @@ type ServiceManager interface {
 	UpdateService(ctx context.Context, orgID string, service *Service) error
 	DeleteService(ctx context.Context, orgID string, serviceID string) error
 	ListServicesByOrganization(ctx context.Context, orgID string) ([]Service, error)
-
-	CreateBlockedIPAddress(ctx context.Context, orgID, serviceID string, blockedIPAddress *BlockedIPAddress) error
-	GetBlockedIPAddress(ctx context.Context, orgID, serviceID, blockedIPAddress string) (*BlockedIPAddress, error)
-	DeleteBlockedIPAddress(ctx context.Context, orgID, serviceID, blockedIPAddress string) error
-	ListBlockedIPAddress(ctx context.Context, orgID, serviceID string) ([]BlockedIPAddress, error)
 }
 
 // Ensure ServiceDBClient implements the ServiceManager interface
@@ -40,12 +35,6 @@ type Service struct {
 	Deleted     bool   `json:"deleted"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
-}
-
-type BlockedIPAddress struct {
-	IPAddress string `json:"ipAddress"`
-	Reason    string `json:"reason"`
-	CreatedAt string `json:"createdAt"`
 }
 
 // ServiceDBClient is a client for interacting with DynamoDB for service-related operations.
@@ -63,11 +52,6 @@ func NewServiceDBClient(service DynamoDBAPI) *ServiceDBClient {
 // createServiceCompositeKeys generates the partition key (pk) and sort key (sk) for a service.
 func createServiceCompositeKeys(orgID, serviceID string) (string, string) {
 	return "Org#" + orgID, "Service#" + serviceID
-}
-
-// createBlockedIPCompositeKeys generates the partition key (pk) and sort key (sk) for a service.
-func createBlockedIPCompositeKeys(orgID, serviceID, IPAddress string) (string, string) {
-	return "Org#" + orgID + "Service#" + serviceID, "IPAddress#" + IPAddress
 }
 
 // CreateService creates a new service in the DynamoDB table.
@@ -244,113 +228,4 @@ func (d *ServiceDBClient) ListServicesByOrganization(ctx context.Context, orgID 
 	}
 
 	return services, nil
-}
-
-// CreateBlockedIPAddress creates blocked IP address item in dynamoDB table
-func (d *ServiceDBClient) CreateBlockedIPAddress(ctx context.Context, orgID, serviceID string, blockedIPAddress *BlockedIPAddress) error {
-	pk, sk := createBlockedIPCompositeKeys(orgID, serviceID, blockedIPAddress.IPAddress)
-
-	av, err := attributevalue.MarshalMap(blockedIPAddress)
-	if err != nil {
-		return fmt.Errorf("failed to marshal service: %v", err)
-	}
-
-	now := time.Now().UTC().Format(time.RFC3339)
-	blockedIPAddress.CreatedAt = now
-
-	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
-	}
-	for k, v := range av {
-		item[k] = v
-	}
-
-	input := &dynamodb.PutItemInput{
-		TableName: aws.String("Services"),
-		Item:      item,
-	}
-
-	_, err = d.service.PutItem(ctx, input)
-	if err != nil {
-		return fmt.Errorf("failed to put item in DynamoDB: %v", err)
-	}
-
-	return nil
-}
-
-// GetBlockedIPAddress retrieves a blocked IP Address item by organization ID and service ID from the DynamoDB table.
-func (d *ServiceDBClient) GetBlockedIPAddress(ctx context.Context, orgID, serviceID, blockedIPAddress string) (*BlockedIPAddress, error) {
-	pk, sk := createBlockedIPCompositeKeys(orgID, serviceID, blockedIPAddress)
-	input := &dynamodb.GetItemInput{
-		TableName: aws.String("Services"),
-		Key: map[string]types.AttributeValue{
-			"pk": &types.AttributeValueMemberS{Value: pk},
-			"sk": &types.AttributeValueMemberS{Value: sk},
-		},
-	}
-
-	result, err := d.service.GetItem(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get item from DynamoDB: %v", err)
-	}
-
-	if result.Item == nil {
-		return nil, nil
-	}
-
-	var blockedIPAddressItem BlockedIPAddress
-	err = attributevalue.UnmarshalMap(result.Item, &blockedIPAddressItem)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal item from DynamoDB: %v", err)
-	}
-
-	return &blockedIPAddressItem, nil
-}
-
-// DeleteBlockedIPAddress permanently deletes blocked IP Address item in DynamoDB table.
-func (d *ServiceDBClient) DeleteBlockedIPAddress(ctx context.Context, orgID, serviceID, blockedIPAddress string) error {
-	pk, sk := createBlockedIPCompositeKeys(orgID, serviceID, blockedIPAddress)
-
-	input := &dynamodb.DeleteItemInput{
-		TableName: aws.String("Services"),
-		Key: map[string]types.AttributeValue{
-			"pk": &types.AttributeValueMemberS{Value: pk},
-			"sk": &types.AttributeValueMemberS{Value: sk},
-		},
-	}
-
-	_, err := d.service.DeleteItem(ctx, input)
-	if err != nil {
-		return fmt.Errorf("failed to delete item in DynamoDB: %v", err)
-	}
-
-	return nil
-}
-
-// ListBlockedIPAddress retrieves all blocked IP addresses for a specific service from the DynamoDB table.
-func (d *ServiceDBClient) ListBlockedIPAddress(ctx context.Context, orgID, serviceID string) ([]BlockedIPAddress, error) {
-	pk, _ := createBlockedIPCompositeKeys(orgID, serviceID, "")
-	input := &dynamodb.QueryInput{
-		TableName:              aws.String("Services"),
-		KeyConditionExpression: aws.String("pk = :pk"),
-		ExpressionAttributeValues: map[string]types.AttributeValue{
-			":pk": &types.AttributeValueMemberS{
-				Value: pk,
-			},
-		},
-	}
-
-	result, err := d.service.Query(ctx, input)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query items in DynamoDB: %v", err)
-	}
-
-	var blockedIPAddresses []BlockedIPAddress
-	err = attributevalue.UnmarshalListOfMaps(result.Items, &blockedIPAddresses)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal items from DynamoDB: %v", err)
-	}
-
-	return blockedIPAddresses, nil
 }

@@ -17,11 +17,11 @@ import (
 
 // ActorManager defines the operations available for managing actors.
 type ActorManager interface {
-	CreateActor(ctx context.Context, serviceID string, actor *Actor) error
-	GetActor(ctx context.Context, serviceID string, actorID string) (*Actor, error)
-	UpdateActor(ctx context.Context, serviceID string, actor *Actor) error
-	DeleteActor(ctx context.Context, serviceID string, actorID string) error
-	ListActors(ctx context.Context, serviceID string) ([]Actor, error)
+	CreateActor(ctx context.Context, orgID, serviceID string, actor *Actor) error
+	GetActor(ctx context.Context, orgID, serviceID string, externalID string) (*Actor, error)
+	UpdateActor(ctx context.Context, orgID, serviceID string, actor *Actor) error
+	DeleteActor(ctx context.Context, orgID, serviceID string, externalID string) error
+	ListActors(ctx context.Context, orgID, serviceID string) ([]Actor, error)
 }
 
 // Ensure ActorDBClient implements the ActorManager interface
@@ -59,19 +59,25 @@ func NewActorDBClient(actor DynamoDBAPI) *ActorDBClient {
 }
 
 // createActorCompositeKeys generates the partition key (pk) and sort key (sk) for a actor.
-func createActorCompositeKeys(orgID, serviceID, actorID string) (string, string) {
-	return "Org#" + orgID + "Service#" + serviceID, "Actor#" + actorID
+func createActorCompositeKeys(orgID, serviceID, actorExternalID string) (string, string) {
+	return "Org#" + orgID + "Service#" + serviceID + "Actor", "Actor#" + actorExternalID
+}
+
+// createActorCompositeKeys generates the partition key (pk) and sort key (sk) for a actor.
+func createActorGSI1(orgID, serviceID, actorID string) string {
+	return "Org#" + orgID + "Service#" + serviceID + "Actor#" + actorID
 }
 
 // CreateActor creates a new actor in the DynamoDB table.
-func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor *Actor) error {
+func (d *ActorDBClient) CreateActor(ctx context.Context, orgID, serviceID string, actor *Actor) error {
 	ksuid, err := utils.GenerateKSUID()
 	if err != nil {
 		return fmt.Errorf("failed to create ksuid: %v", err)
 	}
 
 	actor.ActorID = ksuid
-	pk, sk := createActorCompositeKeys("", serviceID, actor.ActorID)
+	pk, sk := createActorCompositeKeys(orgID, serviceID, actor.ExternalID)
+	gsi1PK := createActorGSI1(orgID, serviceID, actor.ExternalID)
 
 	av, err := attributevalue.MarshalMap(actor)
 	if err != nil {
@@ -79,8 +85,9 @@ func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor
 	}
 
 	item := map[string]types.AttributeValue{
-		"pk": &types.AttributeValueMemberS{Value: pk},
-		"sk": &types.AttributeValueMemberS{Value: sk},
+		"pk":     &types.AttributeValueMemberS{Value: pk},
+		"sk":     &types.AttributeValueMemberS{Value: sk},
+		"GSI1PK": &types.AttributeValueMemberS{Value: gsi1PK},
 	}
 	for k, v := range av {
 		item[k] = v
@@ -100,8 +107,8 @@ func (d *ActorDBClient) CreateActor(ctx context.Context, serviceID string, actor
 }
 
 // GetActor retrieves a actor by organization ID and actor ID from the DynamoDB table.
-func (d *ActorDBClient) GetActor(ctx context.Context, serviceID, actorID string) (*Actor, error) {
-	pk, sk := createActorCompositeKeys("", serviceID, actorID)
+func (d *ActorDBClient) GetActor(ctx context.Context, orgID, serviceID, externalID string) (*Actor, error) {
+	pk, sk := createActorCompositeKeys(orgID, serviceID, externalID)
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String("Services"),
 		Key: map[string]types.AttributeValue{
@@ -132,9 +139,52 @@ func (d *ActorDBClient) GetActor(ctx context.Context, serviceID, actorID string)
 	return &actor, nil
 }
 
+// GetActorByGSI retrieves an actor by using the GSI (Global Secondary Index) from the DynamoDB table.
+func (d *ActorDBClient) GetActorByGSI(ctx context.Context, orgID, serviceID, actorID string) (*Actor, error) {
+	// Create GSI1 partition key
+	gsi1PK := createActorGSI1(orgID, serviceID, actorID)
+
+	// Prepare the query input using the GSI
+	input := &dynamodb.QueryInput{
+		TableName:              aws.String("Services"),
+		IndexName:              aws.String("GSI1"), // Ensure GSI1 is set up in your DynamoDB table
+		KeyConditionExpression: aws.String("GSI1PK = :gsi1pk"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":gsi1pk": &types.AttributeValueMemberS{
+				Value: gsi1PK,
+			},
+		},
+	}
+
+	// Perform the query
+	result, err := d.actor.Query(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query GSI in DynamoDB: %v", err)
+	}
+
+	// Check if there are any results
+	if len(result.Items) == 0 {
+		return nil, nil // Return nil if no actor is found
+	}
+
+	// Unmarshal the result into an Actor
+	var actor Actor
+	err = attributevalue.UnmarshalMap(result.Items[0], &actor)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal actor from DynamoDB: %v", err)
+	}
+
+	// Check if the actor is marked as deleted
+	if actor.Deleted {
+		return nil, nil // Return nil if the actor is marked as deleted
+	}
+
+	return &actor, nil
+}
+
 // UpdateActor updates the name, description, and updatedAt fields of an existing actor in the DynamoDB table.
-func (d *ActorDBClient) UpdateActor(ctx context.Context, serviceID string, actor *Actor) error {
-	pk, sk := createActorCompositeKeys("", serviceID, actor.ActorID)
+func (d *ActorDBClient) UpdateActor(ctx context.Context, orgID, serviceID string, actor *Actor) error {
+	pk, sk := createActorCompositeKeys(orgID, serviceID, actor.ExternalID)
 
 	updateExpr := "SET #externalId = :externalId, #monthlyRequestLimit = :monthlyRequestLimit"
 	exprAttrNames := map[string]string{
@@ -164,8 +214,8 @@ func (d *ActorDBClient) UpdateActor(ctx context.Context, serviceID string, actor
 }
 
 // DeleteActor marks a actor as deleted by organization ID and actor ID in the DynamoDB table.
-func (d *ActorDBClient) DeleteActor(ctx context.Context, serviceID, actorID string) error {
-	pk, sk := createActorCompositeKeys("", serviceID, actorID)
+func (d *ActorDBClient) DeleteActor(ctx context.Context, orgID, serviceID, externalID string) error {
+	pk, sk := createActorCompositeKeys(orgID, serviceID, externalID)
 
 	update := map[string]types.AttributeValueUpdate{
 		"Deleted": {
@@ -193,8 +243,8 @@ func (d *ActorDBClient) DeleteActor(ctx context.Context, serviceID, actorID stri
 }
 
 // ListActorsByOrganization retrieves all actors for a specific organization from the DynamoDB table.
-func (d *ActorDBClient) ListActors(ctx context.Context, serviceID string) ([]Actor, error) {
-	pk, _ := createActorCompositeKeys("", serviceID, "")
+func (d *ActorDBClient) ListActors(ctx context.Context, orgID, serviceID string) ([]Actor, error) {
+	pk, _ := createActorCompositeKeys(orgID, serviceID, "")
 	input := &dynamodb.QueryInput{
 		TableName:              aws.String("Services"),
 		KeyConditionExpression: aws.String("pk = :pk"),

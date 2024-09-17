@@ -829,9 +829,6 @@ components:
       description: |
         Represents a pricing tier for API usage, defining limits and features associated with the service.
       properties:
-        id:
-          description: "Unique identifier for the pricing tier"
-          type: string
         name:
           description: "The name of the pricing tier (e.g., Free, Pro, Enterprise)"
           type: string
@@ -929,13 +926,8 @@ components:
       type: object
     Actor:
       example:
-        id: ""
         externalId: ""
       properties:
-        id:
-            allOf:
-            - $ref: '#/components/schemas/KSUID'
-            description: Unique identifier for the API key
         externalId:
           allOf:
           - $ref: '#/components/schemas/KSUID'
