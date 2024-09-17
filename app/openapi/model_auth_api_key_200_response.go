@@ -17,15 +17,10 @@ type AuthApiKey200Response struct {
 	Message string `json:"message,omitempty"`
 
 	Remaining int32 `json:"remaining,omitempty"`
-
-	RateLimit AuthApiKey200ResponseRateLimit `json:"rateLimit,omitempty"`
 }
 
 // AssertAuthApiKey200ResponseRequired checks if the required fields are not zero-ed
 func AssertAuthApiKey200ResponseRequired(obj AuthApiKey200Response) error {
-	if err := AssertAuthApiKey200ResponseRateLimitRequired(obj.RateLimit); err != nil {
-		return err
-	}
 	return nil
 }
 

@@ -23,18 +23,12 @@ type PricingTier struct {
 	// The maximum number of API requests allowed per month
 	DefaultMonthlyRequestLimit int32 `json:"defaultMonthlyRequestLimit,omitempty"`
 
-	// Rate limit configuration for the tier (requests per second or minute)
-	DefaultRateLimit RateLimit `json:"defaultRateLimit,omitempty"`
-
 	// The price per extra request beyond the monthly limit
 	OveragePrice float32 `json:"overagePrice,omitempty"`
 }
 
 // AssertPricingTierRequired checks if the required fields are not zero-ed
 func AssertPricingTierRequired(obj PricingTier) error {
-	if err := AssertRateLimitRequired(obj.DefaultRateLimit); err != nil {
-		return err
-	}
 	return nil
 }
 

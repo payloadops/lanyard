@@ -18,9 +18,6 @@ type ServiceInput struct {
 
 	// A brief description of the service
 	Description string `json:"description,omitempty"`
-
-	// List of blocked IP addresses
-	BlockedIpAddresses []string `json:"blockedIpAddresses,omitempty"`
 }
 
 // AssertServiceInputRequired checks if the required fields are not zero-ed

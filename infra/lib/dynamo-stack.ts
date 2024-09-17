@@ -30,7 +30,6 @@ export class DynamoStack extends cdk.Stack {
     const apiKeysTable = new dynamodb.Table(this, 'APIKeysTable', {
       tableName: "APIKeys",
       partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-      sortKey: { name: 'sk', type: dynamodb.AttributeType.STRING},
       replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       tableClass: dynamodb.TableClass.STANDARD,

@@ -52,20 +52,20 @@ func NewActorsAPIController(s ActorsAPIServicer, opts ...ActorsAPIOption) Router
 // Routes returns all the api routes for the ActorsAPIController
 func (c *ActorsAPIController) Routes() Routes {
 	return Routes{
-		"ServicesServiceIdActorsActorIdDelete": Route{
+		"ServicesServiceIdActorsActorExternalIdDelete": Route{
 			strings.ToUpper("Delete"),
-			"/v1/services/{serviceId}/actors/{actorId}",
-			c.ServicesServiceIdActorsActorIdDelete,
+			"/v1/services/{serviceId}/actors/{actorExternalId}",
+			c.ServicesServiceIdActorsActorExternalIdDelete,
 		},
-		"ServicesServiceIdActorsActorIdGet": Route{
+		"ServicesServiceIdActorsActorExternalIdGet": Route{
 			strings.ToUpper("Get"),
-			"/v1/services/{serviceId}/actors/{actorId}",
-			c.ServicesServiceIdActorsActorIdGet,
+			"/v1/services/{serviceId}/actors/{actorExternalId}",
+			c.ServicesServiceIdActorsActorExternalIdGet,
 		},
-		"ServicesServiceIdActorsActorIdPut": Route{
+		"ServicesServiceIdActorsActorExternalIdPut": Route{
 			strings.ToUpper("Put"),
-			"/v1/services/{serviceId}/actors/{actorId}",
-			c.ServicesServiceIdActorsActorIdPut,
+			"/v1/services/{serviceId}/actors/{actorExternalId}",
+			c.ServicesServiceIdActorsActorExternalIdPut,
 		},
 		"ServicesServiceIdActorsGet": Route{
 			strings.ToUpper("Get"),
@@ -80,19 +80,19 @@ func (c *ActorsAPIController) Routes() Routes {
 	}
 }
 
-// ServicesServiceIdActorsActorIdDelete - Remove an actor from a service
-func (c *ActorsAPIController) ServicesServiceIdActorsActorIdDelete(w http.ResponseWriter, r *http.Request) {
+// ServicesServiceIdActorsActorExternalIdDelete - Remove an actor from a service
+func (c *ActorsAPIController) ServicesServiceIdActorsActorExternalIdDelete(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	actorIdParam := chi.URLParam(r, "actorId")
-	if actorIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"actorId"}, nil)
+	actorExternalIdParam := chi.URLParam(r, "actorExternalId")
+	if actorExternalIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"actorExternalId"}, nil)
 		return
 	}
-	result, err := c.service.ServicesServiceIdActorsActorIdDelete(r.Context(), serviceIdParam, actorIdParam)
+	result, err := c.service.ServicesServiceIdActorsActorExternalIdDelete(r.Context(), serviceIdParam, actorExternalIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -102,19 +102,19 @@ func (c *ActorsAPIController) ServicesServiceIdActorsActorIdDelete(w http.Respon
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ServicesServiceIdActorsActorIdGet - Get the actor
-func (c *ActorsAPIController) ServicesServiceIdActorsActorIdGet(w http.ResponseWriter, r *http.Request) {
+// ServicesServiceIdActorsActorExternalIdGet - Get the actor
+func (c *ActorsAPIController) ServicesServiceIdActorsActorExternalIdGet(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	actorIdParam := chi.URLParam(r, "actorId")
-	if actorIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"actorId"}, nil)
+	actorExternalIdParam := chi.URLParam(r, "actorExternalId")
+	if actorExternalIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"actorExternalId"}, nil)
 		return
 	}
-	result, err := c.service.ServicesServiceIdActorsActorIdGet(r.Context(), serviceIdParam, actorIdParam)
+	result, err := c.service.ServicesServiceIdActorsActorExternalIdGet(r.Context(), serviceIdParam, actorExternalIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -124,16 +124,16 @@ func (c *ActorsAPIController) ServicesServiceIdActorsActorIdGet(w http.ResponseW
 	EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ServicesServiceIdActorsActorIdPut - Update an actor
-func (c *ActorsAPIController) ServicesServiceIdActorsActorIdPut(w http.ResponseWriter, r *http.Request) {
+// ServicesServiceIdActorsActorExternalIdPut - Update an actor
+func (c *ActorsAPIController) ServicesServiceIdActorsActorExternalIdPut(w http.ResponseWriter, r *http.Request) {
 	serviceIdParam := chi.URLParam(r, "serviceId")
 	if serviceIdParam == "" {
 		c.errorHandler(w, r, &RequiredError{"serviceId"}, nil)
 		return
 	}
-	actorIdParam := chi.URLParam(r, "actorId")
-	if actorIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"actorId"}, nil)
+	actorExternalIdParam := chi.URLParam(r, "actorExternalId")
+	if actorExternalIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"actorExternalId"}, nil)
 		return
 	}
 	actorInputParam := ActorInput{}
@@ -151,7 +151,7 @@ func (c *ActorsAPIController) ServicesServiceIdActorsActorIdPut(w http.ResponseW
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.ServicesServiceIdActorsActorIdPut(r.Context(), serviceIdParam, actorIdParam, actorInputParam)
+	result, err := c.service.ServicesServiceIdActorsActorExternalIdPut(r.Context(), serviceIdParam, actorExternalIdParam, actorInputParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

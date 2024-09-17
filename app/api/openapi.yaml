@@ -222,197 +222,6 @@ paths:
       summary: Update a service
       tags:
       - Services
-  /services/{serviceId}/blocks:
-    get:
-      description: |
-        Lists all Blocked Ip addresses for a specified service.
-      operationId: listBlockedIpAddresses
-      parameters:
-      - description: The unique identifier of the service whose blocked Ip addresses
-          are to be listed.
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            service/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/BlockedIpAddress'
-                type: array
-          description: Successfully retrieved a list of blocked IP addresses for the
-            service.
-        "404":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "The specified service was not found, indicating an invalid\
-            \ service ID."
-        "500":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of blocked\
-            \ IP addresses."
-      security:
-      - BearerAuth: []
-      summary: List all blocked IP addresses for a service
-      tags:
-      - Blocked Ip Addresses
-    post:
-      description: |
-        Block a new IP address with given parameters.
-      operationId: blockIpAddress
-      parameters:
-      - description: The identifier of the service for which the Ip address is being
-          blocked.
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          service/json:
-            schema:
-              $ref: '#/components/schemas/BlockedIpAddressInput'
-        description: Contains the scope IP address block information.
-        required: true
-      responses:
-        "201":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/BlockedIpAddress'
-          description: New IP address block created successfully. The block details
-            are included in the response.
-        "400":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "Invalid request, such as missing required fields or invalid\
-            \ scope specifications."
-        "404":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: The specified service was not found.
-        "500":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the generation of the\
-            \ block."
-      security:
-      - BearerAuth: []
-      summary: Generate a new IP address blocked for a service
-      tags:
-      - Blocked Ip Addresses
-  /services/{serviceId}/blocks/{ipAddress}:
-    delete:
-      description: |
-        Removes the block on the specified Ip address.
-      operationId: unblockIpAddress
-      parameters:
-      - description: The unique identifier of the service from which the block will
-          be deleted.
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the Ip address to be unblocked.
-        explode: false
-        in: path
-        name: ipAddress
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "204":
-          description: "The IP address block was removed successfully, no content\
-            \ returned."
-        "404":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Either the IP address or the service was not found.
-        "500":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the deletion of the IP\
-            \ address block."
-      security:
-      - BearerAuth: []
-      summary: Remove a specific IP address block
-      tags:
-      - Blocked Ip Addresses
-    get:
-      description: |
-        Retrieves the specified IP address block.
-      operationId: getBlockedIpAddress
-      parameters:
-      - description: The unique identifier of the service associated with the IP address
-          block.
-        explode: false
-        in: path
-        name: serviceId
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: The unique identifier of the Ip address block to be retrieved.
-        explode: false
-        in: path
-        name: ipAddress
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        "200":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/BlockedIpAddress'
-          description: Detailed information about the IP address block retrieved successfully.
-        "404":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Either the specified IP address block or the service was not
-            found.
-        "500":
-          content:
-            service/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: "A server error occurred, preventing the retrieval of the IP\
-            \ address block."
-      security:
-      - BearerAuth: []
-      summary: Retrieve an Ip address block
-      tags:
-      - Blocked Ip Addresses
   /services/{serviceId}/keys:
     get:
       description: |
@@ -716,7 +525,7 @@ paths:
       summary: Add an actor to a service
       tags:
       - Actors
-  /services/{serviceId}/actors/{actorId}:
+  /services/{serviceId}/actors/{actorExternalId}:
     delete:
       description: |
         Removes an actor from the specified service.
@@ -732,7 +541,7 @@ paths:
       - description: The unique ID of the actor
         explode: false
         in: path
-        name: actorId
+        name: actorExternalId
         required: true
         schema:
           type: string
@@ -760,7 +569,7 @@ paths:
       - description: The unique ID of the pricing tier
         explode: false
         in: path
-        name: actorId
+        name: actorExternalId
         required: true
         schema:
           type: string
@@ -788,7 +597,7 @@ paths:
       - description: The unique ID of the pricing tier
         explode: false
         in: path
-        name: actorId
+        name: actorExternalId
         required: true
         schema:
           type: string
@@ -998,30 +807,6 @@ paths:
       - API Keys
 components:
   schemas:
-    BlockedIpAddress:
-      description: Information of blocked IP address and reason
-      properties:
-        ipAddress:
-          description: IP address to be blocked
-          type: string
-        reason:
-          description: Reason why the IP address was blocked
-          type: string
-        createdAt:
-          description: The date when the block was created
-          format: date-time
-          type: string
-      type: object
-    BlockedIpAddressInput:
-      description: Information of blocked IP address and reason
-      properties:
-        ipAddress:
-          description: IP address to be blocked
-          type: string
-        reason:
-          description: Reason why the IP address was blocked
-          type: string
-      type: object
     BillingInfo:
       description: "Billing information, including pricing tier and trial expiration\
         \ date"
@@ -1050,7 +835,6 @@ components:
       example:
         overagePrice: 6.0274563
         defaultMonthlyRequestLimit: 0
-        defaultRateLimit: ""
         name: name
         id: id
       properties:
@@ -1063,11 +847,6 @@ components:
         defaultMonthlyRequestLimit:
           description: The maximum number of API requests allowed per month
           type: integer
-        defaultRateLimit:
-          allOf:
-          - $ref: '#/components/schemas/RateLimit'
-          description: Rate limit configuration for the tier (requests per second
-            or minute)
         overagePrice:
           description: The price per extra request beyond the monthly limit
           format: float
@@ -1078,7 +857,6 @@ components:
       example:
         overagePrice: 6.0274563
         defaultMonthlyRequestLimit: 0
-        defaultRateLimit: ""
         name: name
       properties:
         name:
@@ -1087,47 +865,10 @@ components:
         defaultMonthlyRequestLimit:
           description: The maximum number of API requests allowed per month
           type: integer
-        defaultRateLimit:
-          allOf:
-          - $ref: '#/components/schemas/RateLimit'
-          description: Rate limit configuration for the tier (requests per second
-            or minute)
         overagePrice:
           description: The price per extra request beyond the monthly limit
           format: float
           type: number
-    RateLimit:
-      description: Rate limit configuration for this API key
-      properties:
-        name:
-          description: The name of the rate limit
-          maxLength: 16
-          minLength: 1
-          type: string
-        limit:
-          description: The number of allowed requests in the defined time window
-          type: integer
-        duration:
-          description: "Time window for the rate limit, specified in ISO duration\
-            \ format (e.g., '1h', '30m')"
-          type: string
-      type: object
-    RateLimitInput:
-      description: Rate limit configuration for this API key
-      properties:
-        name:
-          description: The name of the rate limit
-          maxLength: 16
-          minLength: 1
-          type: string
-        limit:
-          description: The number of allowed requests in the defined time window
-          type: integer
-        window:
-          description: "Time window for the rate limit, specified in ISO duration\
-            \ format (e.g., '1h', '30m')"
-          type: string
-      type: object
     KSUID:
       description: A K-sortable unique identifier (KSUID)
       maxLength: 27
@@ -1167,11 +908,6 @@ components:
           maxLength: 30
           minLength: 1
           type: string
-        blockedIpAddresses:
-          description: List of blocked IP addresses
-          items:
-            type: string
-          type: array
         description:
           description: A brief description of the service
           maxLength: 180
@@ -1201,11 +937,6 @@ components:
           maxLength: 180
           minLength: 1
           type: string
-        blockedIpAddresses:
-          description: List of blocked IP addresses
-          items:
-            type: string
-          type: array
       required:
       - name
       type: object
@@ -1213,7 +944,6 @@ components:
       example:
         id: ""
         externalId: ""
-        rateLimit: ""
       properties:
         id:
           allOf:
@@ -1234,7 +964,6 @@ components:
     ActorInput:
       example:
         externalId: ""
-        rateLimit: ""
       properties:
         externalId:
           allOf:
@@ -1257,12 +986,9 @@ components:
         - read
         - write
         serviceId: serviceId123
-        actorId: actorId456
+        actorExternalId: actorExternalId1234243
         updatedAt: 2023-09-14T12:00:00.000Z
         name: Example API Key
-        rateLimit:
-          type: basic
-          maxRequestsPerHour: 1000
         billingInfo:
           tier: pro
           trialExpiry: 2023-10-14T12:00:00.000Z
@@ -1286,11 +1012,7 @@ components:
           items:
             type: string
           type: array
-        rateLimit:
-          allOf:
-          - $ref: '#/components/schemas/RateLimit'
-          description: Rate limit configuration for this API key
-        actorId:
+        actorExternalId:
           allOf:
           - $ref: '#/components/schemas/KSUID'
           description: The actor ID this API key is associated with
@@ -1311,11 +1033,6 @@ components:
           maxLength: 16
           minLength: 1
           type: string
-        billingInfo:
-          allOf:
-          - $ref: '#/components/schemas/BillingInfo'
-          description: "Billing information, including pricing tier and trial expiration\
-            \ date"
         expiry:
           description: Optional expiration date for the API key
           format: date-time
@@ -1333,11 +1050,7 @@ components:
           items:
             type: string
           type: array
-        rateLimit:
-          allOf:
-          - $ref: '#/components/schemas/RateLimit'
-          description: Rate limit configuration for this API key
-        actorId:
+        actorExternalId:
           allOf:
           - $ref: '#/components/schemas/KSUID'
           description: The actor ID this API key is associated with
@@ -1351,7 +1064,7 @@ components:
           format: date-time
           type: string
       required:
-      - actorId
+      - actorExternalId
       - name
       - serviceId
       type: object
@@ -1382,25 +1095,8 @@ components:
             type: string
           type: array
       type: object
-    authApiKey_200_response_rateLimit:
-      example:
-        limit: 1
-        reset: 6
-        remaining: 5
-      properties:
-        reset:
-          type: integer
-        limit:
-          type: integer
-        remaining:
-          type: integer
-      type: object
     authApiKey_200_response:
       example:
-        rateLimit:
-          limit: 1
-          reset: 6
-          remaining: 5
         authorized: true
         message: message
         remaining: 0
@@ -1411,8 +1107,6 @@ components:
           type: string
         remaining:
           type: integer
-        rateLimit:
-          $ref: '#/components/schemas/authApiKey_200_response_rateLimit'
       type: object
   securitySchemes:
     ApiKeyAuth:

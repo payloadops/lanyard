@@ -2,7 +2,6 @@ api/openapi.yaml
 openapi/api.go
 openapi/api_actors.go
 openapi/api_api_keys.go
-openapi/api_blocked_ip_addresses.go
 openapi/api_health_check.go
 openapi/api_pricing_tier.go
 openapi/api_services.go
@@ -14,17 +13,12 @@ openapi/model_actor_input.go
 openapi/model_api_key.go
 openapi/model_api_key_input.go
 openapi/model_auth_api_key_200_response.go
-openapi/model_auth_api_key_200_response_rate_limit.go
 openapi/model_auth_api_key_request.go
 openapi/model_billing_info.go
-openapi/model_blocked_ip_address.go
-openapi/model_blocked_ip_address_input.go
 openapi/model_error.go
 openapi/model_health_check_error_response.go
 openapi/model_health_check_success_response.go
 openapi/model_pricing_tier.go
 openapi/model_pricing_tier_input.go
-openapi/model_rate_limit.go
-openapi/model_rate_limit_input.go
 openapi/model_service.go
 openapi/model_service_input.go
