@@ -63,7 +63,7 @@ export S3_ENDPOINT=http://localhost:4566
 2. Run the application:
 
 ```sh
-go run cmd/platoapi/main.go
+go run cmd/lanyardapi/main.go
 ```
 
 ### Running with Docker Compose

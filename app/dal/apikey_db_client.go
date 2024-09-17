@@ -15,7 +15,7 @@ import (
 // SecretLength represents the length of the secret to generate for API keys.
 const SecretLength = 32
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_apikey_db_client.go "github.com/payloadops/plato/app/dal" APIKeyManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_apikey_db_client.go "github.com/payloadops/lanyard/app/dal" APIKeyManager
 
 // APIKeyManager defines the operations available for managing API keys.
 type APIKeyManager interface {

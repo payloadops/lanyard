@@ -13,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_actor_db_client.go "github.com/payloadops/plato/app/dal" ActorManager
+//go:generate mockgen -package=mocks -destination=mocks/mock_actor_db_client.go "github.com/payloadops/lanyard/app/dal" ActorManager
 
 // ActorManager defines the operations available for managing actors.
 type ActorManager interface {

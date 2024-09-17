@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-//go:generate mockgen -package=mocks -destination=mocks/mock_dynamo_db_client.go "github.com/payloadops/plato/app/dal" DynamoDBAPI
+//go:generate mockgen -package=mocks -destination=mocks/mock_dynamo_db_client.go "github.com/payloadops/lanyard/app/dal" DynamoDBAPI
 
 // Ensure DynamoDBClient implements the DynamoDBAPI interface
 var _ DynamoDBAPI = &dynamodb.Client{}
@@ -16,5 +16,6 @@ type DynamoDBAPI interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 	UpdateItem(ctx context.Context, params *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
+	DeleteItem(ctx context.Context, params *dynamodb.DeleteItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
 	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 }
