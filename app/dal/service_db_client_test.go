@@ -78,7 +78,7 @@ func TestUpdateService(t *testing.T) {
 	mockSvc.EXPECT().
 		UpdateItem(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, input *dynamodb.UpdateItemInput, opts ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
-			assert.Equal(t, "Org#org1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
+			assert.Equal(t, "Org#org1Service#proj1", input.Key["pk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Service#proj1", input.Key["sk"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Service1", input.ExpressionAttributeValues[":name"].(*types.AttributeValueMemberS).Value)
 			assert.Equal(t, "Description1", input.ExpressionAttributeValues[":description"].(*types.AttributeValueMemberS).Value)
