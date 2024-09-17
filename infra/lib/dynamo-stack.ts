@@ -37,18 +37,13 @@ export class DynamoStack extends cdk.Stack {
         // removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
-    // const apiKeysTable = new dynamodb.Table(this, 'APIKeysTable', {
-    //   tableName: "APIKeys",
-    //   partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
-    //   replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
-    //   billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-    //   tableClass: dynamodb.TableClass.STANDARD,
-    //   // removalPolicy: cdk.RemovalPolicy.RETAIN
-    // })
-    
-    // apiKeysTable.addGlobalSecondaryIndex({
-    // indexName: 'Org-Service-Index',
-    // partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
-    // })
+    const apiKeysTable = new dynamodb.Table(this, 'APIKeysTable', {
+      tableName: "APIKeys",
+      partitionKey: { name: 'pk', type: dynamodb.AttributeType.STRING},
+      replicationRegions: props?.stage === Stages.PROD ? REPLICATIONS_REGIONS : undefined,
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      tableClass: dynamodb.TableClass.STANDARD,
+      // removalPolicy: cdk.RemovalPolicy.RETAIN
+    })
   }
 }
