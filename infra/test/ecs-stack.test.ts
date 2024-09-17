@@ -13,7 +13,6 @@ test('ECS Cluster Created', () => {
   });
   const stack = new EcsStack(app, 'TestEcsStack', {
     stage: "stage",
-    bucketName: "b",
     imageTag: "a",
     vpcStack: vpcStack
   });

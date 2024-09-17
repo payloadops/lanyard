@@ -22,7 +22,6 @@ interface ECSStackProps extends StackProps {
   imageTag: string;
   stage: string;
   vpcStack: VpcStack;
-  bucketName: string;
 }
 
 export class EcsStack extends cdk.Stack {
@@ -89,7 +88,6 @@ export class EcsStack extends cdk.Stack {
         environment: {
           "REGION": region,
           "STAGE": props.stage,
-          "PROMPT_BUCKET": props.bucketName,
         },
         secrets: {
           "JWT_SECRET": ecs.Secret.fromSecretsManager(ecsSecret, "JWT_SECRET"),
