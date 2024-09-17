@@ -13,9 +13,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt"
-	"github.com/payloadops/plato/app/config"
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/dal/mocks"
+	"github.com/payloadops/lanyard/app/config"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/dal/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

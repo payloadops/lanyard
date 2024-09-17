@@ -12,9 +12,9 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/payloadops/plato/app/config"
-	"github.com/payloadops/plato/app/dal"
-	"github.com/payloadops/plato/app/utils"
+	"github.com/payloadops/lanyard/app/config"
+	"github.com/payloadops/lanyard/app/dal"
+	"github.com/payloadops/lanyard/app/utils"
 )
 
 // Claims represents the JWT claims containing the standard claims, user ID, and organization ID.
