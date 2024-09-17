@@ -16,7 +16,6 @@ services:
       - DYNAMODB_ENDPOINT=http://localstack:4566
       - S3_ENDPOINT=http://localstack:4566
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
-      - PROMPT_BUCKET=local-api.payloadops.com
     depends_on:
       - localstack
       - otel-collector
