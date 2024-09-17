@@ -16,7 +16,7 @@ import {Stage} from "./stage";
 import Subdomains from './constants/subdomains';
 import { DOMAIN } from './constants/domain';
 
-const REPO = "payloadops/plato";
+const REPO = "payloadops/lanyard";
 
 export class PipelineStack extends cdk.Stack {
     constructor(scope: Construct, id: string, stages: Stage[], props?: cdk.StackProps) {
