@@ -46,9 +46,9 @@ export class DynamoStack extends cdk.Stack {
       // removalPolicy: cdk.RemovalPolicy.RETAIN
     })
     
-    apiKeysTable.addGlobalSecondaryIndex({
-    indexName: 'Org-Service-Index',
-    partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
-    })
+    // apiKeysTable.addGlobalSecondaryIndex({
+    // indexName: 'Org-Service-Index',
+    // partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
+    // })
   }
 }
