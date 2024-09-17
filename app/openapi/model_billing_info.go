@@ -15,14 +15,17 @@ import (
 	"time"
 )
 
-// BillingInfo - Billing information, including pricing tier and trial expiration date
+// BillingInfo - Customer billing information, including pricing tier and trial expiration date
 type BillingInfo struct {
 
 	// Pricing tier of the API key
 	Tier string `json:"tier,omitempty"`
 
-	// ID of pricing tier
-	TierId string `json:"tierId,omitempty"`
+	// Customer stripe Id
+	StripeCustomerId string `json:"stripeCustomerId,omitempty"`
+
+	// Customer stripe payment method Id
+	PaymentMethodId string `json:"paymentMethodId,omitempty"`
 
 	// The date when the trial period ends
 	TrialExpiry time.Time `json:"trialExpiry,omitempty"`

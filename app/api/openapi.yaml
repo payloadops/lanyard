@@ -805,17 +805,109 @@ paths:
       summary: Auth a request per given API key
       tags:
       - API Keys
+  /organizations:
+    post:
+      description: |
+        Creates organization ...
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+        description: Details of the organization to be added
+        required: true
+      responses:
+        "201":
+          description: Organizations successfully added
+        "400":
+          description: Invalid input
+        "404":
+          description: Service not found
+      summary: Creates an organization
+      tags:
+      - Organizations
+  /organizations/{organizationId}:
+    delete:
+      description: |
+        Removes an organization...
+      parameters:
+      - description: The unique ID of the organization
+        explode: false
+        in: path
+        name: organizationId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Organization successfully removed
+        "404":
+          description: Organization or service not found
+      summary: Remove an organization
+      tags:
+      - Organizations
+    get:
+      description: |
+        Get the ...
+      parameters:
+      - description: The unique ID of the organization
+        explode: false
+        in: path
+        name: organizationId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Pricing tier successfully updated for the service
+        "404":
+          description: Service or pricing tier not found
+      summary: Get the organization
+      tags:
+      - Organizations
+    put:
+      description: |
+        Updates ...
+      parameters:
+      - description: The unique ID of the organization
+        explode: false
+        in: path
+        name: organizationId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+        description: Updated organization details
+        required: true
+      responses:
+        "200":
+          description: Organization successfully updated for the service
+        "404":
+          description: Organization not found
+      summary: Update an organization
+      tags:
+      - Organizations
 components:
   schemas:
     BillingInfo:
-      description: "Billing information, including pricing tier and trial expiration\
-        \ date"
+      description: "Customer billing information, including pricing tier and trial\
+        \ expiration date"
       properties:
         tier:
           description: Pricing tier of the API key
           type: string
-        tierId:
-          description: ID of pricing tier
+        stripeCustomerId:
+          description: Customer stripe Id
+          type: string
+        paymentMethodId:
+          description: Customer stripe payment method Id
           type: string
         trialExpiry:
           description: The date when the trial period ends
@@ -865,6 +957,39 @@ components:
           description: The price per extra request beyond the monthly limit
           format: float
           type: number
+    Organization:
+      description: ""
+      properties:
+        id:
+          description: ""
+          type: string
+        domain:
+          description: ""
+          type: string
+        name:
+          description: ""
+          type: string
+        stripeAccountId:
+          description: ""
+          type: string
+      type: object
+    OrganizationInput:
+      description: ""
+      example:
+        stripeAccountId: stripeAccountId
+        domain: domain
+        name: name
+      properties:
+        domain:
+          description: ""
+          type: string
+        name:
+          description: ""
+          type: string
+        stripeAccountId:
+          description: ""
+          type: string
+      type: object
     KSUID:
       description: A K-sortable unique identifier (KSUID)
       maxLength: 27

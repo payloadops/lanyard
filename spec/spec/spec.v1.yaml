@@ -803,18 +803,107 @@ paths:
       tags:
       - API Keys
 
+  /organizations:
+    post:
+      summary: Creates an organization
+      description: |
+        Creates organization ...
+      requestBody:
+        description: Details of the organization to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+      responses:
+        201:
+          description: Organizations successfully added
+        400:
+          description: Invalid input
+        404:
+          description: Service not found
+      tags:
+      - Organizations
+
+  /organizations/{organizationId}:
+    get:
+      tags:
+        - Organizations
+      summary: Get the organization
+      description: |
+        Get the ...
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          description: The unique ID of the organization
+          schema:
+            type: string
+      responses:
+        200:
+          description: Pricing tier successfully updated for the service
+        404:
+          description: Service or pricing tier not found
+    put:
+      tags:
+        - Organizations
+      summary: Update an organization
+      description: |
+        Updates ...
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          description: The unique ID of the organization
+          schema:
+            type: string
+      requestBody:
+        description: Updated organization details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationInput'
+      responses:
+        200:
+          description: Organization successfully updated for the service
+        404:
+          description: Organization not found
+    delete:
+      summary: Remove an organization
+      description: |
+        Removes an organization...
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          description: The unique ID of the organization
+          schema:
+            type: string
+      responses:
+        204:
+          description: Organization successfully removed
+        404:
+          description: Organization or service not found
+      tags:
+      - Organizations
+
+
 components:
   schemas:
     BillingInfo:
-      description: "Billing information, including pricing tier and trial expiration date"
+      description: "Customer billing information, including pricing tier and trial expiration date"
       type: object
       properties:
         tier:
           type: string
           description: "Pricing tier of the API key"
-        tierId:
+        stripeCustomerId:
           type: string
-          description: "ID of pricing tier"
+          description: "Customer stripe Id"
+        paymentMethodId:
+          type: string
+          description: "Customer stripe payment method Id"
         trialExpiry:
           description: "The date when the trial period ends"
           type: string
@@ -853,6 +942,35 @@ components:
           description: "The price per extra request beyond the monthly limit"
           type: number
           format: float
+    Organization:
+      description: ""
+      type: object
+      properties:
+        id:
+          type: string
+          description: ""
+        domain:
+          type: string
+          description: ""
+        name:
+          type: string
+          description: ""
+        stripeAccountId:
+          description: ""
+          type: string
+    OrganizationInput:
+      description: ""
+      type: object
+      properties:
+        domain:
+          type: string
+          description: ""
+        name:
+          type: string
+          description: ""
+        stripeAccountId:
+          description: ""
+          type: string
     KSUID:
       description: A K-sortable unique identifier (KSUID)
       maxLength: 27

@@ -46,6 +46,16 @@ type HealthCheckAPIRouter interface {
 	HealthCheck(http.ResponseWriter, *http.Request)
 }
 
+// OrganizationsAPIRouter defines the required methods for binding the api requests to a responses for the OrganizationsAPI
+// The OrganizationsAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a OrganizationsAPIServicer to perform the required actions, then write the service results to the http response.
+type OrganizationsAPIRouter interface {
+	OrganizationsOrganizationIdDelete(http.ResponseWriter, *http.Request)
+	OrganizationsOrganizationIdGet(http.ResponseWriter, *http.Request)
+	OrganizationsOrganizationIdPut(http.ResponseWriter, *http.Request)
+	OrganizationsPost(http.ResponseWriter, *http.Request)
+}
+
 // PricingTierAPIRouter defines the required methods for binding the api requests to a responses for the PricingTierAPI
 // The PricingTierAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a PricingTierAPIServicer to perform the required actions, then write the service results to the http response.
@@ -99,6 +109,17 @@ type ActorsAPIServicer interface {
 // and updated with the logic required for the API.
 type HealthCheckAPIServicer interface {
 	HealthCheck(context.Context) (ImplResponse, error)
+}
+
+// OrganizationsAPIServicer defines the api actions for the OrganizationsAPI service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type OrganizationsAPIServicer interface {
+	OrganizationsOrganizationIdDelete(context.Context, string) (ImplResponse, error)
+	OrganizationsOrganizationIdGet(context.Context, string) (ImplResponse, error)
+	OrganizationsOrganizationIdPut(context.Context, string, OrganizationInput) (ImplResponse, error)
+	OrganizationsPost(context.Context, OrganizationInput) (ImplResponse, error)
 }
 
 // PricingTierAPIServicer defines the api actions for the PricingTierAPI service

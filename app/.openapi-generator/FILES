@@ -3,6 +3,7 @@ openapi/api.go
 openapi/api_actors.go
 openapi/api_api_keys.go
 openapi/api_health_check.go
+openapi/api_organizations.go
 openapi/api_pricing_tier.go
 openapi/api_services.go
 openapi/helpers.go
@@ -18,6 +19,8 @@ openapi/model_billing_info.go
 openapi/model_error.go
 openapi/model_health_check_error_response.go
 openapi/model_health_check_success_response.go
+openapi/model_organization.go
+openapi/model_organization_input.go
 openapi/model_pricing_tier.go
 openapi/model_pricing_tier_input.go
 openapi/model_service.go
